@@ -1,12 +1,9 @@
 package com.sample.thesis17.locationtest;
 
-import android.app.ActivityManager;
 import android.content.Context;
-import android.content.Intent;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
-import android.os.PersistableBundle;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -23,11 +20,11 @@ public class MainActivity extends AppCompatActivity {
     EditText editText;
     RadioButton radButtonNetwork;
     RadioButton radButtonGps;
-    //locationListener locationListenerCustom;
+    locationListener locationListenerCustom;
     LocationManager locationManager;
 
     boolean bStart = false;
-    long iCollectInterval = 10000;
+    long minTime = 0;
     String strProvider = null;
     String stateString = null;
 
@@ -48,66 +45,30 @@ public class MainActivity extends AppCompatActivity {
 
         editText.setText(String.valueOf(10000));    //init interval to 10000
 
-        //앱 실행시 초기값 설정
-        strProvider = LocationManager.NETWORK_PROVIDER;
-        radButtonNetwork.setChecked(true);
-        if(isLocationServiceRunning()){
-            bStart = true;
-        }
-        else{
-            bStart = false;
-        }
-
         //main button listener
         button.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
+                long lTempTime = 10000;
                 //start the location service(Network or GPS according to strProvider)
                 if (!bStart && strProvider != null) {
-                    startLocationButton();
+                    bStart = true;
+                    stateString = strProvider + " is running...";
+                    textViewBelow.setText(stateString);
+                    lTempTime = Long.parseLong((editText.getText().toString()));
+                    startLocationService(lTempTime);
                 }
                 //cancel the location service
                 else if (bStart && strProvider != null) {
-                    stopLocationButton();
+                    bStart = false;
+                    stateString = strProvider + " stoped";
+                    textViewBelow.setText(stateString);
+                    locationManager.removeUpdates(locationListenerCustom);
                 }
             }
         });
         //radio button listener
         radButtonNetwork.setOnClickListener(new radioClickListener());
         radButtonGps.setOnClickListener(new radioClickListener());
-    }
-
-    /*
-    어플의 상태를 저장한다.
-     */
-    @Override
-    protected void onSaveInstanceState(Bundle outState) {
-        if(radButtonNetwork.isChecked())
-            outState.putString("radButton", "network");
-        else if(radButtonNetwork.isChecked())
-            outState.putString("radButton", "gps");
-        outState.putString("strProvider", strProvider);
-        outState.putBoolean("bStart", bStart);
-        super.onSaveInstanceState(outState);
-    }
-
-    @Override
-    public void onRestoreInstanceState(Bundle savedInstanceState) {
-        if(null != savedInstanceState) {
-            if (savedInstanceState.getString("radButton") != null) {
-                if (savedInstanceState.getString("radButton").equals("network")){
-                    radButtonNetwork.setChecked(true);
-                    radButtonGps.setChecked(false);
-                }
-                else{
-                        radButtonNetwork.setChecked(false);
-                        radButtonGps.setChecked(true);
-                }
-            }
-            strProvider = savedInstanceState.getString("strProvider", strProvider);
-            bStart = savedInstanceState.getBoolean("bStart");
-            super.onRestoreInstanceState(savedInstanceState);
-        }
-
     }
 
     //change the Provider mode Network <> GPS
@@ -121,43 +82,52 @@ public class MainActivity extends AppCompatActivity {
             }
         }
     }
+    //
+    private void startLocationService(long minTime) {
+        locationListenerCustom = new locationListener();
+        float minDistance = 0;
 
-    public void startLocationButton(){
-        bStart = true;
-        stateString = strProvider + " is running...";
-        textViewBelow.setText(stateString);
-        iCollectInterval = Long.parseLong((editText.getText().toString()));
+        try {
+            //use locationManager's LOCATION_SERVICE and set listener
+            locationManager.requestLocationUpdates(
+                    strProvider,
+                    minTime,
+                    minDistance,
+                    locationListenerCustom);
 
-        Intent intentLocationService = new Intent(this, locationService.class);
-        intentLocationService.putExtra("strProvider", strProvider);
-        intentLocationService.putExtra("iCollectInterval", iCollectInterval);
-        intentLocationService.setAction(AllConstants.START_LOCATION_FOREGROUND_ACTION);
-        startService(intentLocationService);
-    }
+            //first location msg and textView
+            Location lastLocation = locationManager.getLastKnownLocation(strProvider);
+            if (lastLocation != null) {
+                Double latitude = lastLocation.getLatitude();
+                Double longitude = lastLocation.getLongitude();
 
-    public void stopLocationButton(){
-        bStart = false;
-        stateString = strProvider + " stoped";
-        textViewBelow.setText(stateString);
-
-        Intent intentLocationService = new Intent(this, locationService.class);
-        intentLocationService.setAction(AllConstants.STOP_LOCATION_FOREGROUND_ACTION);
-        stopService(intentLocationService);
-
-        //locationManager.removeUpdates(locationListenerCustom);
-    }
-
-    /*
-    http://stackoverflow.com/questions/600207/how-to-check-if-a-service-is-running-on-android
-     */
-    private boolean isLocationServiceRunning(){
-        ActivityManager activityManager = (ActivityManager)getSystemService(Context.ACTIVITY_SERVICE);
-        for(ActivityManager.RunningServiceInfo serviceInfo : activityManager.getRunningServices(Integer.MAX_VALUE)) {
-            //if ("locationService".equals(serviceInfo.service.getClassName())) {
-            if(locationService.class.getName().equals(serviceInfo.service.getClassName())){
-                return true;
+                textView.setText("위/경도 : " + latitude + ", " + longitude);
+                Toast.makeText(getApplicationContext(), "최근위치 : " + "위도: " + latitude + "\n경도:" + longitude, Toast.LENGTH_LONG).show();
             }
+        } catch (SecurityException ex) {
+            ex.printStackTrace();
         }
-        return false;
+    }
+
+    private class locationListener implements LocationListener {
+        public void onLocationChanged(Location location) {
+            Double latitude = location.getLatitude();
+            Double longitude = location.getLongitude();
+
+            String msg = "위도 : " + latitude + "\n경도:" + longitude;
+
+            textView.setText("location changed... : " + latitude + ", " + longitude);
+            Toast.makeText(getApplicationContext(), msg, Toast.LENGTH_SHORT).show();
+        }
+
+        public void onProviderDisabled(String provider) {
+        }
+
+        public void onProviderEnabled(String provider) {
+        }
+
+        public void onStatusChanged(String provider, int status, Bundle extras) {
+        }
+
     }
 }
