@@ -7,56 +7,46 @@
 
     <!-- TODO: Update blank fragment layout -->
 
-    <ScrollView
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:orientation="vertical">
 
-        <HorizontalScrollView
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
 
-            <LinearLayout
+            <Button
+                android:id="@+id/fragment_calender_month_buttonPrev"
                 android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:orientation="vertical">
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Button" />
 
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal">
+            <TextView
+                android:id="@+id/fragment_calender_month_textMonth"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="TextView" />
 
-                    <Button
-                        android:id="@+id/fragment_calender_month_buttonPrev"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="Button" />
+            <Button
+                android:id="@+id/fragment_calender_month_buttonNext"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Button" />
+        </LinearLayout>
 
-                    <TextView
-                        android:id="@+id/fragment_calender_month_textMonth"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="TextView" />
+        <GridView
+            android:id="@+id/fragment_calender_month_GridView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:numColumns="8"
 
-                    <Button
-                        android:id="@+id/fragment_calender_month_buttonNext"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="Button" />
-                </LinearLayout>
+            android:stretchMode="columnWidth" />
 
-                <GridView
-                    android:id="@+id/fragment_calender_month_GridView"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1"
-                    android:numColumns="8"
-
-                    android:stretchMode="columnWidth" />
-
-            </LinearLayout>
-        </HorizontalScrollView>
-    </ScrollView>
+    </LinearLayout>
 </FrameLayout>

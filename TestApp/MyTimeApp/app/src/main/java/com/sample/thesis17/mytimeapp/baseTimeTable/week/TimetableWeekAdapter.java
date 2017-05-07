@@ -25,7 +25,7 @@ public class TimetableWeekAdapter extends BaseAdapter{
 
     Context mContext;   //어댑터를 생성하는 context
 
-    private MonthItem[] monthItems;
+    private TimetableWeekItem[] timetableWeekItems;
     Calendar calender;  //날짜 계산위한 java calendar
     private int numDayofWeek = 7;   //week = 7day
     int firstDay;   //달력 시작 날짜
@@ -38,19 +38,19 @@ public class TimetableWeekAdapter extends BaseAdapter{
 
     private int selectedPosition = -1;  //초기 selected position
 
-    public CalenderMonthAdapter(Context context){
+    public TimetableWeekAdapter(Context context){
         super();
         mContext = context;
         init();
     }
 
-    public CalenderMonthAdapter(Context context, AttributeSet attr){
+    public TimetableWeekAdapter(Context context, AttributeSet attr){
         super();
         mContext = context;
         init();
     }
     private void init() {
-        monthItems = new MonthItem[8 * 6];
+        timetableWeekItems = new TimetableWeekItem[8 * 6];
 
         calender = Calendar.getInstance();      //calendar 시작지점.
         recalculate();
@@ -116,18 +116,18 @@ public class TimetableWeekAdapter extends BaseAdapter{
                 ++iday;
 
                 // save as a data item
-                monthItems[i] = new MonthItem(dayNumber, false);
+                timetableWeekItems[i] = new TimetableWeekItem(dayNumber, false);
             }
             else{ //week
                 //int weekNum = calender.get(Calendar.WEEK_OF_YEAR);
                 int dayNumber = (iday+1) - firstDay;
                 if (iday != 0 && (dayNumber < 1 || dayNumber > lastDay)){     //week is first row of month && valid dayNumber
-                    monthItems[i] = new MonthItem(0, true);
+                    timetableWeekItems[i] = new TimetableWeekItem(0, true);
                 }
                 else{
                     //int weekNum = calender.get(Calendar.WEEK_OF_YEAR);
                     int weekNum = getCurWeekWithYewrMonthDay(currentYear, currentMonth, iday);       //1'st week of year.month + week acc
-                    monthItems[i] = new MonthItem(weekNum, true);
+                    timetableWeekItems[i] = new TimetableWeekItem(weekNum, true);
                     //monthItems[i] = new MonthItem(weekNum+weekNumAcc, true);
                     //++weekNumAcc;
                 }
@@ -190,7 +190,7 @@ public class TimetableWeekAdapter extends BaseAdapter{
     //position에 해당하는 item 반환
     @Override
     public Object getItem(int position) {
-        return monthItems[selectedPosition];
+        return timetableWeekItems[selectedPosition];
     }
 
     //position에 해당하는 id 반환(여기서는 position 그대로 반환)
@@ -202,15 +202,15 @@ public class TimetableWeekAdapter extends BaseAdapter{
     //position에 해당하는 MonthItemView 반환. 화면에서 view가 사라지면 convertView에 넣어두었다가 다시 사용
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        MonthItemView itemView;
+        TimetableWeekItemView itemView;
         if(convertView == null){
-            itemView = new MonthItemView(mContext);
+            itemView = new TimetableWeekItemView(mContext);
         }
         else{
-            itemView = (MonthItemView)convertView;
+            itemView = (TimetableWeekItemView)convertView;
         }
 
-        GridView.LayoutParams params = new GridView.LayoutParams(GridView.LayoutParams.MATCH_PARENT, 50);
+        GridView.LayoutParams params = new GridView.LayoutParams(100, 200);
 
         int rowIndex = position/(numDayofWeek+1);
         int columnIndex = position%(numDayofWeek+1);
@@ -218,7 +218,7 @@ public class TimetableWeekAdapter extends BaseAdapter{
         //text가 0인 경우 text 변경
 
 
-        itemView.setMonthItem(monthItems[position]);
+        itemView.setWeekItem(timetableWeekItems[position]);
         itemView.setLayoutParams(params);
         itemView.setPadding(2, 2, 2, 2);
         itemView.setGravity(Gravity.LEFT);

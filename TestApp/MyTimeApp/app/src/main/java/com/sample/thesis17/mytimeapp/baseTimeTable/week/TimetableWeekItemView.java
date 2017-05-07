@@ -36,12 +36,12 @@ public class TimetableWeekItemView extends AppCompatTextView {
         setBackgroundColor(Color.WHITE);
     }
 
-    public void setMonthItem(TimetableWeekItem timetableItem){
+    public void setWeekItem(TimetableWeekItem timetableItem){
         this.timetableWeekItem = timetableItem;
         //monthItem의 day를 가져와 text를 설정한다.
         setText(String.valueOf(timetableItem.getiDayValue()));
     }
-    public TimetableWeekItem getMonthItem(){
+    public TimetableWeekItem getWeekItem(){
         return this.timetableWeekItem;
     }
 }

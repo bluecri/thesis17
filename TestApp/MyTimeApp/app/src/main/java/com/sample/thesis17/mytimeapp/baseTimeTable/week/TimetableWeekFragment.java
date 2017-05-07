@@ -7,8 +7,14 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.Button;
+import android.widget.GridView;
+import android.widget.TextView;
 
 import com.sample.thesis17.mytimeapp.R;
+import com.sample.thesis17.mytimeapp.baseCalendar.month.CalenderMonthAdapter;
+import com.sample.thesis17.mytimeapp.baseCalendar.month.MonthItem;
 
 
 /**
@@ -30,6 +36,14 @@ public class TimetableWeekFragment extends Fragment {
     private String mParam2;
 
     private OnFragmentInteractionListener mListener;
+
+    GridView weekGridview;
+    TimetableWeekAdapter timetableWeekAdapter;
+    TextView centerText;
+    Button leftButton, rightButton;
+
+    int curYear;        //현재 달력의 년, 월.
+    int curMonth;
 
     public TimetableWeekFragment() {
         // Required empty public constructor
@@ -66,7 +80,73 @@ public class TimetableWeekFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_timetable_week, container, false);
+        // Inflate the layout for this fragment
+        View retView = inflater.inflate(R.layout.fragment_timetable_week, container, false);        //fragment에 해당하는 retView
+
+        //button, text
+        leftButton = (Button)retView.findViewById(R.id.fragment_timetable_week_buttonPrev);
+        rightButton = (Button)retView.findViewById(R.id.fragment_timetable_week_buttonNext);
+        centerText = (TextView)retView.findViewById(R.id.fragment_timetable_week_textMonth);
+
+        weekGridview = (GridView)(retView.findViewById(R.id.fragment_timetable_week_GridView));    //retView에서 gridview 찾아 할당
+        /*timetableWeekAdapter = new TimetableWeekAdapter(getActivity());
+        weekGridview.setAdapter(timetableWeekAdapter); //adpater 설정
+*/
+        // GridView의 click 리스너 설정
+        /*weekGridview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
+                // 현재 선택한 일자 정보
+                timetableWeekAdapter.setSelectedPosition(position); //adapter의 position set
+                TimetableWeekItem curItem = (TimetableWeekItem) timetableWeekAdapter.getItem(position); //adpater에서 click position에 해당하는 item get
+                if((curItem.isWeek() == false) && (curItem.getiDayValue() == 0)) {
+                    //빈 공간을 클릭했으므로 무시
+                }
+                else{
+                    if(curItem.isWeek() == true){
+                        //Todo CalendarWeekFragment로 교체
+                    }
+                    else{
+                        //Todo CalendarDayFragment로 교체
+                    }
+                    int day = curItem.getiDayValue();   //click position에 해당하는 item의 day획득
+                    timetableWeekAdapter.notifyDataSetChanged();    //adapter에 data가 변경되었음을 알려 view를 바꾸는 동작을 하는 함수
+                }
+
+                //Todo activity에 year, month, day 정보 전달. fragment 교체 요구
+
+
+
+
+            }
+        });*/
+
+        //Move Month button
+        leftButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                /*timetableWeekAdapter.setPreviousMonth();;
+                timetableWeekAdapter.notifyDataSetChanged();;
+                setCenterText();*/
+            }
+        });
+
+        rightButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+             /*   timetableWeekAdapter.setNextMonth();;
+                timetableWeekAdapter.notifyDataSetChanged();
+                setCenterText();*/
+            }
+        });
+
+        return retView;
+    }
+
+    private void setCenterText(){
+        /*curMonth = timetableWeekAdapter.getCurMonth();
+        curYear = timetableWeekAdapter.getCurYear();
+        centerText.setText(curYear + " " + (curMonth+1));*/
     }
 
     // TODO: Rename method, update argument and hook method into UI event
