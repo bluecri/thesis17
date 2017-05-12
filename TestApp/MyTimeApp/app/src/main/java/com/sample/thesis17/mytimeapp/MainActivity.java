@@ -49,6 +49,11 @@ public class MainActivity extends AppCompatActivity
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+        MainBlankFragment blankFragment = MainBlankFragment.newInstance("", "");
+        fragmentTransaction.replace(R.id.mainFragmentContainer, blankFragment, "wtimetable");
+        fragmentTransaction.commit();
 
     }
 
@@ -104,7 +109,7 @@ public class MainActivity extends AppCompatActivity
             //create Calender fragment with parameter
             TimetableWeekFragment timetableFragment = TimetableWeekFragment.newInstance("", "");
             //replace mainFragment's fragment -> calender(TAG : timetable)
-            fragmentTransaction.replace(R.id.mainFragment, timetableFragment, "timetable");
+            fragmentTransaction.replace(R.id.mainFragmentContainer, timetableFragment, "timetable");
             fragmentTransaction.commit();
         }
 
@@ -112,7 +117,7 @@ public class MainActivity extends AppCompatActivity
             FragmentManager fragmentManager = getSupportFragmentManager();
             FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
             CalenderMonthFragment calenderFragment = CalenderMonthFragment.newInstance("", "");
-            fragmentTransaction.replace(R.id.mainFragment, calenderFragment, "wtimetable");
+            fragmentTransaction.replace(R.id.mainFragmentContainer, calenderFragment, "wtimetable");
             fragmentTransaction.commit();
         } else if (id == R.id.nav_slideshow) {
             Intent mapIntent = new Intent(this, MapsActivity.class);

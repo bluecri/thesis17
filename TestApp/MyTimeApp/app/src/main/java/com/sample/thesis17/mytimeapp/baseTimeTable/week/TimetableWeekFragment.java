@@ -37,8 +37,7 @@ public class TimetableWeekFragment extends Fragment {
 
     private OnFragmentInteractionListener mListener;
 
-    GridView weekGridview;
-    TimetableWeekAdapter timetableWeekAdapter;
+    View weekGridview;
     TextView centerText;
     Button leftButton, rightButton;
 
@@ -88,7 +87,9 @@ public class TimetableWeekFragment extends Fragment {
         rightButton = (Button)retView.findViewById(R.id.fragment_timetable_week_buttonNext);
         centerText = (TextView)retView.findViewById(R.id.fragment_timetable_week_textMonth);
 
-        weekGridview = (GridView)(retView.findViewById(R.id.fragment_timetable_week_GridView));    //retView에서 gridview 찾아 할당
+        weekGridview = (View)(retView.findViewById(R.id.customWeekView));
+
+        //weekGridview = (GridView)(retView.findViewById(R.id.fragment_timetable_week_GridView));    //retView에서 gridview 찾아 할당
         /*timetableWeekAdapter = new TimetableWeekAdapter(getActivity());
         weekGridview.setAdapter(timetableWeekAdapter); //adpater 설정
 */

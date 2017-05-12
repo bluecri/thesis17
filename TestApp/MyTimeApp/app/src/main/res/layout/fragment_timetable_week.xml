@@ -44,13 +44,6 @@
             android:id="@+id/customWeekView"
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
-        <GridView
-            android:id="@+id/fragment_timetable_week_GridView"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-
-            android:numColumns="8"
-            android:stretchMode="columnWidth" />
 
     </LinearLayout>
 </FrameLayout>

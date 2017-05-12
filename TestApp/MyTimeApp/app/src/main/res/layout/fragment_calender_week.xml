@@ -35,8 +35,12 @@
             android:text="Button" />
     </LinearLayout>
 
-    <GridView
+    <com.sample.thesis17.mytimeapp.baseTimeTable.week.CustomWeekView
+        android:id="@+id/customWeekView"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="match_parent"
+
+
+        />
 
 </LinearLayout>

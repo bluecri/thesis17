@@ -1,13 +1,18 @@
 package com.sample.thesis17.mytimeapp.baseTimeTable.week;
 
 /**
- * Created by kimz on 2017-05-07.
+ * Created by kimz on 2017-05-09.
  */
 
-public class Point {
+public class Points {
+
     public float fCol;
     public float fRow;
-    Point(float x, float y){
+    Points(){
+        fCol = 0;
+        fRow = 0;
+    }
+    Points(float x, float y){
         fCol = x;
         fRow = y;
     }

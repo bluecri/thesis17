@@ -1,36 +1,20 @@
 package com.sample.thesis17.mytimeapp.baseTimeTable.week;
 
+import java.util.Date;
+
 /**
  * Created by kimz on 2017-05-06.
  */
 
 public class TimetableWeekItem {
-    private int iDayValue;
-    private int iWeekValue;
-    private boolean bWeek;
+    private Date dateStart, dateEnd;
+    private String title;
+    private String content;
+    private int state;  //maybe, must, empty
+
     public TimetableWeekItem(){
-
+        //item
     }
 
-    public TimetableWeekItem(int day, boolean bweek){
-        iDayValue = day;
-        //iWeekValue = week;
-        bWeek = bweek;
-    }
-    public int getiDayValue(){
-        return iDayValue;
-    }
-    //public int getiWeekValue() {return iWeekValue;}
-    /*public void setiWeekValue(int week){
-        this.iWeekValue = week;
-    }*/
-    public void setDayValue(int day){
-        this.iDayValue = day;
-    }
-    public void setBWeek(boolean tf){
-        this.bWeek = tf;
-    }
-    public boolean isWeek(){
-        return this.bWeek;
-    }
+
 }
