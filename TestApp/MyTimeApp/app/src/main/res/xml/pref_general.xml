@@ -1,0 +1,71 @@
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!--
+    android:dependency      ==  해당 key의 true/false 상태에 따라 enable/disable한다.
+    android:disableDepndentState    ==  dependency 조건 반전
+    android:key : 해당 xml design의 값과 바인딩된 key 값.
+    -->
+
+    <SwitchPreference
+        android:defaultValue="true"
+        android:key="locationService_switch"
+        android:disableDependentsState = "true"
+        android:summary="이 서비스는 어플리케이션이 종료되어도 백그라운드 상에서 계속 실행됩니다."
+        android:title="위치정보 수집 실행" />
+
+    <ListPreference
+        android:defaultValue="10"
+        android:dependency="locationService_switch"
+        android:entries="@array/pref_interval_list_titles"
+        android:entryValues="@array/pref_interval_list_values"
+        android:key="interval_list"
+        android:negativeButtonText="@null"
+        android:positiveButtonText="@null"
+        android:title="@string/pref_title_choose_interval" />
+
+    <SwitchPreference
+        android:defaultValue="true"
+        android:dependency="locationService_switch"
+        android:key="GPS_switch"
+        android:summary="GPS를 사용합니다."
+        android:title="GPS 사용" />
+
+    <SwitchPreference
+        android:defaultValue="true"
+        android:dependency="locationService_switch"
+        android:key="WIFI_switch"
+        android:summary="WIFI를 사용합니다."
+        android:title="WIFI 사용" />
+
+    <SwitchPreference
+        android:defaultValue="false"
+        android:dependency="locationService_switch"
+        android:key="DATA_switch"
+        android:summary="Data를 사용합니다."
+        android:title="Data 사용" />
+
+    <!-- NOTE: EditTextPreference accepts EditText attributes. -->
+    <!-- NOTE: EditTextPreference's summary should be set to its value by the activity code. -->
+    <EditTextPreference
+        android:capitalize="words"
+        android:defaultValue="@string/pref_default_display_name"
+        android:inputType="textCapWords"
+        android:key="example_text"
+        android:maxLines="1"
+        android:selectAllOnFocus="true"
+        android:singleLine="true"
+        android:title="@string/pref_title_display_name" />
+
+    <!-- NOTE: Hide buttons to simplify the UI. Users can touch outside the dialog to
+         dismiss it. -->
+    <!-- NOTE: ListPreference's summary should be set to its value by the activity code. -->
+    <ListPreference
+        android:defaultValue="-1"
+        android:entries="@array/pref_example_list_titles"
+        android:entryValues="@array/pref_example_list_values"
+        android:key="example_list"
+        android:negativeButtonText="@null"
+        android:positiveButtonText="@null"
+        android:title="@string/pref_title_add_friends_to_messages" />
+
+</PreferenceScreen>

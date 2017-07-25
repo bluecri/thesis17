@@ -17,9 +17,10 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import com.sample.thesis17.mytimeapp.baseCalendar.month.CalenderMonthFragment;
-import com.sample.thesis17.mytimeapp.baseCalendar.CalenderYearFragment;
 import com.sample.thesis17.mytimeapp.baseTimeTable.week.TimetableWeekFragment;
+import com.sample.thesis17.mytimeapp.locationS.SettingFragment;
 import com.sample.thesis17.mytimeapp.map.MapsActivity;
+import com.sample.thesis17.mytimeapp.setting.SettingActivity;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
@@ -95,6 +96,7 @@ public class MainActivity extends AppCompatActivity
         // Handle navigation view item clicks here.
         int id = item.getItemId();
 
+        //timetable
         if (id == R.id.nav_camera) {
             FragmentManager fragmentManager = getSupportFragmentManager();
 
@@ -113,25 +115,56 @@ public class MainActivity extends AppCompatActivity
             fragmentTransaction.commit();
         }
 
+        //calendar
         else if (id == R.id.nav_gallery) {
             FragmentManager fragmentManager = getSupportFragmentManager();
             FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
             CalenderMonthFragment calenderFragment = CalenderMonthFragment.newInstance("", "");
             fragmentTransaction.replace(R.id.mainFragmentContainer, calenderFragment, "wtimetable");
             fragmentTransaction.commit();
-        } else if (id == R.id.nav_slideshow) {
+        }
+
+        //map
+        else if (id == R.id.nav_slideshow) {
             Intent mapIntent = new Intent(this, MapsActivity.class);
             startActivity(mapIntent);
-        } else if (id == R.id.nav_manage) {
+        }
+        //Setting
+        else if (id == R.id.nav_manage) {
+            Intent mapIntent = new Intent(this, SettingActivity.class);
+            startActivity(mapIntent);
+            /*
+            FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
+            SettingFragment settingFragment = SettingFragment.newInstance("", "");
+            fragmentTransaction.replace(R.id.mainFragmentContainer, settingFragment, "setting");
+            fragmentTransaction.commit();
+            */
+        }
 
-        } else if (id == R.id.nav_share) {
+        else if (id == R.id.nav_share)
+        {
+            FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
+            SettingFragment settingFragment = SettingFragment.newInstance("", "");
+            fragmentTransaction.replace(R.id.mainFragmentContainer, settingFragment, "setting");
+            fragmentTransaction.commit();
+        }
 
-        } else if (id == R.id.nav_send) {
+        else if (id == R.id.nav_send) {
 
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
     }
 }
