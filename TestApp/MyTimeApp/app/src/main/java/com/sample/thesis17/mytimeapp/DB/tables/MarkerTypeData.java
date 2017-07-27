@@ -22,4 +22,18 @@ public class MarkerTypeData {
     public MarkerTypeData(){
         //empty
     }
+
+    public void setStrTypeName(String strTypeName){
+        this.strTypeName = strTypeName;
+    }
+    public String getStrTypeName(){
+        return strTypeName;
+    }
+
+    public void setStrMemo(String strMemo){
+        this.strMemo = strMemo;
+    }
+    public String getStrMemo(){
+        return strMemo;
+    }
 }

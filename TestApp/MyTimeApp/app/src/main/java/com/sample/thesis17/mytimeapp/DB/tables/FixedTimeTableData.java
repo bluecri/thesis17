@@ -15,7 +15,7 @@ public class FixedTimeTableData {
     private int id;
 
     @DatabaseField(canBeNull = false, foreign = true)
-    private int foreMarker;
+    private MarkerData foreMarkerData;
 
     @DatabaseField
     private String strFixedTimeTableName;   //시간표 main name
@@ -48,4 +48,78 @@ public class FixedTimeTableData {
     FixedTimeTableData() {
         // empty constructor is needed
     }
+
+    public void setForeMarkerData(MarkerData markerData){
+        foreMarkerData = markerData;
+    }
+    public MarkerData getForeMarkerData(){
+        return foreMarkerData;
+    }
+
+    public void setStrFixedTimeTableName(String strFixedTimeTableName){
+        this.strFixedTimeTableName = strFixedTimeTableName;
+    }
+    public String getStrFixedTimeTableName(){
+        return strFixedTimeTableName;
+    }
+
+    public void setLStartTime(Long lStartTime){
+        this.lStartTime = lStartTime;
+    }
+    public long GetLStartTime(){
+        return lStartTime;
+    }
+
+    public void setLEndTime(Long lEndTime){
+        this.lEndTime = lEndTime;
+    }
+    public long GetLEndtTime(){
+        return lEndTime;
+    }
+
+    public void setLBoundStartTime(Long lBoundStartTime){
+        this.lBoundStartTime = lBoundStartTime;
+    }
+    public long GetLBoundStartTime(){
+        return lBoundStartTime;
+    }
+
+    public void setLBoundEndTime(Long lBoundEndTime){
+        this.lBoundEndTime = lBoundEndTime;
+    }
+    public long GetLBoundEndTime(){
+        return lBoundEndTime;
+    }
+
+    public void setLInnerBoundStartTime(Long lInnerBoundStartTime){
+        this.lInnerBoundStartTime = lInnerBoundStartTime;
+    }
+    public long getLInnerBoundStartTime(){
+        return lInnerBoundStartTime;
+    }
+
+    public void setLInnerBoundEndTime(Long lInnerBoundEndTime){
+        this.lInnerBoundEndTime = lInnerBoundEndTime;
+    }
+    public long getLInnerBoundEndTime(){
+        return lInnerBoundEndTime;
+    }
+
+    public void setStrMemo(String strMemo){
+        this.strMemo = strMemo;
+    }
+    public String getStrMemo(){
+        return strMemo;
+    }
+
+    public void setIsCache(boolean isCache){
+        this.isCache = isCache;
+    }
+    public boolean getIsCache(){
+        return isCache;
+    }
+
+
+
+
 }

@@ -23,14 +23,18 @@ public class LocationMemoryData {
     @DatabaseField
     private long lMillisTimeWritten;
 
+    @DatabaseField
+    private float fAccur;
+
     LocationMemoryData(){
         // empty constructor is needed
     }
 
-    public LocationMemoryData(double lat, double lng, long lMillisTimeWritten) {
+    public LocationMemoryData(double lat, double lng, long lMillisTimeWritten, float fAccur) {
         this.lMillisTimeWritten = lMillisTimeWritten;
         this.lat = lat;
         this.lng = lng;
+        this.fAccur = fAccur;
     }
 
     public int getId(){
@@ -53,6 +57,8 @@ public class LocationMemoryData {
         return lMillisTimeWritten;
     }
 
+    public float getfAccur(){ return fAccur; }
+
     public void setLat(double lat){
         this.lat = lat;
     }
@@ -63,5 +69,8 @@ public class LocationMemoryData {
 
     public void setLMillisTimeWritten(long lMillisTimeWritten){
         this.lMillisTimeWritten = lMillisTimeWritten;
+    }
+    public void setfAccur(float fAccur){
+        this.fAccur = fAccur;
     }
 }

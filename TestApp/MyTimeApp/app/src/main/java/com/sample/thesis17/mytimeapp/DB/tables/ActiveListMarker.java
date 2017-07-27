@@ -13,10 +13,17 @@ public class ActiveListMarker {
     private int id;
 
     @DatabaseField(canBeNull = false, foreign = true)
-    private int foreFixedTimeTable;
+    private MarkerData foreMarkerData;
 
     public ActiveListMarker(){
         //empty
+    }
+
+    public void setForeMarkerData(MarkerData markerData){
+        foreMarkerData = markerData;
+    }
+    public MarkerData getForeMarkerData(){
+        return foreMarkerData;
     }
 }
 

@@ -34,7 +34,7 @@ public class SettingFragment extends Fragment {
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
 
-    private static final int iIntervalMinValue = 5;
+    private static final int iIntervalMinValue = 0;
 
     // TODO: Rename and change types of parameters
     private String mParam1;

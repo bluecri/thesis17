@@ -14,10 +14,10 @@ public class HistoryData {
     private int id;
 
     @DatabaseField(canBeNull = false, foreign = true)
-    private int foreFixedTimeTable;
+    private FixedTimeTableData foreFixedTimeTable;
 
     @DatabaseField(canBeNull = false, foreign = true)
-    private int foreMarker;
+    private MarkerData foreMarkerData;
 
     @DatabaseField
     private long lStartTime;
@@ -29,43 +29,32 @@ public class HistoryData {
         // empty constructor is needed
     }
 
-    /*
-    public HistoryData(double lat, double lng, long lMillisTimeWritten) {
-        this.lMillisTimeWritten = lMillisTimeWritten;
-        this.lat = lat;
-        this.lng = lng;
+    public void setForeFixedTimeTable(FixedTimeTableData fixedTimeTableData){
+        foreFixedTimeTable = fixedTimeTableData;
     }
-    */
-
-    public int getId(){
-        return id;
+    public FixedTimeTableData getForeFixedTimeTable(){
+        return foreFixedTimeTable;
     }
 
-    public void setId(){
-        // none
+    public void setForeMarkerData(MarkerData markerData){
+        foreMarkerData = markerData;
+    }
+    public MarkerData getForeMarkerData(){
+        return foreMarkerData;
     }
 
-    public double getLat(){
-        return lat;
+    public void setLStartTime(Long lStartTime){
+        this.lStartTime = lStartTime;
+    }
+    public long GetLStartTime(){
+        return lStartTime;
     }
 
-    public double getLng(){
-        return lng;
+    public void setLEndTime(Long lEndTime){
+        this.lEndTime = lEndTime;
+    }
+    public long GetLEndtTime(){
+        return lEndTime;
     }
 
-    public long getLillisTimeWritten(){
-        return lMillisTimeWritten;
-    }
-
-    public void setLat(double lat){
-        this.lat = lat;
-    }
-
-    public void setLng(double lng){
-        this.lng = lng;
-    }
-
-    public void setLMillisTimeWritten(long lMillisTimeWritten){
-        this.lMillisTimeWritten = lMillisTimeWritten;
-    }
 }

@@ -14,10 +14,17 @@ public class ActiveListFixedTimeTableData {
     private int id;
 
     @DatabaseField(canBeNull = false, foreign = true)
-    private int foreFixedTimeTable;
+    private FixedTimeTableData foreFixedTimeTable;
 
     public ActiveListFixedTimeTableData(){
         //empty
+    }
+
+    public void setForeFixedTimeTable(FixedTimeTableData fixedTimeTableData){
+        foreFixedTimeTable = fixedTimeTableData;
+    }
+    public FixedTimeTableData getForeFixedTimeTable(){
+        return foreFixedTimeTable;
     }
 }
 

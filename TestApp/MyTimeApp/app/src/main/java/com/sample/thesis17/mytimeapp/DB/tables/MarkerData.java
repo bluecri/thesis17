@@ -41,43 +41,62 @@ public class MarkerData {
         // empty constructor is needed
     }
 
-    /*
-    public MarkerData(double lat, double lng, long lMillisTimeWritten) {
-        this.lMillisTimeWritten = lMillisTimeWritten;
-        this.lat = lat;
-        this.lng = lng;
-    }
-    */
-
-    public int getId(){
-        return id;
-    }
-
-    public void setId(){
-        // none
-    }
-
     public double getLat(){
         return lat;
     }
-
     public double getLng(){
         return lng;
     }
-
-    public long getLillisTimeWritten(){
-        return lMillisTimeWritten;
-    }
-
     public void setLat(double lat){
         this.lat = lat;
     }
-
     public void setLng(double lng){
         this.lng = lng;
     }
 
-    public void setLMillisTimeWritten(long lMillisTimeWritten){
-        this.lMillisTimeWritten = lMillisTimeWritten;
+    public void setStrMarkerName(String strMarkerName){
+        this.strMarkerName = strMarkerName;
     }
+    public String getStrMarkerName(){
+        return strMarkerName;
+    }
+
+    public void setDRadius(double dRadius){
+        this.dRadius = dRadius;
+    }
+    public double getDRadius(){
+        return dRadius;
+    }
+
+    public void setDInnerRadius(double dInnerRadius){
+        this.dInnerRadius = dInnerRadius;
+    }
+    public double getDInnerRadius(){
+        return dInnerRadius;
+    }
+
+    public void setIMarkerTypeBit(int iMarkerTypeBit){
+        this.iMarkerTypeBit = iMarkerTypeBit;
+    }
+    public int setIMarkerTypeBit(){
+        return iMarkerTypeBit;
+    }
+
+
+    public void setStrMemo(String strMemo){
+        this.strMemo = strMemo;
+    }
+    public String getStrMemo(){
+        return strMemo;
+    }
+
+    public void setIsCache(boolean isCache){
+        this.isCache = isCache;
+    }
+    public boolean getIsCache(){
+        return isCache;
+    }
+
+
+
 }
