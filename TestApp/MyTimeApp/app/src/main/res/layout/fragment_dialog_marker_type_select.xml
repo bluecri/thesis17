@@ -1,0 +1,14 @@
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.sample.thesis17.mytimeapp.map.DialogMarkerTypeSelectFragment"
+    android:id="@+id/fragment_dialog_marker_type_select">
+
+    <ListView
+        android:id="@+id/fragment_dialog_marker_type_listView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        />
+
+</FrameLayout>

@@ -63,6 +63,7 @@ public class CustomWeekView extends View {
 
         refreshInit();  //curBlock 변경에 따른 scroll의 제한 위치 갱신
         drawAllBaseBlock(canvas);
+        drawTimeAndWeek(canvas);
         //canvas.drawRect(0,0,200,200, paint);
 
     }
@@ -111,7 +112,44 @@ public class CustomWeekView extends View {
         fMinBlockCol = (float) fCustomViewWidthExceptSpace / 7;
     }
 
+    public void drawTimeAndWeek(Canvas canvas){
+        Paint fontPaint = new Paint();
+        fontPaint.setAntiAlias(true);   //aliasing
 
+        //draw week
+
+        fontPaint.setColor(Color.RED);
+        fontPaint.setTextSize(20);
+        String[] strArrWeek = {"일", "월", "화", "수", "목", "금", "토"};
+        float alignOfWeek = pCurBlock.fCol;   //간격
+        float startPos = -pCurScrollLeftUp.fCol + pCurBlock.fCol/2 + fLeftSideSpace;
+
+        if(startPos >= fLeftSideSpace)  //왼쪽 빈 공간을 침범하지 않는 경우에만.
+            canvas.drawText(strArrWeek[0], startPos, 20, fontPaint);        //draw "일"
+        startPos += pCurBlock.fCol;
+
+        fontPaint.setColor(Color.BLACK);
+        for(int i=1; i<6 ; i++){
+            if(startPos >= fLeftSideSpace)
+                canvas.drawText(strArrWeek[i], startPos, 20, fontPaint);
+            startPos += pCurBlock.fCol;
+        }
+
+        fontPaint.setColor(Color.BLUE);
+        if(startPos >= fLeftSideSpace)
+            canvas.drawText(strArrWeek[6], startPos, 20, fontPaint);        //draw "일"
+
+        //draw time
+
+        fontPaint.setColor(Color.BLACK);
+        startPos = -pCurScrollLeftUp.fRow + fUpSideSpace + 15;
+        for(int i=0; i<24; i++){
+            canvas.drawText("" + i, 9, startPos, fontPaint);
+            startPos += pCurBlock.fRow;
+        }
+
+
+    }
 
     public void drawAllBaseBlock(Canvas canvas){
         int iRowStartIdx = (int)Math.floor(pCurScrollLeftUp.fRow/pCurBlock.fRow);       //row의 시작 index.
@@ -226,9 +264,21 @@ public class CustomWeekView extends View {
 
     }
 
+    //touch 좌표로 현재 몇번 block인지 확인.
+    public float getfCurBlockCol(float clickedCol){
+        if(clickedCol < fLeftSideSpace)
+            return 0;
+        return (pCurScrollLeftUp.fCol+clickedCol-fLeftSideSpace)/pCurBlock.fCol;
+    }
 
+    public float getfCurBlockRow(float clickedRow){
+        if(clickedRow < fUpSideSpace)
+            return 0;
+        return (pCurScrollLeftUp.fRow+clickedRow-fUpSideSpace)/pCurBlock.fRow;
+    }
 
     public boolean onTouchEvent(MotionEvent event){
+        boolean isPCurBlockModified = true;
         int maskAction = event.getAction() & MotionEvent.ACTION_MASK;
 
         if (maskAction == MotionEvent.ACTION_DOWN) {
@@ -301,47 +351,66 @@ public class CustomWeekView extends View {
             }
             else if(touchMode == MODE_PAN){
                 Log.d("block", "ACTION_MOVE pan");
+                //ACTION_MOVE에서 moveX1, Y1 받음
                 float moveX2 = event.getX(1);
                 float moveY2 = event.getY(1);
                 float centerX, centerY, detX, detY;	//center 변화량, xy 변화량
-                centerX = (moveX+moveX2)/2 -(touchX[0]+touchX[1])/2;
-                centerY = (moveY+moveY2)/2 - (touchY[0]+touchY[1])/2;
+                Log.d("block", "touchX[0] : " + touchX[0] + " " + "touchX[1] : " + touchX[1] + " " + "moveX : " + moveX + " " + "moveX2 : " + moveX2 + " ");
+                Log.d("block", "getfCurBlockCol[0] : " + getfCurBlockCol(touchX[0]) + " " + "getfCurBlockCol[1] : " + getfCurBlockCol(touchX[1]));
+                if(touchX[0] < touchX[1]){  // touchX[0] == left finger
+                    centerX = -getfCurBlockCol(touchX[1])*(moveX - touchX[0]);
+                }
+                else{
+                    centerX = - getfCurBlockCol(touchX[0])*(moveX2 - touchX[1]);
+                }
+
+                if(touchY[0] < touchY[1]){  // touchX[0] == left finger
+                    centerY = -getfCurBlockRow(touchY[0])*(moveY - touchY[0]) + getfCurBlockRow(touchY[1])*(moveY2 - touchY[1]);
+                }
+                else{
+                    centerY = getfCurBlockRow(touchY[0])*(moveY - touchY[0]) - getfCurBlockRow(touchY[1])*(moveY2 - touchY[1]);
+                }
+
+                //centerX = (moveX+moveX2)/2 -(touchX[0]+touchX[1])/2;
+                //centerY = (moveY+moveY2)/2 - (touchY[0]+touchY[1])/2;
+
+
+
                 detX = Math.abs(moveX-moveX2) - Math.abs(touchX[0]-touchX[1]);
                 detY = Math.abs(moveY-moveY2) - Math.abs(touchY[0]-touchY[1]);
 
-                //move scroll vertical
-                pCurScrollLeftUp.fRow -= (centerY);
-                if(pCurScrollLeftUp.fRow > fScrollBottomEnd){
-                    pCurScrollLeftUp.fRow = fScrollBottomEnd;
-                }
-                else if(pCurScrollLeftUp.fRow < 0){
-                    pCurScrollLeftUp.fRow = 0;
-                }
-                //move scroll horizontal
-                pCurScrollLeftUp.fCol -= (centerX);
-                if(pCurScrollLeftUp.fCol > fScrollRightEnd){
-                    pCurScrollLeftUp.fCol = fScrollRightEnd;
-                }
-                else if(pCurScrollLeftUp.fCol < 0){
-                    pCurScrollLeftUp.fCol = 0;
-                }
+
 
                 //change sizeof box
-                pCurBlock.fCol += detX/2;
+                pCurBlock.fCol += detX/((Math.abs(touchX[0]-touchX[1]))/pCurBlock.fCol);
                 if(pCurBlock.fCol > fMaxBlockCol){
                     pCurBlock.fCol = fMaxBlockCol;
+                    isPCurBlockModified = false;
                 }
-                else if(pCurBlock.fCol < fMinBlockCol){
+                else if(pCurBlock.fCol < fMinBlockCol) {
                     pCurBlock.fCol = fMinBlockCol;
+                    isPCurBlockModified = false;
                 }
 
-                pCurBlock.fRow += detY/2;
+                pCurBlock.fRow += detY/((Math.abs(touchY[0]-touchY[1]))/pCurBlock.fRow);
                 if(pCurBlock.fRow > fMaxBlockRow){
                     pCurBlock.fRow = fMaxBlockRow;
+                    isPCurBlockModified = false;
                 }
                 else if(pCurBlock.fRow < fMinBlockRow){
                     pCurBlock.fRow = fMinBlockRow;
+                    isPCurBlockModified = false;
                 }
+
+
+                if(isPCurBlockModified == true)
+                pCurScrollLeftUp.fCol += centerX;
+                pCurScrollLeftUp.fCol = (pCurScrollLeftUp.fCol > fScrollRightEnd) ? fScrollRightEnd : pCurScrollLeftUp.fCol;
+                pCurScrollLeftUp.fCol = (pCurScrollLeftUp.fCol < 0) ? 0 : pCurScrollLeftUp.fCol;
+
+                //pCurScrollLeftUp.fRow += centerY;
+                pCurScrollLeftUp.fRow = (pCurScrollLeftUp.fRow > fScrollBottomEnd) ? fScrollBottomEnd : pCurScrollLeftUp.fRow;
+                pCurScrollLeftUp.fRow = (pCurScrollLeftUp.fRow < 0) ? 0 : pCurScrollLeftUp.fRow;
 
                 touchX[0]= moveX;
                 touchY[0] = moveY;
