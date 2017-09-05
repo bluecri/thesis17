@@ -138,10 +138,17 @@ public class DatabaseHelperMain extends OrmLiteSqliteOpenHelper
         return daoMarkerData;
     }
 
-    public Dao<MarkerTypeData, Integer> getDao() throws SQLException{
+    public Dao<MarkerTypeData, Integer> getDaoMarkerTypeData() throws SQLException{
         if(daoMarkerTypeData == null){
             daoMarkerTypeData = getDao(MarkerTypeData.class);
         }
         return daoMarkerTypeData;
     }
+/*
+    public Dao<MarkerTypeData, Integer> getDao() throws SQLException{
+        if(daoMarkerTypeData == null){
+            daoMarkerTypeData = getDao(MarkerTypeData.class);
+        }
+        return daoMarkerTypeData;
+    }*/
 }

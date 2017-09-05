@@ -1,5 +1,6 @@
 package com.sample.thesis17.mytimeapp.map;
 
+import android.support.v4.app.FragmentTransaction;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.CoordinatorLayout;
@@ -18,14 +19,15 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.j256.ormlite.dao.Dao;
 import com.sample.thesis17.mytimeapp.DB.baseClass.DatabaseHelperMain;
 import com.sample.thesis17.mytimeapp.DB.tables.MarkerData;
+import com.sample.thesis17.mytimeapp.DB.tables.MarkerTypeData;
 import com.sample.thesis17.mytimeapp.R;
 
 import java.sql.SQLException;
@@ -37,14 +39,16 @@ import java.util.ListIterator;
 
 public class MapsActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, OnMapReadyCallback, GoogleMap.OnMapClickListener, GoogleMap.OnInfoWindowClickListener, GoogleMap.OnMarkerClickListener,
-        DialogMarkerTypeSelectFragment.DialogMarkerTypeSelectListener, DialogNewmarkerFragment.DialogNewmarkerListener {
+        DialogMarkerTypeSelectFragment.DialogMarkerTypeSelectListener, DialogNewmarkerFragment.DialogNewmarkerListener, DialogNewMarkerTypeFragment.DialogNewMarkerTypeFragmentListener {
 
     private GoogleMap mMap; //mMap 객체
+    SupportMapFragment mMapFragment = null;    //singleton mMapFragment instance
+    MarkerTypeDataFragment markerTypeListFragment = null;
 
     // side tab에 따른 mode
     private String MARKER_MODE = "markermode";
     private String MOVEMENT_MODE = "movementmode";
-
+    private String MARKERTYPE_MODE = "markertypemode";
     private static String STR_MODE = "markermode";  //marker, movement
 
     //dbHelperMain
@@ -52,7 +56,6 @@ public class MapsActivity extends AppCompatActivity
 
     //새로 생성된 Marker. null이 아닌경우 생성중인 상태.
     private Marker newMarker = null;
-
 
     public double CUSTOM_DRADIUS = 30;
 
@@ -74,12 +77,22 @@ public class MapsActivity extends AppCompatActivity
 
     public int iNewMarkerType = 0;  //new marker의 marker type.
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
+        //map fragment
+        mMapFragment = getMMapFragment();
+
+        STR_MODE = "markermode";  //init mode
+        FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
+        fragmentTransaction.add(R.id.content_map_framelayout, mMapFragment, "mmap_fragment");
+        fragmentTransaction.commit();
+        mMapFragment.getMapAsync(this);     //map fragemnt와 activity sync.
 
         //list button
         fabList = (FloatingActionButton) findViewById(R.id.fabList);
@@ -97,15 +110,26 @@ public class MapsActivity extends AppCompatActivity
             @Override
             public void onClick(View view) {
 
-                if(STR_STATE.equals(STATE_NONE)) {
-                    changeState(STATE_CREATE_MARKER_BEFORE_ONMAP);
-                }
-                else if(STR_STATE.equals(STATE_CREATE_MARKER_AFTER_ONMAP)){
-                    //register info window
-                }
+                //menu별 add button 처리
+                if(STR_MODE.equals(MARKER_MODE)){
+                    if(STR_STATE.equals(STATE_NONE)) {
+                        Snackbar.make(view, "Click position where new marker will be created", Snackbar.LENGTH_LONG)
+                                .setAction("Action", null).show();
+                        changeState(STATE_CREATE_MARKER_BEFORE_ONMAP);
+                    }
+                    else if(STR_STATE.equals(STATE_CREATE_MARKER_AFTER_ONMAP)){
+                        //register info window
+                    }
 
-                Snackbar.make(view, "Click position where new marker will be created", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
+                }
+                else if(STR_MODE.equals(MOVEMENT_MODE)){
+
+                }
+                else if(STR_MODE.equals(MARKERTYPE_MODE)){
+                    //add new markerType with dialog
+                    DialogNewMarkerTypeFragment dig = new DialogNewMarkerTypeFragment();
+                    dig.show(getSupportFragmentManager(), "DialogNewMarkerTypeFragment");
+                }
             }
         });
 
@@ -138,13 +162,15 @@ public class MapsActivity extends AppCompatActivity
         navigationView.setNavigationItemSelectedListener(this);
 
         //get map fragment Handle to MapsActivity
-        MapFragment mapFragment = (MapFragment) getFragmentManager()
+        /*MapFragment mapFragment = (MapFragment) getFragmentManager()
                 .findFragmentById(R.id.mapFragment);
-        mapFragment.getMapAsync(this);
+        mapFragment.getMapAsync(this);*/
 
 
 
     }
+
+    //nav bar methods
 
     @Override
     public void onBackPressed() {
@@ -191,6 +217,7 @@ public class MapsActivity extends AppCompatActivity
             changeMode(MOVEMENT_MODE);
 
         } else if (id == R.id.nav_slideshow) {
+            changeMode(MARKERTYPE_MODE);
 
         } else if (id == R.id.nav_manage) {
 
@@ -205,6 +232,8 @@ public class MapsActivity extends AppCompatActivity
         return true;
     }
 
+
+    //map methods
 
     @Override
     public void onMapReady(GoogleMap map) {
@@ -234,8 +263,6 @@ public class MapsActivity extends AppCompatActivity
         catch(SQLException e){
             Log.d("mapsActivity", "onMapReady MarkerData sql Exception");
         }
-
-
     }
 
     @Override
@@ -257,6 +284,7 @@ public class MapsActivity extends AppCompatActivity
                         .snippet("드래그하여 원하는 위치에 마커를 놓은 뒤 '+' 버튼 또는 마커를 누르세요. 이 window를 누르면 window가 사라집니다.")
                 );
                 newMarker.setTag(newMarkerData);    //MarkerData -> Marker private object
+                newMarker.showInfoWindow();
                 changeState(STATE_CREATE_MARKER_AFTER_ONMAP);
             }
         }
@@ -271,6 +299,40 @@ public class MapsActivity extends AppCompatActivity
             //same mode
         }
         else{
+            if(inStr.equals(MARKERTYPE_MODE)){
+                hideFabList();
+                hideFabCancel();
+                android.support.v4.app.FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
+                fragmentTransaction.replace(R.id.content_map_framelayout, getMarkerTypeListFragment(), "marker_type_list_fragment");
+                //fragmentTransaction.addToBackStack(null);
+                fragmentTransaction.commit();
+            }
+            else if(inStr.equals(MARKER_MODE)){
+                if(STR_MODE.equals(MOVEMENT_MODE)){
+                    return;
+                }
+                showFabList();
+                FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
+                fragmentTransaction.replace(R.id.content_map_framelayout, getMMapFragment(), "mmap_fragment");
+                //fragmentTransaction.addToBackStack(null);
+                fragmentTransaction.commit();
+                mMapFragment.getMapAsync(this);     //map fragemnt와 activity sync.
+            }
+            else if(inStr.equals(MOVEMENT_MODE)){
+                if(STR_MODE.equals(MARKER_MODE)){
+                    return;
+                }
+                showFabList();
+                FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
+                fragmentTransaction.replace(R.id.content_map_framelayout, getMMapFragment(), "mmap_fragment");
+                //fragmentTransaction.addToBackStack(null);
+                fragmentTransaction.commit();
+                mMapFragment.getMapAsync(this);     //map fragemnt와 activity sync.
+
+
+
+
+            }
             STR_MODE = inStr;
         }
         return;
@@ -305,7 +367,6 @@ public class MapsActivity extends AppCompatActivity
         return;
     }
 
-
     //get DB helper singleton
     private DatabaseHelperMain getDatabaseHelperMain(){
         if(databaseHelperMain == null){
@@ -335,6 +396,8 @@ public class MapsActivity extends AppCompatActivity
         p.gravity = Gravity.BOTTOM | Gravity.RIGHT;
         p.bottomMargin = 16;
         p.rightMargin = 16;
+        p.leftMargin = 16;
+        p.topMargin = 16;
         //p.setAnchorId(R.id.include);
         //p.anchorGravity = Gravity.BOTTOM | Gravity.END;
 
@@ -353,6 +416,8 @@ public class MapsActivity extends AppCompatActivity
         p.gravity = Gravity.BOTTOM | Gravity.RIGHT;
         p.bottomMargin = 16;
         p.rightMargin = 16;
+        p.leftMargin = 16;
+        p.topMargin = 16;
         //p.anchorGravity = Gravity.BOTTOM | Gravity.LEFT;
         //p.setAnchorId(R.id.include);
         //p.anchorGravity = Gravity.BOTTOM | Gravity.END;
@@ -366,6 +431,22 @@ public class MapsActivity extends AppCompatActivity
         p.setAnchorId(View.NO_ID);
         fabList.setLayoutParams(p);
         fabList.setVisibility(View.GONE);
+    }
+
+
+    //get MapFragment with singleton
+    private SupportMapFragment getMMapFragment(){
+        if( mMapFragment == null){
+            mMapFragment = SupportMapFragment.newInstance();
+        }
+        return mMapFragment;
+    }
+    //get MarkerTypeListFragment with singleton
+    private MarkerTypeDataFragment getMarkerTypeListFragment(){
+        if( markerTypeListFragment == null){
+            markerTypeListFragment = new MarkerTypeDataFragment();
+        }
+        return markerTypeListFragment;
     }
 
     //DialogMarkerTypeSelectFragment.DialogMarkerTypeSelectListener listener
@@ -386,5 +467,33 @@ public class MapsActivity extends AppCompatActivity
     @Override
     public void registerNewMarker(MarkerData data) {
         //TODO : data를 DB에 저장한다.
+    }
+
+    //button -> MarkerTypeCreate -> DialogNewMarkerTypeFragemnt
+    @Override
+    public void createNewMarkerType(MarkerTypeData mtd) {
+        try{
+            Dao<MarkerTypeData, Integer> daoMarkerTypeDataInteger = getDatabaseHelperMain().getDaoMarkerTypeData();	//get dao
+            daoMarkerTypeDataInteger.create(mtd);
+
+            //MarkerTypeDataFragment dialogMarkerTypeDataFragment = (MarkerTypeDataFragment)getFragmentManager().findFragmentById(R.id.fragment_markertypedata_list);
+            MarkerTypeDataFragment dialogMarkerTypeDataFragment = (MarkerTypeDataFragment)getSupportFragmentManager().findFragmentByTag("marker_type_list_fragment");
+            dialogMarkerTypeDataFragment.updateViewWithAdd(mtd);
+        }
+        catch(SQLException e){
+            Log.d("MarkerTypeDataFragment", "createNewMarkerType SQL Exception");
+        }
+
+    }
+
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+
+        if(databaseHelperMain != null){
+            databaseHelperMain.close();
+            databaseHelperMain = null;
+        }
     }
 }
