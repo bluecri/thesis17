@@ -2,6 +2,7 @@ package com.sample.thesis17.mytimeapp.map;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -9,6 +10,7 @@ import android.widget.BaseAdapter;
 import android.widget.CheckedTextView;
 import android.widget.TextView;
 
+import com.google.android.gms.maps.model.Marker;
 import com.sample.thesis17.mytimeapp.DB.tables.MarkerTypeData;
 import com.sample.thesis17.mytimeapp.R;
 
@@ -28,13 +30,8 @@ public class TypeSelectBaseAdapter extends BaseAdapter{
 
     class CustomViewHolderTypeSelect{
         public CheckedTextView ctv;
+        public MarkerTypeDataWithBool mtdb;
     }
-
-    class MarkerTypeDataWithBool{
-        MarkerTypeData markerTypeData;
-        boolean bSelected;
-    }
-
 
     TypeSelectBaseAdapter(ArrayList<MarkerTypeDataWithBool> arrList){
         //mContext = context;
@@ -58,8 +55,9 @@ public class TypeSelectBaseAdapter extends BaseAdapter{
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        CheckedTextView ctv = null;
-        CustomViewHolderTypeSelect holder = null;
+        CustomViewHolderTypeSelect holder = null;   //holder
+        CheckedTextView ctv = null;     //holder element
+        MarkerTypeDataWithBool mtdb = null;     //holder element
         Context mContext = parent.getContext();
         if(convertView == null){
             //convertView를 새로 생성하며 findViewById 호출을 줄이기 위해 custom View Holder class를 생성하여 view를 담고 convertView의 tag를 이용하여 holder를 저장한다.
@@ -68,18 +66,46 @@ public class TypeSelectBaseAdapter extends BaseAdapter{
             ctv = (CheckedTextView) convertView.findViewById(R.id.view_checkedtextview_single);
             holder = new CustomViewHolderTypeSelect();
             holder.ctv = ctv;
+            holder.mtdb = dataList.get(position);
             convertView.setTag(holder);
         }
         else{
             //이미 convertView가 있는 경우 findViewById를 호출하지 않고 이전에 저장되어 있는 View Holder에서 view를 가져와 속도를 향상시킨다.
             holder = (CustomViewHolderTypeSelect) convertView.getTag();
             ctv = holder.ctv;
+            mtdb = holder.mtdb;
         }
         MarkerTypeDataWithBool markerTypeDataWithBoolWithPosition = dataList.get(position);
-        ctv.setText(markerTypeDataWithBoolWithPosition.markerTypeData.getStrTypeName());
-        ctv.setChecked(markerTypeDataWithBoolWithPosition.bSelected);
+        ctv.setText(markerTypeDataWithBoolWithPosition.getMarkerTypeData().getStrTypeName());
+        ctv.setChecked(markerTypeDataWithBoolWithPosition.isbSelected());
+        if(markerTypeDataWithBoolWithPosition.isbSelected()){
+            ctv.setCheckMarkDrawable(android.R.drawable.checkbox_on_background);
+        }
+        else{
+            ctv.setCheckMarkDrawable(android.R.drawable.checkbox_off_background);
+        }
 
-        //TODO : button listner here ?
+        //TODO : button listner here
+        convertView.setOnClickListener(
+                new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        CheckedTextView tempCtv = ((CustomViewHolderTypeSelect)v.getTag()).ctv;
+                        MarkerTypeDataWithBool tempMtdb = ((CustomViewHolderTypeSelect)v.getTag()).mtdb;
+                        if(tempCtv.isChecked()){
+                            tempCtv.setChecked(false);          //checkedtextView의 check 속성 false
+                            tempCtv.setCheckMarkDrawable(android.R.drawable.checkbox_off_background);   //drawable false
+                            tempMtdb.setbSelected(false);       //실제 바인딩된 데이터 false
+
+                        }
+                        else{
+                            tempCtv.setChecked(true);
+                            tempCtv.setCheckMarkDrawable(android.R.drawable.checkbox_on_background);
+                            tempMtdb.setbSelected(true);
+                        }
+                    }
+                }
+        );
 
         return convertView;
     }

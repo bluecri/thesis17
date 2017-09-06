@@ -9,14 +9,15 @@ import com.j256.ormlite.table.DatabaseTable;
 
 @DatabaseTable(tableName = "markerData")
 public class MarkerData {
+    public final static String ID_FIELD_NAME = "id";
 
-    public MarkerData(double lat, double lng, String strMarkerName, double dRadius, double dInnerRadius, int iMarkerTypeBit, String strMemo, boolean isCache) {
+    public MarkerData(double lat, double lng, String strMarkerName, double dRadius, double dInnerRadius, /*int iMarkerTypeBit,*/ String strMemo, boolean isCache) {
         this.lat = lat;
         this.lng = lng;
         this.strMarkerName = strMarkerName;
         this.dRadius = dRadius;
         this.dInnerRadius = dInnerRadius;
-        this.iMarkerTypeBit = iMarkerTypeBit;
+        //this.iMarkerTypeBit = iMarkerTypeBit;
         this.strMemo = strMemo;
         this.isCache = isCache;
     }
@@ -25,7 +26,7 @@ public class MarkerData {
         // empty constructor is needed
     }
 
-    @DatabaseField(generatedId = true)
+    @DatabaseField(generatedId = true, columnName = ID_FIELD_NAME)
     private int id;
 
     @DatabaseField
@@ -43,8 +44,8 @@ public class MarkerData {
     @DatabaseField
     private double dInnerRadius;
 
-    @DatabaseField
-    private int iMarkerTypeBit;
+    //@DatabaseField
+    //private int iMarkerTypeBit;
 
     @DatabaseField
     private String strMemo;
@@ -89,12 +90,14 @@ public class MarkerData {
         return dInnerRadius;
     }
 
+    /*
     public void setIMarkerTypeBit(int iMarkerTypeBit){
         this.iMarkerTypeBit = iMarkerTypeBit;
     }
     public int setIMarkerTypeBit(){
         return iMarkerTypeBit;
     }
+    */
 
 
     public void setStrMemo(String strMemo){

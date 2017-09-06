@@ -1,5 +1,6 @@
 package com.sample.thesis17.mytimeapp.map;
 
+import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentTransaction;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -27,6 +28,7 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.j256.ormlite.dao.Dao;
 import com.sample.thesis17.mytimeapp.DB.baseClass.DatabaseHelperMain;
 import com.sample.thesis17.mytimeapp.DB.tables.MarkerData;
+import com.sample.thesis17.mytimeapp.DB.tables.MarkerMarkerTypeData;
 import com.sample.thesis17.mytimeapp.DB.tables.MarkerTypeData;
 import com.sample.thesis17.mytimeapp.R;
 
@@ -39,7 +41,7 @@ import java.util.ListIterator;
 
 public class MapsActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, OnMapReadyCallback, GoogleMap.OnMapClickListener, GoogleMap.OnInfoWindowClickListener, GoogleMap.OnMarkerClickListener,
-        DialogMarkerTypeSelectFragment.DialogMarkerTypeSelectListener, DialogNewmarkerFragment.DialogNewmarkerListener, DialogNewMarkerTypeFragment.DialogNewMarkerTypeFragmentListener {
+        DialogMarkerTypeSelectFragment.DialogMarkerTypeSelectListener, DialogNewmarkerFragment.DialogNewmarkerListener, DialogNewMarkerTypeFragment.DialogNewMarkerTypeFragmentListener{
 
     private GoogleMap mMap; //mMap 객체
     SupportMapFragment mMapFragment = null;    //singleton mMapFragment instance
@@ -53,6 +55,10 @@ public class MapsActivity extends AppCompatActivity
 
     //dbHelperMain
     private DatabaseHelperMain databaseHelperMain = null;
+
+    private Dao<MarkerData, Integer> daoMarkerDataInteger = null;
+    private Dao<MarkerMarkerTypeData, Integer> daoMarkerMarkerTypeDataInteger = null;
+    private Dao<MarkerTypeData, Integer> daoMarkerTypeDataInteger = null;
 
     //새로 생성된 Marker. null이 아닌경우 생성중인 상태.
     private Marker newMarker = null;
@@ -75,12 +81,13 @@ public class MapsActivity extends AppCompatActivity
             fabList = null;
 
 
-    public int iNewMarkerType = 0;  //new marker의 marker type.
+    public ArrayList<MarkerTypeData> markerTypeDataList = null;  //new marker의 marker type.
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.activity_maps);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -119,6 +126,8 @@ public class MapsActivity extends AppCompatActivity
                     }
                     else if(STR_STATE.equals(STATE_CREATE_MARKER_AFTER_ONMAP)){
                         //register info window
+                        DialogNewmarkerFragment dig = new DialogNewmarkerFragment();
+                        dig.show(((FragmentActivity)MapsActivity.this).getSupportFragmentManager(), "DialogMarkerTypeFragment");
                     }
 
                 }
@@ -143,6 +152,7 @@ public class MapsActivity extends AppCompatActivity
                     newMarker.remove();
                     newMarker = null;
                 }
+                markerTypeDataList = new ArrayList<>();
                 changeState(STATE_NONE);
 
                 Snackbar.make(view, "cancel creating new marker", Snackbar.LENGTH_LONG)
@@ -245,7 +255,7 @@ public class MapsActivity extends AppCompatActivity
 
         //load data from markers
         try{
-            Dao<MarkerData, Integer> daoMarkerDataInteger = getDatabaseHelperMain().getDaoMarkerData();
+            daoMarkerDataInteger = getDatabaseHelperMain().getDaoMarkerData();
             if(daoMarkerDataInteger != null){
                 List<MarkerData> listMarkerData = daoMarkerDataInteger.queryForAll();
                 //StringBuilder strbList- = new StringBuilder();
@@ -276,13 +286,15 @@ public class MapsActivity extends AppCompatActivity
                     newMarker = null;
                 }
                 //MarkerData(double lat, double lng, String strMarkerName, double dRadius, double dInnerRadius, int iMarkerTypeBit, String strMemo, boolean isCache)
-                MarkerData newMarkerData = new MarkerData(latLng.latitude, latLng.longitude, "name", CUSTOM_DRADIUS, CUSTOM_DRADIUS, 0, "memo", true);
+                MarkerData newMarkerData = new MarkerData(latLng.latitude, latLng.longitude, "name", CUSTOM_DRADIUS, CUSTOM_DRADIUS, "memo", true);
                 newMarker = mMap.addMarker(new MarkerOptions()
                         .position(latLng)
-                        .title(newMarkerData.getStrMarkerName())
+                        //.title(newMarkerData.getStrMarkerName())
+                        .title("새로운 마커 추가")
                         .draggable(true)
-                        .snippet("드래그하여 원하는 위치에 마커를 놓은 뒤 '+' 버튼 또는 마커를 누르세요. 이 window를 누르면 window가 사라집니다.")
+                        .snippet("마커를 오래 누른 뒤 드래그하여 '+' 버튼으로 마커를 추가하세요.")
                 );
+
                 newMarker.setTag(newMarkerData);    //MarkerData -> Marker private object
                 newMarker.showInfoWindow();
                 changeState(STATE_CREATE_MARKER_AFTER_ONMAP);
@@ -309,6 +321,7 @@ public class MapsActivity extends AppCompatActivity
             }
             else if(inStr.equals(MARKER_MODE)){
                 if(STR_MODE.equals(MOVEMENT_MODE)){
+                    STR_MODE = inStr;
                     return;
                 }
                 showFabList();
@@ -320,6 +333,7 @@ public class MapsActivity extends AppCompatActivity
             }
             else if(inStr.equals(MOVEMENT_MODE)){
                 if(STR_MODE.equals(MARKER_MODE)){
+                    STR_MODE = inStr;
                     return;
                 }
                 showFabList();
@@ -328,8 +342,6 @@ public class MapsActivity extends AppCompatActivity
                 //fragmentTransaction.addToBackStack(null);
                 fragmentTransaction.commit();
                 mMapFragment.getMapAsync(this);     //map fragemnt와 activity sync.
-
-
 
 
             }
@@ -378,14 +390,21 @@ public class MapsActivity extends AppCompatActivity
     //info window click listener
     @Override
     public void onInfoWindowClick(Marker marker) {
-        marker.hideInfoWindow();
+        if(newMarker != null){
+            if(marker.equals(newMarker)){
+                marker.hideInfoWindow();
+                return;
+            }
+        }
+        //show marker info dialog
+
     }
 
     //marker click listener
     @Override
     public boolean onMarkerClick(Marker marker) {
-        //register info window
-        return true;
+        //show window
+        return false;
     }
 
 
@@ -451,29 +470,63 @@ public class MapsActivity extends AppCompatActivity
 
     //DialogMarkerTypeSelectFragment.DialogMarkerTypeSelectListener listener
     @Override
-    public void setINewMarkerType(int iMarkerTypesBit) {
-        iNewMarkerType = iMarkerTypesBit;
+    public void setNewMarkerTypeList(ArrayList<MarkerTypeData> selectedMarkerTypeDataList){
+        markerTypeDataList = selectedMarkerTypeDataList;
+        Log.d("MapsActivity", "len : " + markerTypeDataList.size());
         //iNewMarkerType -> DialogNewmarkerFragment's iNewMarkerMarkerType
-        DialogNewmarkerFragment dialogNewmarkerFragment = (DialogNewmarkerFragment)getSupportFragmentManager().findFragmentById(R.id.fragment_dialog_newmarker);
-        dialogNewmarkerFragment.setINewMarkerMarkerType(iNewMarkerType);
+        //DialogNewmarkerFragment dialogNewmarkerFragment = (DialogNewmarkerFragment)getSupportFragmentManager().findFragmentById(R.id.fragment_dialog_newmarker);
+        //dialogNewmarkerFragment.setNewMarkerMarkerTypeList(markerTypeDataList);
     }
 
     //get current new marker type from
-    public int getINewMarkerType() {
-        return iNewMarkerType;
+    public ArrayList<MarkerTypeData> getNewMarkerTypeList() {
+        if(markerTypeDataList == null){
+            markerTypeDataList = new ArrayList<>();
+        }
+        return markerTypeDataList;
     }
 
     //DialogNewmarkerFragment.DialogNewmarkerListener listener
     @Override
     public void registerNewMarker(MarkerData data) {
-        //TODO : data를 DB에 저장한다.
+        //TODO : data를 DB에 저장한다. markerTypeDataList를 이용하여 MarkerMarkerTypeData에 등록하는 과정 포함.
+        try{
+            daoMarkerDataInteger = getDatabaseHelperMain().getDaoMarkerData();	//get
+            daoMarkerMarkerTypeDataInteger = getDatabaseHelperMain().getDaoMarkerMarkerTypeData();	//get
+            if(daoMarkerDataInteger != null){
+                daoMarkerDataInteger.create(data);	//save data
+                ArrayList<MarkerTypeData> tempMarkerTypeList = getNewMarkerTypeList();
+                for(MarkerTypeData mtd : tempMarkerTypeList){
+                    MarkerMarkerTypeData tempMarkerMarkerTypeData = new MarkerMarkerTypeData(data, mtd);
+                    daoMarkerMarkerTypeDataInteger.create(tempMarkerMarkerTypeData);
+                }
+            }
+        }
+        catch(SQLException e){
+            Log.d("MapsActivity", "debugPrintDAOInfo SQL exception");
+        }
+
+        newMarker.remove(); //remove new temp marker from map
+
+        Marker mark = mMap.addMarker(new MarkerOptions()
+                        .position(new LatLng(data.getLat(), data.getLng()))
+                        .title(data.getStrMarkerName())
+                //.draggable(true)  //load markers cannot be draggable marker
+        );
+        mark.setTag(data);
+        listMarkerOnMap.add(mark);
+
+        newMarker = null;   //remove new marker
+
+        changeState(STATE_NONE);
+
     }
 
     //button -> MarkerTypeCreate -> DialogNewMarkerTypeFragemnt
     @Override
     public void createNewMarkerType(MarkerTypeData mtd) {
         try{
-            Dao<MarkerTypeData, Integer> daoMarkerTypeDataInteger = getDatabaseHelperMain().getDaoMarkerTypeData();	//get dao
+            daoMarkerTypeDataInteger = getDatabaseHelperMain().getDaoMarkerTypeData();	//get dao
             daoMarkerTypeDataInteger.create(mtd);
 
             //MarkerTypeDataFragment dialogMarkerTypeDataFragment = (MarkerTypeDataFragment)getFragmentManager().findFragmentById(R.id.fragment_markertypedata_list);

@@ -12,8 +12,8 @@ import com.sample.thesis17.mytimeapp.DB.tables.ActiveListFixedTimeTableData;
 import com.sample.thesis17.mytimeapp.DB.tables.ActiveListMarker;
 import com.sample.thesis17.mytimeapp.DB.tables.FixedTimeTableData;
 import com.sample.thesis17.mytimeapp.DB.tables.HistoryData;
-import com.sample.thesis17.mytimeapp.DB.tables.LocationMemoryData;
 import com.sample.thesis17.mytimeapp.DB.tables.MarkerData;
+import com.sample.thesis17.mytimeapp.DB.tables.MarkerMarkerTypeData;
 import com.sample.thesis17.mytimeapp.DB.tables.MarkerTypeData;
 
 import java.sql.SQLException;
@@ -39,6 +39,7 @@ public class DatabaseHelperMain extends OrmLiteSqliteOpenHelper
     private Dao<HistoryData, Integer> daoHistoryData;
     private Dao<MarkerData, Integer> daoMarkerData;
     private Dao<MarkerTypeData, Integer> daoMarkerTypeData;
+    private Dao<MarkerMarkerTypeData, Integer> daoMarkerMarkerTypeData;
 
     //Constructor
     private DatabaseHelperMain(Context context){
@@ -64,6 +65,7 @@ public class DatabaseHelperMain extends OrmLiteSqliteOpenHelper
             daoHistoryData= null;
             daoMarkerData= null;
             daoMarkerTypeData = null;
+            daoMarkerMarkerTypeData = null;
             dbHelper = null;
         }
 
@@ -79,6 +81,7 @@ public class DatabaseHelperMain extends OrmLiteSqliteOpenHelper
             TableUtils.createTable(connectionSource, HistoryData.class);
             TableUtils.createTable(connectionSource, MarkerData.class);
             TableUtils.createTable(connectionSource, MarkerTypeData.class);
+            TableUtils.createTable(connectionSource, MarkerMarkerTypeData.class);
         }
         catch(SQLException e){
             Log.e("db", "Unable to create datbases", e);
@@ -95,6 +98,7 @@ public class DatabaseHelperMain extends OrmLiteSqliteOpenHelper
             TableUtils.dropTable(connectionSource, HistoryData.class, true);
             TableUtils.dropTable(connectionSource, MarkerData.class, true);
             TableUtils.dropTable(connectionSource, MarkerTypeData.class, true);
+            TableUtils.dropTable(connectionSource, MarkerMarkerTypeData.class, true);
             onCreate(sqLiteDatabase, connectionSource);
         }
         catch(SQLException e){
@@ -143,6 +147,13 @@ public class DatabaseHelperMain extends OrmLiteSqliteOpenHelper
             daoMarkerTypeData = getDao(MarkerTypeData.class);
         }
         return daoMarkerTypeData;
+    }
+
+    public Dao<MarkerMarkerTypeData, Integer> getDaoMarkerMarkerTypeData() throws SQLException{
+        if(daoMarkerMarkerTypeData == null){
+            daoMarkerMarkerTypeData = getDao(MarkerMarkerTypeData.class);
+        }
+        return daoMarkerMarkerTypeData;
     }
 /*
     public Dao<MarkerTypeData, Integer> getDao() throws SQLException{
