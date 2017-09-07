@@ -62,4 +62,10 @@ public class MarkerTypeData {
         MarkerTypeData tempMarkerTypeData = (MarkerTypeData)obj;
         return (this.getId() == tempMarkerTypeData.getId());
     }
+
+    @Override
+    public Object clone() throws CloneNotSupportedException {
+        MarkerTypeData ret = (MarkerTypeData)super.clone();
+        return ret;
+    }
 }

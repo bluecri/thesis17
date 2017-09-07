@@ -4,7 +4,7 @@
     android:layout_height="wrap_content"
     android:id="@+id/fragment_dialog_marker">
 
-    <EditText
+    <TextView
         android:id="@+id/fragment_dialog_marker_marker_name"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -12,9 +12,9 @@
         android:layout_marginLeft="4dp"
         android:layout_marginRight="4dp"
         android:layout_marginTop="16dp"
-        android:hint="UserName" />
+        />
 
-    <EditText
+    <TextView
         android:id="@+id/fragment_dialog_marker_marker_memo"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -23,7 +23,17 @@
         android:layout_marginRight="4dp"
         android:layout_marginTop="4dp"
         android:fontFamily="sans-serif"
-        android:hint="password" />
+        />
+
+    <TextView
+        android:id="@+id/fragment_dialog_marker_marker_latLng"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        android:layout_marginLeft="4dp"
+        android:layout_marginRight="4dp"
+        android:layout_marginTop="4dp"
+        android:fontFamily="sans-serif" />
 
     <Spinner
         android:id="@+id/fragment_dialog_marker_spinner_selectType"

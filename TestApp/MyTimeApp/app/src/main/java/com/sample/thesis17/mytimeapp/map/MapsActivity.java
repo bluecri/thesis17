@@ -26,6 +26,11 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.j256.ormlite.dao.Dao;
+import com.j256.ormlite.stmt.DeleteBuilder;
+import com.j256.ormlite.stmt.PreparedDelete;
+import com.j256.ormlite.stmt.PreparedQuery;
+import com.j256.ormlite.stmt.QueryBuilder;
+import com.j256.ormlite.stmt.SelectArg;
 import com.sample.thesis17.mytimeapp.DB.baseClass.DatabaseHelperMain;
 import com.sample.thesis17.mytimeapp.DB.tables.MarkerData;
 import com.sample.thesis17.mytimeapp.DB.tables.MarkerMarkerTypeData;
@@ -40,28 +45,29 @@ import java.util.List;
 import java.util.ListIterator;
 
 public class MapsActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener, OnMapReadyCallback, GoogleMap.OnMapClickListener, GoogleMap.OnInfoWindowClickListener, GoogleMap.OnMarkerClickListener,
-        DialogMarkerTypeSelectFragment.DialogMarkerTypeSelectListener, DialogNewmarkerFragment.DialogNewmarkerListener, DialogNewMarkerTypeFragment.DialogNewMarkerTypeFragmentListener{
+        implements NavigationView.OnNavigationItemSelectedListener, OnMapReadyCallback, GoogleMap.OnMapClickListener, GoogleMap.OnInfoWindowClickListener, GoogleMap.OnMarkerClickListener, DialogMarkerModifyMarkerTypeFragment.DialogMarkerModifyMarkerTypeListener,
+        DialogMarkerTypeSelectFragment.DialogMarkerTypeSelectListener, DialogNewmarkerFragment.DialogNewmarkerListener, DialogNewMarkerTypeFragment.DialogNewMarkerTypeFragmentListener, DialogMarkerFragment.DialogMarkerListener, DialogMarkerModifyFragment.DialogMarkerModifyListener{
 
     private GoogleMap mMap; //mMap 객체
     SupportMapFragment mMapFragment = null;    //singleton mMapFragment instance
-    MarkerTypeDataFragment markerTypeListFragment = null;
+    MarkerTypeDataFragment markerTypeListFragment = null;   //교체할 markerType Fragment
 
     // side tab에 따른 mode
-    private String MARKER_MODE = "markermode";
-    private String MOVEMENT_MODE = "movementmode";
-    private String MARKERTYPE_MODE = "markertypemode";
+    final private String MARKER_MODE = "markermode";
+    final private String MOVEMENT_MODE = "movementmode";
+    final private String MARKERTYPE_MODE = "markertypemode";
     private static String STR_MODE = "markermode";  //marker, movement
 
     //dbHelperMain
     private DatabaseHelperMain databaseHelperMain = null;
-
     private Dao<MarkerData, Integer> daoMarkerDataInteger = null;
     private Dao<MarkerMarkerTypeData, Integer> daoMarkerMarkerTypeDataInteger = null;
     private Dao<MarkerTypeData, Integer> daoMarkerTypeDataInteger = null;
 
     //새로 생성된 Marker. null이 아닌경우 생성중인 상태.
     private Marker newMarker = null;
+    //선택된 (클릭된) 마커
+    private Marker clickedMarker = null;
 
     public double CUSTOM_DRADIUS = 30;
 
@@ -69,9 +75,10 @@ public class MapsActivity extends AppCompatActivity
     private List<Marker> listMarkerOnMap = new ArrayList<Marker>();
 
     //state
-    String STATE_NONE = "state_none";
-    String STATE_CREATE_MARKER_BEFORE_ONMAP = "state_create_marker_before_onmap";
-    String STATE_CREATE_MARKER_AFTER_ONMAP = "state_create_marker_after_onmap";
+    final String STATE_NONE = "state_none";
+    final String STATE_CREATE_MARKER_BEFORE_ONMAP = "state_create_marker_before_onmap";
+    final String STATE_CREATE_MARKER_AFTER_ONMAP = "state_create_marker_after_onmap";
+    final String STATE_MODIFY_MARKER_POSITION = "state_modify_marker_positoin";
     private String STR_STATE = STATE_NONE;
 
 
@@ -83,10 +90,24 @@ public class MapsActivity extends AppCompatActivity
 
     public ArrayList<MarkerTypeData> markerTypeDataList = null;  //new marker의 marker type.
 
+    public ArrayList<String> spinnerMarkerTypeDataStringList = null;  //DialogMarkerFragment의 spinner에서 보여질  marker type list
+    public ArrayList<MarkerTypeData> markerTypeModifiedDataList = null;  //DialogMarkerModifyFragment에서 수정되는 marker type list
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        //getDat
+        try{
+            daoMarkerDataInteger = getDatabaseHelperMain().getDaoMarkerData();
+            daoMarkerMarkerTypeDataInteger = getDatabaseHelperMain().getDaoMarkerMarkerTypeData();	//get
+            daoMarkerTypeDataInteger = getDatabaseHelperMain().getDaoMarkerTypeData();	//get dao
+        }
+        catch(SQLException e){
+            Log.d("MapsActivity", "getDao error");
+        }
 
         setContentView(R.layout.activity_maps);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -127,7 +148,17 @@ public class MapsActivity extends AppCompatActivity
                     else if(STR_STATE.equals(STATE_CREATE_MARKER_AFTER_ONMAP)){
                         //register info window
                         DialogNewmarkerFragment dig = new DialogNewmarkerFragment();
-                        dig.show(((FragmentActivity)MapsActivity.this).getSupportFragmentManager(), "DialogMarkerTypeFragment");
+                        dig.show(((FragmentActivity)MapsActivity.this).getSupportFragmentManager(), "DialogNewmarkerFragment");
+                    }
+                    else if(STR_STATE.equals(STATE_MODIFY_MARKER_POSITION)){
+                        //open DialogMarkerModifyFragment
+                        DialogMarkerModifyFragment dig = new DialogMarkerModifyFragment();
+                        Bundle arg = new Bundle();
+                        MarkerData tempMd = (MarkerData)clickedMarker.getTag();
+                        arg.putString("title", tempMd.getStrMarkerName());
+                        arg.putString("memo", tempMd.getStrMemo());
+                        //lat, lng은 나중에 처리
+                        dig.show(getSupportFragmentManager(), "DialogMarkerModifyFragment");
                     }
 
                 }
@@ -147,16 +178,34 @@ public class MapsActivity extends AppCompatActivity
         fabCancel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                if(STR_MODE.equals(MARKER_MODE)){
+                    //new marker cancel
+                    if(STR_STATE.equals(STATE_CREATE_MARKER_BEFORE_ONMAP) || STR_STATE.equals(STATE_CREATE_MARKER_AFTER_ONMAP)  ){
+                        if(newMarker != null){
+                            newMarker.remove();
+                            newMarker = null;
+                        }
+                        markerTypeDataList = new ArrayList<>();
+                        changeState(STATE_NONE);
 
-                if(newMarker != null){
-                    newMarker.remove();
-                    newMarker = null;
+                        Snackbar.make(view, "cancel creating new marker", Snackbar.LENGTH_LONG)
+                                .setAction("Action", null).show();
+                    }
+                    //modify marker cancel
+                    if(STR_STATE.equals(STATE_MODIFY_MARKER_POSITION)){
+                        if(clickedMarker != null){
+                            clickedMarker.setDraggable(false);
+                            setVisibleAllMarkerOnMap();
+                            changeState(STATE_NONE);
+                        }
+                        Snackbar.make(view, "cancel modify marker", Snackbar.LENGTH_LONG)
+                                .setAction("Action", null).show();
+                    }
                 }
-                markerTypeDataList = new ArrayList<>();
-                changeState(STATE_NONE);
+                else if(STR_MODE.equals(MOVEMENT_MODE)){
 
-                Snackbar.make(view, "cancel creating new marker", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
+                }
+
             }
         });
         hideFabCancel();
@@ -175,9 +224,6 @@ public class MapsActivity extends AppCompatActivity
         /*MapFragment mapFragment = (MapFragment) getFragmentManager()
                 .findFragmentById(R.id.mapFragment);
         mapFragment.getMapAsync(this);*/
-
-
-
     }
 
     //nav bar methods
@@ -234,9 +280,7 @@ public class MapsActivity extends AppCompatActivity
         } else if (id == R.id.nav_share) {
 
         } else if (id == R.id.nav_send) {
-
         }
-
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
@@ -255,7 +299,6 @@ public class MapsActivity extends AppCompatActivity
 
         //load data from markers
         try{
-            daoMarkerDataInteger = getDatabaseHelperMain().getDaoMarkerData();
             if(daoMarkerDataInteger != null){
                 List<MarkerData> listMarkerData = daoMarkerDataInteger.queryForAll();
                 //StringBuilder strbList- = new StringBuilder();
@@ -374,18 +417,16 @@ public class MapsActivity extends AppCompatActivity
                 //fabCancel.show();
                 showFabCancel();
             }
+            else if(inStr.equals(STATE_MODIFY_MARKER_POSITION)){
+                hideFabList();
+                showFabCancel();
+            }
             STR_STATE = inStr;
         }
         return;
     }
 
-    //get DB helper singleton
-    private DatabaseHelperMain getDatabaseHelperMain(){
-        if(databaseHelperMain == null){
-            databaseHelperMain = DatabaseHelperMain.getHelper(this);
-        }
-        return databaseHelperMain;
-    }
+
 
     //info window click listener
     @Override
@@ -396,8 +437,46 @@ public class MapsActivity extends AppCompatActivity
                 return;
             }
         }
-        //show marker info dialog
 
+        clickedMarker = marker; //선택된 마커 setting
+        //init
+        List<MarkerTypeData> tempDataList = null;
+        spinnerMarkerTypeDataStringList = null;
+        markerTypeModifiedDataList = null;
+
+        spinnerMarkerTypeDataStringList = new ArrayList<String>();
+        markerTypeModifiedDataList = new ArrayList<MarkerTypeData>();
+        spinnerMarkerTypeDataStringList.add("선택된 마커타입 리스트");
+
+        MarkerData tagMarkerData = (MarkerData)marker.getTag();
+
+        //show marker info dialog
+        try{
+            tempDataList = lookupMarkerTypeForMarker(tagMarkerData);  //DialogMarkerFragment의 spinner에서 보여질  marker type list
+            for(MarkerTypeData mtd : tempDataList){
+                try{
+                    markerTypeModifiedDataList.add((MarkerTypeData)mtd.clone());    //DialogMarkerModifyFragment에서 수정되는 marker type list
+                    spinnerMarkerTypeDataStringList.add(mtd.getStrTypeName());
+                }
+                catch(CloneNotSupportedException e){
+                    Log.d("MapsActivity", "markerTypeModifiedDataList clone error");
+                }
+            }
+            //spinnerMarkerTypeDataList = new ArrayList<>(markerTypeModifiedDataList);  //not copy. only string copy
+        }
+        catch(SQLException e){
+            Log.d("MapsActivity", "spinnerMarkerTypeDataList, markerTypeModifiedDataList SQL EXCEPTION");
+        }
+
+        //open dialog
+        DialogMarkerFragment dig = new DialogMarkerFragment();
+        Bundle arg = new Bundle();
+        arg.putString("title", tagMarkerData.getStrMarkerName());
+        arg.putString("memo", tagMarkerData.getStrMemo());
+        arg.putDouble("lat", tagMarkerData.getLat());
+        arg.putDouble("lng", tagMarkerData.getLng());
+        dig.setArguments(arg);
+        dig.show(getSupportFragmentManager(), "DialogMarkerFragment");
     }
 
     //marker click listener
@@ -406,7 +485,6 @@ public class MapsActivity extends AppCompatActivity
         //show window
         return false;
     }
-
 
     //fab button hide & show
     public void showFabCancel(){
@@ -429,7 +507,6 @@ public class MapsActivity extends AppCompatActivity
         fabCancel.setLayoutParams(p);
         fabCancel.setVisibility(View.GONE);
     }
-
     public void showFabList(){
         CoordinatorLayout.LayoutParams p = new CoordinatorLayout.LayoutParams(CoordinatorLayout.LayoutParams.WRAP_CONTENT, CoordinatorLayout.LayoutParams.WRAP_CONTENT);
         p.gravity = Gravity.BOTTOM | Gravity.RIGHT;
@@ -451,7 +528,6 @@ public class MapsActivity extends AppCompatActivity
         fabList.setLayoutParams(p);
         fabList.setVisibility(View.GONE);
     }
-
 
     //get MapFragment with singleton
     private SupportMapFragment getMMapFragment(){
@@ -489,10 +565,12 @@ public class MapsActivity extends AppCompatActivity
     //DialogNewmarkerFragment.DialogNewmarkerListener listener
     @Override
     public void registerNewMarker(MarkerData data) {
+        //setting current lat lng to newMarker
+        data.setLat(newMarker.getPosition().latitude);
+        data.setLng(newMarker.getPosition().longitude);
+
         //TODO : data를 DB에 저장한다. markerTypeDataList를 이용하여 MarkerMarkerTypeData에 등록하는 과정 포함.
         try{
-            daoMarkerDataInteger = getDatabaseHelperMain().getDaoMarkerData();	//get
-            daoMarkerMarkerTypeDataInteger = getDatabaseHelperMain().getDaoMarkerMarkerTypeData();	//get
             if(daoMarkerDataInteger != null){
                 daoMarkerDataInteger.create(data);	//save data
                 ArrayList<MarkerTypeData> tempMarkerTypeList = getNewMarkerTypeList();
@@ -515,20 +593,15 @@ public class MapsActivity extends AppCompatActivity
         );
         mark.setTag(data);
         listMarkerOnMap.add(mark);
-
         newMarker = null;   //remove new marker
-
         changeState(STATE_NONE);
-
     }
 
     //button -> MarkerTypeCreate -> DialogNewMarkerTypeFragemnt
     @Override
     public void createNewMarkerType(MarkerTypeData mtd) {
         try{
-            daoMarkerTypeDataInteger = getDatabaseHelperMain().getDaoMarkerTypeData();	//get dao
             daoMarkerTypeDataInteger.create(mtd);
-
             //MarkerTypeDataFragment dialogMarkerTypeDataFragment = (MarkerTypeDataFragment)getFragmentManager().findFragmentById(R.id.fragment_markertypedata_list);
             MarkerTypeDataFragment dialogMarkerTypeDataFragment = (MarkerTypeDataFragment)getSupportFragmentManager().findFragmentByTag("marker_type_list_fragment");
             dialogMarkerTypeDataFragment.updateViewWithAdd(mtd);
@@ -539,14 +612,167 @@ public class MapsActivity extends AppCompatActivity
 
     }
 
+    public void unVisibleAllMarkerOnMap(Marker exceptMarker){
+        if(exceptMarker != null){
+            for(Marker marker : listMarkerOnMap){
+                if(exceptMarker.equals(marker)){
+                    continue;
+                }
+                marker.setVisible(false);
+            }
+        }
+        else{
+            for(Marker marker : listMarkerOnMap){
+                marker.setVisible(false);
+            }
+        }
+    }
+    public void setVisibleAllMarkerOnMap(){
+        for(Marker marker : listMarkerOnMap){
+            marker.setVisible(true);
+        }
+    }
+
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-
         if(databaseHelperMain != null){
             databaseHelperMain.close();
             databaseHelperMain = null;
         }
+    }
+
+    //DialogMarkerFragment listener
+    @Override
+    public void modifyMarker() {
+        unVisibleAllMarkerOnMap(clickedMarker);
+        Snackbar.make(findViewById(android.R.id.content), "변경하고자하는 위치에 마커를 놓고 '+' 버튼을 누르세요.", Snackbar.LENGTH_LONG)
+                .setAction("Action", null).show();
+        changeState(STATE_MODIFY_MARKER_POSITION);
+        clickedMarker.setDraggable(true);
+        clickedMarker.setVisible(true);
+    }
+    @Override
+    public void deleteMarker() {
+        clickedMarker.remove();
+        if(clickedMarker != null){
+            MarkerData tagMarkerData = (MarkerData)clickedMarker.getTag();
+            try{
+                deleteMarkerTypesForMarker(tagMarkerData);      //type delete
+                daoMarkerDataInteger.delete(tagMarkerData); //marker delete
+            }
+            catch(SQLException e){
+                Log.d("MapsActivity", "deleteMarker SQL Exception");
+            }
+        }
+        listMarkerOnMap.remove(clickedMarker);
+        clickedMarker = null;
+    }
+    @Override
+    public ArrayList<String> getSpinnerMarkerTypeDataStringList() {
+        return spinnerMarkerTypeDataStringList;
+    }
+
+
+    //수정 완료된 marker update. DialogMarkerModifyListener listener
+    @Override
+    public void modifyMarkerComplete(String title, String memo) {
+        //with clickedMarker.getPosition & markerTypeModifiedDataList & String 2
+        MarkerData modifiedMarkerData = (MarkerData)clickedMarker.getTag();
+        modifiedMarkerData.setStrMarkerName(title);
+        modifiedMarkerData.setStrMemo(memo);
+        modifiedMarkerData.setLat(clickedMarker.getPosition().latitude);
+        modifiedMarkerData.setLng(clickedMarker.getPosition().longitude);
+        clickedMarker.setTag(modifiedMarkerData);       //NEED?
+        try{
+            daoMarkerDataInteger.update(modifiedMarkerData);
+            //delete markerType with modifiedMarkerData
+            deleteMarkerTypesForMarker(modifiedMarkerData);
+
+            //add markerTypeModifiedDataList to modifiedMarkerData
+            for(MarkerTypeData mtd : markerTypeModifiedDataList){
+                MarkerMarkerTypeData tempMarkerMarkerTypeData = new MarkerMarkerTypeData(modifiedMarkerData, mtd);
+                daoMarkerMarkerTypeDataInteger.create(tempMarkerMarkerTypeData);
+            }
+        }
+        catch(SQLException e){
+            Log.d("MapsActivity", "modifyMarkerComplete SQL EXCEPTION");
+        }
+    }
+
+    //DialogMarkerModifyMarkerTypeFragment listener
+    @Override
+    public ArrayList<MarkerTypeData> getMarkerTypeModifiedDataList() {
+        return markerTypeModifiedDataList;
+    }
+    @Override
+    public void setMarkerTypeModifiedDataList(ArrayList<MarkerTypeData> markerTypeList) {
+        markerTypeModifiedDataList = markerTypeList;
+    }
+
+
+
+    //get DB helper singleton
+    private DatabaseHelperMain getDatabaseHelperMain() {
+        if (databaseHelperMain == null) {
+            databaseHelperMain = DatabaseHelperMain.getHelper(this);
+        }
+        return databaseHelperMain;
+    }
+    //준비된 쿼리문 (singleton)
+    private PreparedQuery<MarkerTypeData> markerTypesForMarkerQuery = null;
+
+    //param marker에 해당하는 markerTypeData들을 모두 가져오는 쿼리 실행문. return값은 List
+    private List<MarkerTypeData> lookupMarkerTypeForMarker(MarkerData markerData) throws SQLException {
+        if (markerTypesForMarkerQuery == null) {
+            markerTypesForMarkerQuery = makeMarkerTypesForMarkerQuery();
+        }
+        markerTypesForMarkerQuery.setArgumentHolderValue(0, markerData);    //아래의 selectArg에 markerData 해당됌.
+        return daoMarkerTypeDataInteger.query(markerTypesForMarkerQuery);
+    }
+
+    //marker에 해당하는 markerTypes를 가져오는 쿼리문.
+    private PreparedQuery<MarkerTypeData> makeMarkerTypesForMarkerQuery() throws SQLException {
+        // build our inner query for UserPost objects
+        QueryBuilder<MarkerMarkerTypeData, Integer> markerMarkerTypeQb = daoMarkerMarkerTypeDataInteger.queryBuilder();
+
+        // marker에 해당하는 markerType.id를 선택한다.
+        markerMarkerTypeQb.selectColumns(MarkerTypeData.ID_FIELD_NAME);
+        SelectArg selectArg = new SelectArg();
+        // 검색 조건으로 바로 marker를 setting 할 수 있다.
+        markerMarkerTypeQb.where().eq(MarkerMarkerTypeData.MARKERDATA_ID_FIELD_NAME, selectArg);
+
+        // MarkerTypeData dao에서 해당되는 id의 markerTypeData를 모두 가져온다.
+        QueryBuilder<MarkerTypeData, Integer> markerTypeDataQb = daoMarkerTypeDataInteger.queryBuilder();
+        // where the id matches in the post-id from the inner query
+        markerTypeDataQb.where().in(MarkerTypeData.ID_FIELD_NAME, markerMarkerTypeQb);
+        return markerTypeDataQb.prepare();
+    }
+
+
+    //준비된 쿼리문 (singleton)
+    private PreparedDelete<MarkerMarkerTypeData> markerMarkerTypeDatasForMarkerDeleteQuery = null;
+
+    //param marker에 해당하는 markerTypeData들을 모두 삭제하는 쿼리 실행문.
+    private void deleteMarkerTypesForMarker(MarkerData markerData) throws SQLException {
+        if (markerMarkerTypeDatasForMarkerDeleteQuery == null) {
+            markerMarkerTypeDatasForMarkerDeleteQuery = makeMarkerMarkerTypeDatasForMarkerDeleteQuery();
+        }
+        markerMarkerTypeDatasForMarkerDeleteQuery.setArgumentHolderValue(0, markerData);    //아래의 selectArg에 markerData 해당됌.
+        daoMarkerMarkerTypeDataInteger.delete(markerMarkerTypeDatasForMarkerDeleteQuery);
+        return;
+    }
+
+    private PreparedDelete<MarkerMarkerTypeData> makeMarkerMarkerTypeDatasForMarkerDeleteQuery() throws SQLException {
+        // build our inner query for UserPost objects
+        DeleteBuilder<MarkerMarkerTypeData, Integer> markerMarkerTypeQb = daoMarkerMarkerTypeDataInteger.deleteBuilder();
+
+        // marker에 해당하는 markerType.id를 선택한다.
+        //markerMarkerTypeQb.selectColumns(MarkerTypeData.ID_FIELD_NAME);
+        SelectArg selectArg = new SelectArg();
+        // 검색 조건으로 바로 marker를 setting 할 수 있다.
+        markerMarkerTypeQb.where().eq(MarkerMarkerTypeData.MARKERDATA_ID_FIELD_NAME, selectArg);
+        return markerMarkerTypeQb.prepare();
     }
 }
