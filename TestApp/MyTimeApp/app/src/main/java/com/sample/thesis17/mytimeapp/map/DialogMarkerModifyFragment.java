@@ -77,12 +77,13 @@ public class DialogMarkerModifyFragment extends DialogFragment {
         LayoutInflater inflater = getActivity().getLayoutInflater();
 
         //하단 확인, 취소 버튼
-        View retView = inflater.inflate(R.layout.fragment_dialog_marker, null);
+        View retView = inflater.inflate(R.layout.fragment_dialog_marker_modify, null);
         textViewMarkerName = (TextView)retView.findViewById(R.id.fragment_dialog_marker_modify_marker_name);
         textViewMarkerMemo = (TextView)retView.findViewById(R.id.fragment_dialog_marker_modify_marker_memo);
         buttonSelectType = (Button)retView.findViewById(R.id.fragment_dialog_marker_modify_marker_button_selectType);
 
         Bundle tempArg = getArguments();
+        Log.d("debugs", "1"+tempArg.getString("title"));
         textViewMarkerName.setText(tempArg.getString("title"));
         textViewMarkerMemo.setText(tempArg.getString("memo"));
 

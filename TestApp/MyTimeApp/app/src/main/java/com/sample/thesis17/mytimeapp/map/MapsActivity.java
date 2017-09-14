@@ -157,6 +157,7 @@ public class MapsActivity extends AppCompatActivity
                         MarkerData tempMd = (MarkerData)clickedMarker.getTag();
                         arg.putString("title", tempMd.getStrMarkerName());
                         arg.putString("memo", tempMd.getStrMemo());
+                        dig.setArguments(arg);
                         //lat, lng은 나중에 처리
                         dig.show(getSupportFragmentManager(), "DialogMarkerModifyFragment");
                     }
@@ -431,6 +432,10 @@ public class MapsActivity extends AppCompatActivity
     //info window click listener
     @Override
     public void onInfoWindowClick(Marker marker) {
+        if(STR_STATE.equals(STATE_MODIFY_MARKER_POSITION)){
+            //마커 수정중에는 마커 정보창을 띄우지 않는다.
+            return;
+        }
         if(newMarker != null){
             if(marker.equals(newMarker)){
                 marker.hideInfoWindow();
@@ -453,7 +458,12 @@ public class MapsActivity extends AppCompatActivity
         //show marker info dialog
         try{
             tempDataList = lookupMarkerTypeForMarker(tagMarkerData);  //DialogMarkerFragment의 spinner에서 보여질  marker type list
+            Log.d("MapsActivity", "count.." + tempDataList.size());
             for(MarkerTypeData mtd : tempDataList){
+
+                markerTypeModifiedDataList.add((MarkerTypeData)mtd);    //DialogMarkerModifyFragment에서 수정되는 marker type list
+                spinnerMarkerTypeDataStringList.add(mtd.getStrTypeName());
+/*
                 try{
                     markerTypeModifiedDataList.add((MarkerTypeData)mtd.clone());    //DialogMarkerModifyFragment에서 수정되는 marker type list
                     spinnerMarkerTypeDataStringList.add(mtd.getStrTypeName());
@@ -461,6 +471,7 @@ public class MapsActivity extends AppCompatActivity
                 catch(CloneNotSupportedException e){
                     Log.d("MapsActivity", "markerTypeModifiedDataList clone error");
                 }
+                */
             }
             //spinnerMarkerTypeDataList = new ArrayList<>(markerTypeModifiedDataList);  //not copy. only string copy
         }
@@ -574,6 +585,7 @@ public class MapsActivity extends AppCompatActivity
             if(daoMarkerDataInteger != null){
                 daoMarkerDataInteger.create(data);	//save data
                 ArrayList<MarkerTypeData> tempMarkerTypeList = getNewMarkerTypeList();
+                Log.d("MapsActivity", "lenss" + tempMarkerTypeList.size());
                 for(MarkerTypeData mtd : tempMarkerTypeList){
                     MarkerMarkerTypeData tempMarkerMarkerTypeData = new MarkerMarkerTypeData(data, mtd);
                     daoMarkerMarkerTypeDataInteger.create(tempMarkerMarkerTypeData);
@@ -684,7 +696,8 @@ public class MapsActivity extends AppCompatActivity
         modifiedMarkerData.setStrMemo(memo);
         modifiedMarkerData.setLat(clickedMarker.getPosition().latitude);
         modifiedMarkerData.setLng(clickedMarker.getPosition().longitude);
-        clickedMarker.setTag(modifiedMarkerData);       //NEED?
+        clickedMarker.setTag(modifiedMarkerData);       //NEED
+        clickedMarker.setSnippet(title);    //name
         try{
             daoMarkerDataInteger.update(modifiedMarkerData);
             //delete markerType with modifiedMarkerData
@@ -699,6 +712,9 @@ public class MapsActivity extends AppCompatActivity
         catch(SQLException e){
             Log.d("MapsActivity", "modifyMarkerComplete SQL EXCEPTION");
         }
+        changeState(STATE_NONE);
+        Snackbar.make(findViewById(android.R.id.content), "마커 정보 수정 완료", Snackbar.LENGTH_SHORT)
+                .setAction("Action", null).show();
     }
 
     //DialogMarkerModifyMarkerTypeFragment listener
@@ -738,7 +754,7 @@ public class MapsActivity extends AppCompatActivity
         QueryBuilder<MarkerMarkerTypeData, Integer> markerMarkerTypeQb = daoMarkerMarkerTypeDataInteger.queryBuilder();
 
         // marker에 해당하는 markerType.id를 선택한다.
-        markerMarkerTypeQb.selectColumns(MarkerTypeData.ID_FIELD_NAME);
+        markerMarkerTypeQb.selectColumns(MarkerMarkerTypeData.MARKERTYPEDATA_ID_FIELD_NAME);
         SelectArg selectArg = new SelectArg();
         // 검색 조건으로 바로 marker를 setting 할 수 있다.
         markerMarkerTypeQb.where().eq(MarkerMarkerTypeData.MARKERDATA_ID_FIELD_NAME, selectArg);

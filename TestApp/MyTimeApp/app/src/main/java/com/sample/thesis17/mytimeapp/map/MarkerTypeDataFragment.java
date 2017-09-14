@@ -17,7 +17,11 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.j256.ormlite.dao.Dao;
+import com.j256.ormlite.stmt.DeleteBuilder;
+import com.j256.ormlite.stmt.PreparedDelete;
+import com.j256.ormlite.stmt.SelectArg;
 import com.sample.thesis17.mytimeapp.DB.baseClass.DatabaseHelperMain;
+import com.sample.thesis17.mytimeapp.DB.tables.MarkerMarkerTypeData;
 import com.sample.thesis17.mytimeapp.DB.tables.MarkerTypeData;
 import com.sample.thesis17.mytimeapp.R;
 import com.sample.thesis17.mytimeapp.map.dummy.DummyContent;
@@ -43,6 +47,9 @@ public class MarkerTypeDataFragment extends Fragment implements MyMarkerTypeData
     private MarkerTypeData selectedMarkerTypeData = null;
     private int selectedMarkerTypeDataPos = 0;
 
+    //DAO
+    Dao<MarkerMarkerTypeData, Integer> daoMarkerMarkerTypeDataInteger = null;
+    Dao<MarkerTypeData, Integer> daoMarkerTypeDataInteger = null;	//get
 
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the
@@ -91,7 +98,7 @@ public class MarkerTypeDataFragment extends Fragment implements MyMarkerTypeData
 
 
         try{
-            Dao<MarkerTypeData, Integer> daoMarkerTypeDataInteger = getDatabaseHelperMain().getDaoMarkerTypeData();	//get
+            daoMarkerTypeDataInteger = getDatabaseHelperMain().getDaoMarkerTypeData();	//get
             if(daoMarkerTypeDataInteger != null){
                 markerTypeDataList = daoMarkerTypeDataInteger.queryForAll();
             }
@@ -168,8 +175,10 @@ public class MarkerTypeDataFragment extends Fragment implements MyMarkerTypeData
     public void deleteMarkerType() {
         if(selectedMarkerTypeData != null){
             try{
-                Dao<MarkerTypeData, Integer> daoMarkerTypeDataInteger = getDatabaseHelperMain().getDaoMarkerTypeData();	//get
+                daoMarkerTypeDataInteger = getDatabaseHelperMain().getDaoMarkerTypeData();	//get
                 if(daoMarkerTypeDataInteger != null){
+                    //TODO : 해당 markerType를 가진 marker들의 bind 제거
+                    deleteMarkersForMarkerType(selectedMarkerTypeData);
                     daoMarkerTypeDataInteger.delete(selectedMarkerTypeData);
                     markerTypeDataList.remove(selectedMarkerTypeDataPos);
                     markerTypeDataFragmentAdapter.notifyItemRemoved(selectedMarkerTypeDataPos);
@@ -191,7 +200,7 @@ public class MarkerTypeDataFragment extends Fragment implements MyMarkerTypeData
     public void modifyMarkerTypeData(MarkerTypeData mtd) {
         //modify 창 open 후 save시
         try{
-            Dao<MarkerTypeData, Integer> daoMarkerTypeDataInteger = getDatabaseHelperMain().getDaoMarkerTypeData();	//get
+            daoMarkerTypeDataInteger = getDatabaseHelperMain().getDaoMarkerTypeData();	//get
             if(daoMarkerTypeDataInteger != null){
                 //dialog에 전달된 정보는 markerTypeData id가 없음. 현재 선택된 data에 id가 존재하므로 그대로 selectedMarkerTypeData를 갱신하여 Dao에 update.
                 selectedMarkerTypeData.setStrTypeName(mtd.getStrTypeName());
@@ -215,6 +224,32 @@ public class MarkerTypeDataFragment extends Fragment implements MyMarkerTypeData
             databaseHelperMain.close();
             databaseHelperMain = null;
         }
+    }
+
+    //준비된 쿼리문 (singleton)
+    private PreparedDelete<MarkerMarkerTypeData> markerMarkerTypeDatasForMarkerTypeDeleteQuery = null;
+
+    //param marker에 해당하는 markerTypeData들을 모두 삭제하는 쿼리 실행문.
+    private void deleteMarkersForMarkerType(MarkerTypeData markertypeData) throws SQLException {
+        if (markerMarkerTypeDatasForMarkerTypeDeleteQuery == null) {
+            markerMarkerTypeDatasForMarkerTypeDeleteQuery = makeMarkerMarkerTypeDatasForMarkerTypeDeleteQuery();
+        }
+        markerMarkerTypeDatasForMarkerTypeDeleteQuery.setArgumentHolderValue(0, markertypeData);    //아래의 selectArg에 markerData 해당됌.
+        daoMarkerMarkerTypeDataInteger = getDatabaseHelperMain().getDaoMarkerMarkerTypeData();
+        daoMarkerMarkerTypeDataInteger.delete(markerMarkerTypeDatasForMarkerTypeDeleteQuery);
+        return;
+    }
+
+    private PreparedDelete<MarkerMarkerTypeData> makeMarkerMarkerTypeDatasForMarkerTypeDeleteQuery() throws SQLException {
+        // build our inner query for UserPost objects
+        DeleteBuilder<MarkerMarkerTypeData, Integer> markerMarkerTypeQb = daoMarkerMarkerTypeDataInteger.deleteBuilder();
+
+        // marker에 해당하는 markerType.id를 선택한다.
+        //markerMarkerTypeQb.selectColumns(MarkerTypeData.ID_FIELD_NAME);
+        SelectArg selectArg = new SelectArg();
+        // 검색 조건으로 바로 markerType를 setting 할 수 있다.
+        markerMarkerTypeQb.where().eq(MarkerMarkerTypeData.MARKERTYPEDATA_ID_FIELD_NAME, selectArg);
+        return markerMarkerTypeQb.prepare();
     }
 }
 
