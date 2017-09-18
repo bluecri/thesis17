@@ -9,6 +9,11 @@ import java.math.RoundingMode;
  */
 
 public class MyMath {
+    public static long LONG_HOUR_MILLIS = 60*60*1000;
+    public static long LONG_MIN_MILLIS = 60*1000;
+    public static long LONG_DAY_MILLIS = 60*60*24*1000;
+    public static long LONG_WEEK_MILLIS = 60*60*24*7*1000;
+
     public static double doubleRound(double value, int places) {
         if (places < 0) throw new IllegalArgumentException();
 

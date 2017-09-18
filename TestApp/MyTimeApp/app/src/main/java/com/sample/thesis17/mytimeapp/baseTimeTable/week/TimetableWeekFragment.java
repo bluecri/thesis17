@@ -1,9 +1,12 @@
 package com.sample.thesis17.mytimeapp.baseTimeTable.week;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v7.app.AlertDialog;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,9 +15,18 @@ import android.widget.Button;
 import android.widget.GridView;
 import android.widget.TextView;
 
+import com.j256.ormlite.dao.Dao;
+import com.sample.thesis17.mytimeapp.DB.baseClass.DatabaseHelperMain;
+import com.sample.thesis17.mytimeapp.DB.tables.FixedTimeTableData;
 import com.sample.thesis17.mytimeapp.R;
 import com.sample.thesis17.mytimeapp.baseCalendar.month.CalenderMonthAdapter;
 import com.sample.thesis17.mytimeapp.baseCalendar.month.MonthItem;
+
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
+
+import static android.util.Log.d;
 
 
 /**
@@ -38,11 +50,20 @@ public class TimetableWeekFragment extends Fragment {
     private OnFragmentInteractionListener mListener;
 
     View weekGridview;
+    CustomWeekView customWeekView;
     TextView centerText;
-    Button leftButton, rightButton;
+    Button leftButton, addButton;
+    Context curContext;
 
-    int curYear;        //현재 달력의 년, 월.
-    int curMonth;
+    //DB
+    List<FixedTimeTableData> listFixedTimeTableData = null;
+    Dao<FixedTimeTableData, Integer> daoFixedTimeTableDataInteger = null;
+    CustomWeekAdapter customWeekAdapter = null;
+
+
+
+    //int curYear;        //현재 달력의 년, 월.
+    //int curMonth;
 
     public TimetableWeekFragment() {
         // Required empty public constructor
@@ -69,10 +90,23 @@ public class TimetableWeekFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        try{
+            daoFixedTimeTableDataInteger = getDatabaseHelperMain().getDaoFixedTimeTableData();
+            if(daoFixedTimeTableDataInteger != null) {
+                listFixedTimeTableData = daoFixedTimeTableDataInteger.queryForAll();
+                customWeekAdapter = new CustomWeekAdapter(listFixedTimeTableData);  //adapter create
+            }
+        }
+        catch(SQLException e){
+            Log.d("TimetableWeekF", "getDaoFixedTimeTableData SQL Exception");
+        }
         /*if (getArguments() != null) {
             mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
         }*/
+
+
     }
 
     @Override
@@ -84,10 +118,17 @@ public class TimetableWeekFragment extends Fragment {
 
         //button, text
         leftButton = (Button)retView.findViewById(R.id.fragment_timetable_week_buttonPrev);
-        rightButton = (Button)retView.findViewById(R.id.fragment_timetable_week_buttonNext);
+        addButton = (Button)retView.findViewById(R.id.fragment_timetable_week_buttonAdd);
         centerText = (TextView)retView.findViewById(R.id.fragment_timetable_week_textMonth);
 
         weekGridview = (View)(retView.findViewById(R.id.customWeekView));
+        customWeekView = (CustomWeekView) weekGridview;
+
+        //adapter View에 등록
+        customWeekView.setCustomWeekAdapter(customWeekAdapter);
+
+
+
 
         //weekGridview = (GridView)(retView.findViewById(R.id.fragment_timetable_week_GridView));    //retView에서 gridview 찾아 할당
         /*timetableWeekAdapter = new TimetableWeekAdapter(getActivity());
@@ -132,14 +173,51 @@ public class TimetableWeekFragment extends Fragment {
             }
         });
 
-        rightButton.setOnClickListener(new View.OnClickListener() {
+        //add button
+        addButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-             /*   timetableWeekAdapter.setNextMonth();;
-                timetableWeekAdapter.notifyDataSetChanged();
-                setCenterText();*/
+                AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(
+                        curContext);
+
+// 제목셋팅
+                alertDialogBuilder.setTitle("프로그램 종료");
+
+// AlertDialog 셋팅
+                alertDialogBuilder
+                        .setMessage("프로그램을 종료할 것입니까?")
+                        .setCancelable(false);
+
+                alertDialogBuilder
+                        .setMessage("프로그램을 종료할 것입니까?")
+                        .setCancelable(false)
+                        .setPositiveButton("종료",
+                                new DialogInterface.OnClickListener() {
+                                    public void onClick(
+                                            DialogInterface dialog, int id) {
+                                        // 프로그램을 종료한다
+                                    }
+                                })
+                        .setNegativeButton("취소",
+                                new DialogInterface.OnClickListener() {
+                                    public void onClick(
+                                            DialogInterface dialog, int id) {
+                                        // 다이얼로그를 취소한다
+                                        dialog.cancel();
+                                    }
+                                });
+
+                AlertDialog alertDialog = alertDialogBuilder.create();
+
+                alertDialog.show();
+
+
+
+
             }
         });
+
+
 
         return retView;
     }
@@ -160,6 +238,7 @@ public class TimetableWeekFragment extends Fragment {
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
+        curContext = context;
         /*if (context instanceof OnFragmentInteractionListener) {
             mListener = (OnFragmentInteractionListener) context;
         } else {
@@ -188,4 +267,25 @@ public class TimetableWeekFragment extends Fragment {
         // TODO: Update argument type and name
         void onFragmentInteraction(Uri uri);
     }
+
+    //db
+    /*List<FixedTimeTableData> getFixedTimeTableDataList(){
+        return listFixedTimeTableData;
+    }*/
+
+    //DB
+    private DatabaseHelperMain databaseHelperMain = null;
+
+    private DatabaseHelperMain getDatabaseHelperMain(){
+        if(databaseHelperMain == null){
+            databaseHelperMain = DatabaseHelperMain.getHelper(super.getContext());
+        }
+        return databaseHelperMain;
+    }
+
+    void openDialogWithIdx(int idx){
+        //TODO: make dialog
+
+    }
+
 }

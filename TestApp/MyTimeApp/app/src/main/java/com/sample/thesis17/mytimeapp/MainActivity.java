@@ -111,7 +111,8 @@ public class MainActivity extends AppCompatActivity
             //create Calender fragment with parameter
             TimetableWeekFragment timetableFragment = TimetableWeekFragment.newInstance("", "");
             //replace mainFragment's fragment -> calender(TAG : timetable)
-            fragmentTransaction.replace(R.id.mainFragmentContainer, timetableFragment, "timetable");
+            //fragmentTransaction.replace(R.id.mainFragmentContainer, timetableFragment, "timetable");
+            fragmentTransaction.replace(R.id.mainFragmentContainer, timetableFragment, "timetable_week_fragment");
             fragmentTransaction.commit();
         }
 
@@ -120,7 +121,7 @@ public class MainActivity extends AppCompatActivity
             FragmentManager fragmentManager = getSupportFragmentManager();
             FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
             CalenderMonthFragment calenderFragment = CalenderMonthFragment.newInstance("", "");
-            fragmentTransaction.replace(R.id.mainFragmentContainer, calenderFragment, "wtimetable");
+            fragmentTransaction.replace(R.id.mainFragmentContainer, calenderFragment, "calender_fragment");
             fragmentTransaction.commit();
         }
 
