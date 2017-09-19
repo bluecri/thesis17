@@ -4,7 +4,7 @@
     android:layout_height="match_parent">
 
     <EditText
-        android:id="@+id/fragment_dialog_timetable_item_modify_title"
+        android:id="@+id/fragment_dialog_timetable_item_create_title"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:ems="10"
@@ -18,13 +18,13 @@
         android:orientation="horizontal">
 
         <Spinner
-            android:id="@+id/fragment_dialog_timetable_item_modify_startweek"
+            android:id="@+id/fragment_dialog_timetable_item_create_startweek"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:layout_weight="1" />
 
         <Button
-            android:id="@+id/fragment_dialog_timetable_item_modify_starttime"
+            android:id="@+id/fragment_dialog_timetable_item_create_starttime"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
@@ -38,13 +38,13 @@
         android:orientation="horizontal">
 
         <Spinner
-            android:id="@+id/fragment_dialog_timetable_item_modify_endweek"
+            android:id="@+id/fragment_dialog_timetable_item_create_endweek"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1" />
 
         <Button
-            android:id="@+id/fragment_dialog_timetable_item_modify_endtime"
+            android:id="@+id/fragment_dialog_timetable_item_create_endtime"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
@@ -53,12 +53,12 @@
     </LinearLayout>
 
     <Spinner
-        android:id="@+id/fragment_dialog_timetable_item_modify_marker"
+        android:id="@+id/fragment_dialog_timetable_item_create_marker"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
 
     <EditText
-        android:id="@+id/fragment_dialog_timetable_item_modify_memo"
+        android:id="@+id/fragment_dialog_timetable_item_create_memo"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:ems="10"

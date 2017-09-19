@@ -3,6 +3,7 @@ package com.sample.thesis17.mytimeapp.Static;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.ArrayList;
 
 /**
  * Created by kimz on 2017-09-07.
@@ -13,6 +14,9 @@ public class MyMath {
     public static long LONG_MIN_MILLIS = 60*1000;
     public static long LONG_DAY_MILLIS = 60*60*24*1000;
     public static long LONG_WEEK_MILLIS = 60*60*24*7*1000;
+
+    public static String[] WEEK_STRING = {"일", "월", "화", "수", "목", "금", "토"};
+
 
     public static double doubleRound(double value, int places) {
         if (places < 0) throw new IllegalArgumentException();

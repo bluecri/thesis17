@@ -452,12 +452,17 @@ public class CustomWeekView extends View {
                 //Click
                 int retIdx = curCustomWeekAdapter.getIdxWithClicked(event.getX(), event.getY());
                 Log.d("block", "call openDialogWithIdx");
-                ((TimetableWeekFragment)(((FragmentActivity)curContext).getSupportFragmentManager().findFragmentByTag("timetable_week_fragment"))).openDialogWithIdx(retIdx);
+                if(retIdx == -1){
+                    Log.d("block", "click box find error");
+                }
+                else{
+                    ((TimetableWeekFragment)(((FragmentActivity)curContext).getSupportFragmentManager().findFragmentByTag("timetable_week_fragment"))).openDialogWithIdx(retIdx);
+                }
                 Log.d("block", "ACTION_UP click");
 
             } else {
 
-                // 오래 눌렀다 손을 놓는 경우 아무 처리하지 않음?
+                // 오래 눌렀다 손을 놓는 경우 아무 처리하지 않음
                 Log.d("block", "ACTION_UP long click");
             }
             touchMode = MODE_NONE;

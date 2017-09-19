@@ -5,6 +5,7 @@ import android.content.DialogInterface;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -18,6 +19,7 @@ import android.widget.TextView;
 import com.j256.ormlite.dao.Dao;
 import com.sample.thesis17.mytimeapp.DB.baseClass.DatabaseHelperMain;
 import com.sample.thesis17.mytimeapp.DB.tables.FixedTimeTableData;
+import com.sample.thesis17.mytimeapp.DB.tables.MarkerData;
 import com.sample.thesis17.mytimeapp.R;
 import com.sample.thesis17.mytimeapp.baseCalendar.month.CalenderMonthAdapter;
 import com.sample.thesis17.mytimeapp.baseCalendar.month.MonthItem;
@@ -37,7 +39,7 @@ import static android.util.Log.d;
  * Use the {@link TimetableWeekFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class TimetableWeekFragment extends Fragment {
+public class TimetableWeekFragment extends Fragment implements DialogWeekItemViewFragment.DialogWeekItemViewFragmentListener, DialogWeekItemModifyViewFragment.DialogWeekItemModifyViewFragmentListener, DialogWeekItemCreateFragment.DialogWeekItemCreateFragmentListener{
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
@@ -57,9 +59,19 @@ public class TimetableWeekFragment extends Fragment {
 
     //DB
     List<FixedTimeTableData> listFixedTimeTableData = null;
+    List<MarkerData> listMarkerData = null;
     Dao<FixedTimeTableData, Integer> daoFixedTimeTableDataInteger = null;
+    Dao<MarkerData, Integer> daoMarkerDataInteger = null;
     CustomWeekAdapter customWeekAdapter = null;
 
+
+    //dialog
+    DialogWeekItemCreateFragment dialogWeekItemCreateFragment = null;
+    DialogWeekItemViewFragment dialogWeekItemViewFragment = null;
+    DialogWeekItemModifyViewFragment dialogWeekItemModifyViewFragment = null;
+    Bundle bundleArg = null;
+
+    int selectedIdx = 0;        //listFixedTimeTableData(시간표box list)에서 선택된 index
 
 
     //int curYear;        //현재 달력의 년, 월.
@@ -93,9 +105,14 @@ public class TimetableWeekFragment extends Fragment {
 
         try{
             daoFixedTimeTableDataInteger = getDatabaseHelperMain().getDaoFixedTimeTableData();
+            daoMarkerDataInteger = getDatabaseHelperMain().getDaoMarkerData();
             if(daoFixedTimeTableDataInteger != null) {
                 listFixedTimeTableData = daoFixedTimeTableDataInteger.queryForAll();
                 customWeekAdapter = new CustomWeekAdapter(listFixedTimeTableData);  //adapter create
+            }
+            //fixedTimeTableData와 연결된 markerData를 정하기 위한 list
+            if(daoMarkerDataInteger != null) {
+                listMarkerData = daoMarkerDataInteger.queryForAll();
             }
         }
         catch(SQLException e){
@@ -283,9 +300,107 @@ public class TimetableWeekFragment extends Fragment {
         return databaseHelperMain;
     }
 
+
+
+    //open dialogWeekItemViewFragment
     void openDialogWithIdx(int idx){
         //TODO: make dialog
+        selectedIdx = idx;
+        //listFixedTimeTableData use
+        //dialog call
+        dialogWeekItemViewFragment = new DialogWeekItemViewFragment();
+        bundleArg = new Bundle();
+        bundleArg.putString("title", listFixedTimeTableData.get(selectedIdx).getStrFixedTimeTableName());
+        bundleArg.putLong("starttime", listFixedTimeTableData.get(selectedIdx).getlStartTime());
+        bundleArg.putLong("endtime", listFixedTimeTableData.get(selectedIdx).getlEndTime());
+        bundleArg.putString("marker", listFixedTimeTableData.get(selectedIdx).getForeMarkerData().getStrMarkerName());
+        bundleArg.putString("memo", listFixedTimeTableData.get(selectedIdx).getStrMemo());
 
+        dialogWeekItemViewFragment.setArguments(bundleArg);
+        dialogWeekItemViewFragment.setTargetFragment(this, 0);
+        //dialogWeekItemViewFragment.dismiss();
+
+        Log.d("timetableweekF", "opendialogwithidx()");
+        dialogWeekItemViewFragment.show(((FragmentActivity)curContext).getSupportFragmentManager(), "DialogWeekItemViewFragment");
     }
+
+
+    //DialogWeekItemViewFragment LIstener
+    @Override
+    public void openModifyDialogWithIdx(){
+        //open dialogWeekItemModifyViewFragment using selectedIdx
+        if(bundleArg == null){
+            bundleArg = new Bundle();
+            bundleArg.putString("title", listFixedTimeTableData.get(selectedIdx).getStrFixedTimeTableName());
+            bundleArg.putLong("starttime", listFixedTimeTableData.get(selectedIdx).getlStartTime());
+            bundleArg.putLong("endtime", listFixedTimeTableData.get(selectedIdx).getlEndTime());
+            bundleArg.putInt("markerIdx", listMarkerData.indexOf(listFixedTimeTableData.get(selectedIdx).getForeMarkerData()));
+            bundleArg.putString("memo", listFixedTimeTableData.get(selectedIdx).getStrMemo());
+        }
+        else{
+            //가져온 listFixedTimeTableData에서 selectedIdx에 해당되는 MarkerData를 사용하여, listMarkerData의 어느 index에 존재하는지 확인.
+            bundleArg.putInt("markerIdx", listMarkerData.indexOf(listFixedTimeTableData.get(selectedIdx).getForeMarkerData()));
+        }
+        //close dialogWeekItemViewFragment
+        if(dialogWeekItemViewFragment != null){
+            dialogWeekItemViewFragment.dismiss();
+            dialogWeekItemViewFragment = null;
+        }
+
+        dialogWeekItemModifyViewFragment.setArguments(bundleArg);
+        dialogWeekItemModifyViewFragment.setTargetFragment(this, 0);
+
+        Log.d("timetableweekF", "openModifyDialogWithIdx()");
+
+        dialogWeekItemModifyViewFragment.show(((FragmentActivity)curContext).getSupportFragmentManager(), "DialogWeekItemModifyViewFragment");
+    }
+    @Override
+    public void doDelete() {
+        //TODO:
+
+
+
+        //finally close dialogWeekItemViewFragment
+        if(dialogWeekItemViewFragment != null){
+            dialogWeekItemViewFragment.dismiss();
+            dialogWeekItemViewFragment = null;
+        }
+    }
+
+
+
+    //DialogWeekItemModifyViewFragment LIstener
+    @Override
+    public void doModify(String title, long startTime, long endTime, int markerIdx, String memo) {
+        //finally close dialogWeekItemModifyViewFragment
+        if(dialogWeekItemModifyViewFragment != null){
+            dialogWeekItemModifyViewFragment.dismiss();
+            dialogWeekItemModifyViewFragment = null;
+        }
+        //TODO:
+    }
+    //DialogWeekItemCreateFragment LIstener
+    @Override
+    public void doCreate(String title, long startTime, long endTime, int markerIdx, String memo) {
+        //finally close DialogWeekItemCreateFragment
+        if(dialogWeekItemCreateFragment != null){
+            dialogWeekItemCreateFragment.dismiss();
+            dialogWeekItemCreateFragment = null;
+        }
+        //TODO:
+    }
+
+    //DialogWeekItemCreateFragment LIstener & DialogWeekItemModifyViewFragment LIstener
+    @Override
+    public ArrayList<String> getArrayListMarkerDataTitle() {
+        ArrayList<String> retArrayLIst = new ArrayList<String>();
+        if(listMarkerData != null){
+            for(MarkerData mtd : listMarkerData)
+            retArrayLIst.add(mtd.getStrMarkerName());
+        }
+        return retArrayLIst;
+    }
+
+
 
 }

@@ -114,6 +114,19 @@ public class MarkerData {
         return isCache;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof MarkerData)) return false;
 
+        MarkerData that = (MarkerData) o;
 
+        return id == that.id;
+
+    }
+
+    @Override
+    public int hashCode() {
+        return id;
+    }
 }

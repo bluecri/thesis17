@@ -67,7 +67,7 @@ public class CustomWeekAdapter {
         for(FixedTimeTableData tempFTTData : arrLIstFixedTimeTableData){
             //if(isFixedTimeTableInTimeTable(tempFTTData)){
                 //내부에 있는 경우에만 그림.
-                long blockStartTime = tempFTTData.getlBoundStartTime(), blockEndTime = tempFTTData.getlBoundEndTime();
+                long blockStartTime = tempFTTData.getlStartTime(), blockEndTime = tempFTTData.getlEndTime();
                 long blockStartTimeModWithDay = blockStartTime % LONG_DAY_MILLIS, blockEndTimeModWithDay = blockEndTime % LONG_DAY_MILLIS;
 
                 //starttime이나 endtime 둘중 하나가 범위내에 있는 경우, 해당 box가 window 내부에 존재함.
@@ -99,8 +99,10 @@ public class CustomWeekAdapter {
     }
 
     public void calcBorder(){
+        //day border
         three = ((long)Math.floor(scrollCol/colBlockSize))*LONG_DAY_MILLIS + longStartDate;
         four = ((long)Math.ceil(scrollCol+fCustomViewWidthExceptSpace/colBlockSize))*LONG_DAY_MILLIS + longStartDate;
+        //hour border
         one = ((long)Math.floor(scrollRow/rowBlockSize))*LONG_HOUR_MILLIS;
         two = ((long)Math.ceil(scrollRow+fCustomViewHeightExceptSpace/rowBlockSize))*LONG_HOUR_MILLIS;
     }
