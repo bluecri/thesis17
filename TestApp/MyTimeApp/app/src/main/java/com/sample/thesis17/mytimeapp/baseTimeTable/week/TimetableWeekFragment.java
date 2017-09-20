@@ -194,43 +194,10 @@ public class TimetableWeekFragment extends Fragment implements DialogWeekItemVie
         addButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(
-                        curContext);
-
-// 제목셋팅
-                alertDialogBuilder.setTitle("프로그램 종료");
-
-// AlertDialog 셋팅
-                alertDialogBuilder
-                        .setMessage("프로그램을 종료할 것입니까?")
-                        .setCancelable(false);
-
-                alertDialogBuilder
-                        .setMessage("프로그램을 종료할 것입니까?")
-                        .setCancelable(false)
-                        .setPositiveButton("종료",
-                                new DialogInterface.OnClickListener() {
-                                    public void onClick(
-                                            DialogInterface dialog, int id) {
-                                        // 프로그램을 종료한다
-                                    }
-                                })
-                        .setNegativeButton("취소",
-                                new DialogInterface.OnClickListener() {
-                                    public void onClick(
-                                            DialogInterface dialog, int id) {
-                                        // 다이얼로그를 취소한다
-                                        dialog.cancel();
-                                    }
-                                });
-
-                AlertDialog alertDialog = alertDialogBuilder.create();
-
-                alertDialog.show();
-
-
-
-
+                dialogWeekItemCreateFragment = new DialogWeekItemCreateFragment();
+                dialogWeekItemCreateFragment.setTargetFragment(((FragmentActivity)curContext).getSupportFragmentManager().findFragmentByTag("timetable_week_fragment"), 0);
+                Log.d("timetableweekF", "onClickAdd()");
+                dialogWeekItemCreateFragment.show(((FragmentActivity)curContext).getSupportFragmentManager(), "DialogWeekItemViewFragment");
             }
         });
 
@@ -293,6 +260,7 @@ public class TimetableWeekFragment extends Fragment implements DialogWeekItemVie
     //DB
     private DatabaseHelperMain databaseHelperMain = null;
 
+
     private DatabaseHelperMain getDatabaseHelperMain(){
         if(databaseHelperMain == null){
             databaseHelperMain = DatabaseHelperMain.getHelper(super.getContext());
@@ -329,35 +297,44 @@ public class TimetableWeekFragment extends Fragment implements DialogWeekItemVie
     @Override
     public void openModifyDialogWithIdx(){
         //open dialogWeekItemModifyViewFragment using selectedIdx
-        if(bundleArg == null){
             bundleArg = new Bundle();
             bundleArg.putString("title", listFixedTimeTableData.get(selectedIdx).getStrFixedTimeTableName());
             bundleArg.putLong("starttime", listFixedTimeTableData.get(selectedIdx).getlStartTime());
             bundleArg.putLong("endtime", listFixedTimeTableData.get(selectedIdx).getlEndTime());
-            bundleArg.putInt("markerIdx", listMarkerData.indexOf(listFixedTimeTableData.get(selectedIdx).getForeMarkerData()));
-            bundleArg.putString("memo", listFixedTimeTableData.get(selectedIdx).getStrMemo());
-        }
-        else{
             //가져온 listFixedTimeTableData에서 selectedIdx에 해당되는 MarkerData를 사용하여, listMarkerData의 어느 index에 존재하는지 확인.
             bundleArg.putInt("markerIdx", listMarkerData.indexOf(listFixedTimeTableData.get(selectedIdx).getForeMarkerData()));
-        }
+            bundleArg.putString("memo", listFixedTimeTableData.get(selectedIdx).getStrMemo());
+
+
+        dialogWeekItemModifyViewFragment = new DialogWeekItemModifyViewFragment();
+
+        dialogWeekItemModifyViewFragment.setArguments(bundleArg);
+        dialogWeekItemModifyViewFragment.setTargetFragment(this, 0);
+
+        Log.d("timetableweekF", "openModifyDialogWithIdx()");
         //close dialogWeekItemViewFragment
         if(dialogWeekItemViewFragment != null){
             dialogWeekItemViewFragment.dismiss();
             dialogWeekItemViewFragment = null;
         }
 
-        dialogWeekItemModifyViewFragment.setArguments(bundleArg);
-        dialogWeekItemModifyViewFragment.setTargetFragment(this, 0);
-
-        Log.d("timetableweekF", "openModifyDialogWithIdx()");
-
         dialogWeekItemModifyViewFragment.show(((FragmentActivity)curContext).getSupportFragmentManager(), "DialogWeekItemModifyViewFragment");
     }
     @Override
     public void doDelete() {
-        //TODO:
+        //listFixedTimeTableData, selectedIndex
+        FixedTimeTableData delData = listFixedTimeTableData.get(selectedIdx);
+        listFixedTimeTableData.remove(selectedIdx);
 
+        try{
+            daoFixedTimeTableDataInteger = getDatabaseHelperMain().getDaoFixedTimeTableData();
+            daoFixedTimeTableDataInteger.delete(delData);
+        }
+        catch(SQLException e){
+            Log.d("timetableweek", "doDelete sql");
+        }
+
+        customWeekView.invalidate();
 
 
         //finally close dialogWeekItemViewFragment
@@ -372,16 +349,44 @@ public class TimetableWeekFragment extends Fragment implements DialogWeekItemVie
     //DialogWeekItemModifyViewFragment LIstener
     @Override
     public void doModify(String title, long startTime, long endTime, int markerIdx, String memo) {
+        FixedTimeTableData modifyData = listFixedTimeTableData.get(selectedIdx);
+        modifyData.setStrFixedTimeTableName(title);
+        modifyData.setStrMemo(memo);
+        modifyData.setlStartTime(startTime);
+        modifyData.setlEndTime(endTime);
+        modifyData.setForeMarkerData(listMarkerData.get(markerIdx));
+
+        try{
+            daoFixedTimeTableDataInteger = getDatabaseHelperMain().getDaoFixedTimeTableData();
+            daoFixedTimeTableDataInteger.update(modifyData);
+        }
+        catch(SQLException e){
+            Log.d("timetableweek", "doDelete sql");
+        }
+
+        customWeekView.invalidate();
+
         //finally close dialogWeekItemModifyViewFragment
         if(dialogWeekItemModifyViewFragment != null){
             dialogWeekItemModifyViewFragment.dismiss();
             dialogWeekItemModifyViewFragment = null;
         }
-        //TODO:
     }
     //DialogWeekItemCreateFragment LIstener
     @Override
     public void doCreate(String title, long startTime, long endTime, int markerIdx, String memo) {
+        FixedTimeTableData createData = new FixedTimeTableData(listMarkerData.get(markerIdx), title, startTime, endTime, startTime, endTime, startTime, endTime, memo, true);
+        listFixedTimeTableData.add(createData);
+
+        try{
+            daoFixedTimeTableDataInteger = getDatabaseHelperMain().getDaoFixedTimeTableData();
+            daoFixedTimeTableDataInteger.create(createData);
+        }
+        catch(SQLException e){
+            Log.d("timetableweek", "doDelete sql");
+        }
+
+        customWeekView.invalidate();
         //finally close DialogWeekItemCreateFragment
         if(dialogWeekItemCreateFragment != null){
             dialogWeekItemCreateFragment.dismiss();

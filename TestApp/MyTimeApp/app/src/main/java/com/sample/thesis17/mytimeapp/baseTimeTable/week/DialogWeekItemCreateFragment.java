@@ -245,8 +245,9 @@ public class DialogWeekItemCreateFragment extends DialogFragment{
                     @Override
                     public void onClick(DialogInterface dialog, int id) {
                         //calc starttime, endtime
-                        long retLStartTimeMillis = startTimeHour*LONG_HOUR_MILLIS + startTimeMin*LONG_MIN_MILLIS;
-                        long retLEndTimeMillis = endTimeHour*LONG_HOUR_MILLIS + endTimeMin*LONG_MIN_MILLIS;
+                        long retLStartTimeMillis = (long)startTimeHour*LONG_HOUR_MILLIS + (long)startTimeMin*LONG_MIN_MILLIS + iStartWeek*LONG_DAY_MILLIS;  //hour + min + day(WEEK)
+                        long retLEndTimeMillis = (long)endTimeHour*LONG_HOUR_MILLIS + (long)endTimeMin*LONG_MIN_MILLIS + iEndWeek*LONG_DAY_MILLIS;
+
                         dialogWeekItemCreateFragmentListener.doCreate(textViewTitle.getText().toString(), retLStartTimeMillis, retLEndTimeMillis, markerDataListIdx, textViewMemo.getText().toString());
                     }
                 })

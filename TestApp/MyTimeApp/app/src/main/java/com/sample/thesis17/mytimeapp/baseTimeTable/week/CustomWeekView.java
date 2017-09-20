@@ -26,6 +26,8 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+import static java.lang.Math.min;
+
 /**
  * Created by kimz on 2017-05-07.
  */
@@ -110,6 +112,8 @@ public class CustomWeekView extends View {
         fScrollBottomEnd = ROW_NUM * pCurBlock.fRow - fCustomViewHeightExceptSpace;
         Log.d("block", customViewHeight  +" "+ customViewWidth);
         Log.d("block", fLeftSideSpace  +" "+ fUpSideSpace  +" "+ fCustomViewHeightExceptSpace  +" "+ fCustomViewWidthExceptSpace  +" "+ pCurScrollLeftUp.fCol  +" "+ pCurScrollLeftUp.fRow);
+        curCustomWeekAdapter.setConfig(0, fUpSideSpace, fLeftSideSpace, fCustomViewWidthExceptSpace, fCustomViewHeightExceptSpace);
+        //adapt.setFlexibleConfig(pCurScrollLeftUp.fCol, pCurScrollLeftUp.fRow, pCurBlock.fCol, pCurBlock.fRow);
     }
 
     public void refreshInit(){
@@ -528,14 +532,13 @@ public class CustomWeekView extends View {
 
     //adapter를 등록한다.
     public void setCustomWeekAdapter(CustomWeekAdapter adapt){
-        adapt.setConfig(0, fUpSideSpace, fLeftSideSpace, fCustomViewWidthExceptSpace, fCustomViewHeightExceptSpace);
-        //adapt.setFlexibleConfig(pCurScrollLeftUp.fCol, pCurScrollLeftUp.fRow, pCurBlock.fCol, pCurBlock.fRow);
         //adapt.updateCustomWeekItemList();
         curCustomWeekAdapter = adapt;
     }
 
     //customItemList로 block과 text를 draw 한다.
     public void drawContentBlocks(Canvas canvas){
+        Log.d("draws", "drawContentBlocks()");
         //rect Paint
         Paint tempRectPaint= new Paint();
         tempRectPaint.setColor(Color.GREEN);
@@ -545,8 +548,10 @@ public class CustomWeekView extends View {
         tempTextPaint.setColor(Color.BLACK);
         tempTextPaint.setAntiAlias(true);
         tempTextPaint.setTextAlign(Paint.Align.LEFT);
+        tempTextPaint.setTextSize((float)20.0);
         Paint.FontMetrics fm = tempTextPaint.getFontMetrics();
         float textHeight = fm.descent - fm.ascent;      //use textHeight( < lineHeight)
+        Log.d("draws", "textHeight:"+textHeight);
         //float lineHeight = fm.bottom - fm.top + fm.leading;
 
         if(curCustomWeekAdapter != null){
@@ -557,30 +562,44 @@ public class CustomWeekView extends View {
                 //TODO : draw
                 for(CustomWeekItem item : curCustomWeekAdapter.customWeekItemList){
                     RectF tempRectF = new RectF(item.left, item.top, item.right,item.bottom);
+                    //Log.d("draws", "draw rect / " + item.left + "/" + item.top + "/" + item.right + "/" +item.bottom);
+                    //Log.d("draws", "customWeekItemList leng: "+ curCustomWeekAdapter.customWeekItemList.size());
                     canvas.drawRect(tempRectF, tempRectPaint);
                     String tempString = item.getText();
                     int startIdx = 0, endIdx = tempString.length();
                     float curHeight = (float)0.0;
-                    float totalHeight = tempRectF.height();
+                    float totalHeight = tempRectF.height() - textHeight*4/3;
+                    //Log.d("draws", "totalHeight:"+totalHeight);
                     //필요한 공간 > 실제 공간
                     if(curHeight + textHeight > totalHeight){   //첫 문장 들어갈 수 있는지 계산
-                        continue;
+                        continue;   //사각형크기 < 글씨 크기
                     }
                     //multiple line text
                     while(true){
                         int breakedCharLen = tempTextPaint.breakText(tempString.substring(startIdx), true, tempRectF.width(), null);
+                        if(breakedCharLen == 0){
+                            break;  //더 이상 인쇄 할 문장이 없음.
+                        }
+                        //Log.d("draws", "breakedCharren:"+breakedCharLen);
+                        //현재 문장 말고 다음 문장이 사각형을 벗어나는 경우
                         if(curHeight + textHeight + textHeight > totalHeight){
                             //필요한 공간 > 실제 공간
-                            String finalString = tempString.substring(startIdx, startIdx + breakedCharLen - 3) + "..."; //축약
-                            canvas.drawText(finalString, 0, breakedCharLen, tempRectF.left, tempRectF.top + curHeight, tempTextPaint);
+                            int summLen = min(breakedCharLen, 3);   //축약할 단어 길이를 정해진 문장 길이를 넘지 못하도록 함.
+                            String finalString = tempString.substring(startIdx, startIdx + breakedCharLen - summLen); //축약
+                            for(int loop = 0; loop < summLen; loop++){
+                                finalString = finalString + ".";
+                            }
+                            canvas.drawText(finalString, 0, breakedCharLen, tempRectF.left, tempRectF.top + curHeight + textHeight*2/3, tempTextPaint);
                             break;
                         }
                         else {
-                            canvas.drawText(tempString, startIdx, startIdx + breakedCharLen, tempRectF.left, tempRectF.top + curHeight, tempTextPaint);
+                            canvas.drawText(tempString, startIdx, startIdx + breakedCharLen, tempRectF.left, tempRectF.top + curHeight + textHeight*2/3, tempTextPaint);
                             startIdx = startIdx + breakedCharLen;
                             curHeight += textHeight;
                         }
+                        //Log.d("draws", "drawing text...");
                     }
+                    //Log.d("draws", "drawContentBlocks end.");
                 }
             }
         }

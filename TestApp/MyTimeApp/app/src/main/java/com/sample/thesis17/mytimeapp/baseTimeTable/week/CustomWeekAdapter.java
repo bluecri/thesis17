@@ -11,6 +11,8 @@ import java.util.List;
 import static com.sample.thesis17.mytimeapp.Static.MyMath.LONG_DAY_MILLIS;
 import static com.sample.thesis17.mytimeapp.Static.MyMath.LONG_HOUR_MILLIS;
 import static com.sample.thesis17.mytimeapp.Static.MyMath.LONG_WEEK_MILLIS;
+import static java.lang.Math.max;
+import static java.lang.Math.min;
 
 /**
  * Created by kimz on 2017-09-18.
@@ -34,14 +36,16 @@ public class CustomWeekAdapter {
     float fCustomViewWidthExceptSpace, fCustomViewHeightExceptSpace;    //좌단, 상단 빈 공간 제외(block이 그려질 공간 절대값)
 
     int countIdx = 0;   //block index count
-    float fCoordHeight, fCoordLeft;
+    float fCoordHeight, fCoordLeft, fCoordRight;
 
 
     CustomWeekAdapter(List<FixedTimeTableData> inListFixedTimeTableData){
         arrLIstFixedTimeTableData = inListFixedTimeTableData;
+        customWeekItemList = new ArrayList<CustomWeekItem>();
     }
 
     public void setConfig(long longStartDate, float fUpSideSpace, float fLeftSideSpace, float fCustomViewWidthExceptSpace, float fCustomViewHeightExceptSpace){
+        Log.d("draws", "sidespace:" + fUpSideSpace + "/"+  fLeftSideSpace + "/"+ fCustomViewWidthExceptSpace + "/"+ fCustomViewHeightExceptSpace);
         this.fLeftSideSpace = fLeftSideSpace;
         this.fUpSideSpace = fUpSideSpace;
         this.fCustomViewWidthExceptSpace = fCustomViewWidthExceptSpace;
@@ -59,6 +63,7 @@ public class CustomWeekAdapter {
 
     //arrLIstFixedTimeTableData를 돌며 block을 계산(customWeekItemList)한다.
     public void updateCustomWeekItemList(){
+        Log.d("draws", "updateCustomWeekItemList()");
         calcBorder();
         customWeekItemList.clear(); //새로 만듬.
         countIdx = 0;   //arrLIstFixedTimeTableData의 index
@@ -69,10 +74,12 @@ public class CustomWeekAdapter {
                 //내부에 있는 경우에만 그림.
                 long blockStartTime = tempFTTData.getlStartTime(), blockEndTime = tempFTTData.getlEndTime();
                 long blockStartTimeModWithDay = blockStartTime % LONG_DAY_MILLIS, blockEndTimeModWithDay = blockEndTime % LONG_DAY_MILLIS;
-
+                //Log.d("draws", "three:"+three+"/four:"+four+"/one:"+one+"/two:"+two);
+                //Log.d("draws", "blockStartTime : " + blockStartTime + "blockEndTime : " + blockEndTime + "blocktimemodday : " + blockStartTimeModWithDay + "blockendtimemodday" + blockEndTimeModWithDay);
                 //starttime이나 endtime 둘중 하나가 범위내에 있는 경우, 해당 box가 window 내부에 존재함.
                 if(((blockStartTime<=four&&three<=blockStartTime)||(blockEndTime<=four&&three<=blockEndTime))&&
-                ((blockStartTimeModWithDay<=two&&one<=blockStartTimeModWithDay)||(blockStartTimeModWithDay<=two&&one<=blockStartTimeModWithDay))){
+                ((blockStartTimeModWithDay<=two&&one<=blockStartTimeModWithDay)||(blockEndTimeModWithDay<=two&&one<=blockEndTimeModWithDay))){
+                    //Log.d("draws", "updateCustomWeekItemList(), is in Window");
                     makeItemsWithFixedTimeTableData(tempFTTData);
                     /*CustomWeekItem tempCustomWeekItem = new CustomWeekItem();
                     tempCustomWeekItem.setText(tempFTTData.getStrFixedTimeTableName());
@@ -83,6 +90,7 @@ public class CustomWeekAdapter {
             //}
             countIdx++;
         }
+        Log.d("draws", "arrLIstFixedTimeTableData len : " + arrLIstFixedTimeTableData.size());
     }
 
     //해당 FixedTimeTableData가 현재 timetable 내부에 있는지
@@ -101,18 +109,20 @@ public class CustomWeekAdapter {
     public void calcBorder(){
         //day border
         three = ((long)Math.floor(scrollCol/colBlockSize))*LONG_DAY_MILLIS + longStartDate;
-        four = ((long)Math.ceil(scrollCol+fCustomViewWidthExceptSpace/colBlockSize))*LONG_DAY_MILLIS + longStartDate;
+        four = ((long)Math.ceil((scrollCol+fCustomViewWidthExceptSpace)/colBlockSize))*LONG_DAY_MILLIS + longStartDate;
+        Log.d("draws", "scrollCol:"+scrollCol + "excpwidth"+fCustomViewWidthExceptSpace + "colblocksize"+colBlockSize);
         //hour border
         one = ((long)Math.floor(scrollRow/rowBlockSize))*LONG_HOUR_MILLIS;
-        two = ((long)Math.ceil(scrollRow+fCustomViewHeightExceptSpace/rowBlockSize))*LONG_HOUR_MILLIS;
+        two = ((long)Math.ceil((scrollRow+fCustomViewHeightExceptSpace)/rowBlockSize))*LONG_HOUR_MILLIS;
     }
 
     public void makeItemsWithFixedTimeTableData(FixedTimeTableData inData){
+        Log.d("draws", "makeItemsWithFixedTimeTableData()");
         float left, up, right, bottom;
         //block이 중간에 잘리는지 확인한다.
         long startTime = inData.getlStartTime();
         long endTime = inData.getlEndTime();
-        int timeModulo = (int)((endTime - startTime) % LONG_WEEK_MILLIS);
+        int timeModulo = (int)((endTime - startTime) % LONG_WEEK_MILLIS/LONG_DAY_MILLIS);
 
         CustomWeekItem tempCustomWeekItem = null;
 
@@ -123,8 +133,8 @@ public class CustomWeekAdapter {
                 left = fCoordLeft;
                 up = fCoordHeight;
                 getCoordWithTimes(endTime);
-                right = fCoordLeft + colBlockSize;
-                bottom = fCoordHeight + rowBlockSize;
+                right = fCoordRight;
+                bottom = fCoordHeight;
 
                 tempCustomWeekItem = new CustomWeekItem();
                 tempCustomWeekItem.setIdx(countIdx);
@@ -139,8 +149,8 @@ public class CustomWeekAdapter {
                 left = fCoordLeft;
                 up = fCoordHeight;
                 getCoordMaxdayWithTimes(startTime);
-                right = fCoordLeft + colBlockSize;
-                bottom = fCoordHeight + rowBlockSize;
+                right = fCoordRight;
+                bottom = fCoordHeight;
 
                 tempCustomWeekItem = new CustomWeekItem();
                 tempCustomWeekItem.setIdx(countIdx);
@@ -155,8 +165,8 @@ public class CustomWeekAdapter {
                     left = fCoordLeft;
                     up = fCoordHeight;
                     getCoordMaxdayWithTimes(startTime+i*LONG_DAY_MILLIS);
-                    right = fCoordLeft + colBlockSize;
-                    bottom = fCoordHeight + rowBlockSize;
+                    right = fCoordRight;
+                    bottom = fCoordHeight;
 
                     tempCustomWeekItem = new CustomWeekItem();
                     tempCustomWeekItem.setIdx(countIdx);
@@ -170,8 +180,8 @@ public class CustomWeekAdapter {
                 left = fCoordLeft;
                 up = fCoordHeight;
                 getCoordWithTimes(endTime);
-                right = fCoordLeft + colBlockSize;
-                bottom = fCoordHeight + rowBlockSize;
+                right = fCoordRight;
+                bottom = fCoordHeight;
 
                 tempCustomWeekItem = new CustomWeekItem();
                 tempCustomWeekItem.setIdx(countIdx);
@@ -182,19 +192,28 @@ public class CustomWeekAdapter {
                 break;
 
         }
+        Log.d("draws", "makeItemsWithFixedTimeTableData() end");
     }
 
     public void getCoordWithTimes(long times){
         if(times < longStartDate){
             times = longStartDate;  //week time 0 이전일 경우 longStartDate로 계산한다.
         }
-        if(longStartDate < times){
-            times = longStartDate + LONG_DAY_MILLIS*7;  //week time이 week 이후인 경우 longStartDatef로 계산한다.
+        if(longStartDate + LONG_WEEK_MILLIS < times){
+            times = longStartDate + LONG_WEEK_MILLIS;  //week time이 week 이후인 경우 longStartDatef로 계산한다.
         }
         //hour를 0~24로 표현한 뒤 rowBlockSIze(1hour)를 곱한다. 그 뒤 scroll위치와 sideSpace위치를 고려한 좌표를 반환한다.
-        fCoordHeight = (((float)(times%LONG_DAY_MILLIS))/LONG_HOUR_MILLIS)*rowBlockSize-scrollRow+fUpSideSpace;
+        fCoordHeight = max((((float)(times%LONG_DAY_MILLIS))/LONG_HOUR_MILLIS)*rowBlockSize-scrollRow+fUpSideSpace, fUpSideSpace);
         //day를 0~7으로 표현한 뒤 colBlockSize만큼 곱한다. 그 뒤 scroll 위치와 sideSpace 위치를 고려한 좌표를 반환한다.
-        fCoordLeft = (((float)(times%LONG_WEEK_MILLIS))/LONG_DAY_MILLIS)*colBlockSize-scrollCol+fLeftSideSpace;
+
+        fCoordLeft = max(((times%LONG_WEEK_MILLIS))/LONG_DAY_MILLIS*colBlockSize-scrollCol+fLeftSideSpace, fLeftSideSpace);
+
+        if(fCoordLeft == fLeftSideSpace){
+            fCoordRight = fCoordLeft + colBlockSize + ((times%LONG_WEEK_MILLIS))/LONG_DAY_MILLIS*colBlockSize-scrollCol;
+        }
+        else{
+            fCoordRight = fCoordLeft + colBlockSize;
+        }
         return;
     }
 
@@ -218,7 +237,7 @@ public class CustomWeekAdapter {
 
     public int getIdxWithClicked(float x, float y){
         for(CustomWeekItem item : customWeekItemList){
-            if(item.getLeft() <= x && x < item.getRight() && item.getTop() <= y && item.getBottom() < y){
+            if(item.getLeft() <= x && x < item.getRight() && item.getTop() <= y && y < item.getBottom()){
                 return item.getIdx();
             }
         }

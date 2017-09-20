@@ -156,10 +156,10 @@ public class DialogWeekItemModifyViewFragment extends DialogFragment{
         textViewStartTime.setText(sdf.format(startDate));
         textViewEndTime.setText(sdf.format(endDate));
         */
-        startTimeHour = (int)((startTimeArg%LONG_DAY_MILLIS)/LONG_HOUR_MILLIS/1000);
-        startTimeMin = (int)(startTimeArg%LONG_HOUR_MILLIS/LONG_MIN_MILLIS/1000);
-        endTimeHour = (int)((endTimeArg%LONG_DAY_MILLIS)/LONG_HOUR_MILLIS/1000);
-        endTimeMin = (int)(endTimeArg%LONG_HOUR_MILLIS/LONG_MIN_MILLIS/1000);
+        startTimeHour = (int)((startTimeArg%LONG_DAY_MILLIS)/LONG_HOUR_MILLIS);
+        startTimeMin = (int)(startTimeArg%LONG_HOUR_MILLIS/LONG_MIN_MILLIS);
+        endTimeHour = (int)((endTimeArg%LONG_DAY_MILLIS)/LONG_HOUR_MILLIS);
+        endTimeMin = (int)(endTimeArg%LONG_HOUR_MILLIS/LONG_MIN_MILLIS);
 
         textViewStartTime.setText(String.format(Locale.US, "%02d:%02d", startTimeHour, startTimeMin));
         textViewEndTime.setText(String.format(Locale.US, "%02d:%02d", endTimeHour, endTimeMin));
@@ -250,8 +250,8 @@ public class DialogWeekItemModifyViewFragment extends DialogFragment{
                     @Override
                     public void onClick(DialogInterface dialog, int id) {
                         //calc starttime, endtime
-                        long retLStartTimeMillis = startTimeHour*LONG_HOUR_MILLIS + startTimeMin*LONG_MIN_MILLIS;
-                        long retLEndTimeMillis = endTimeHour*LONG_HOUR_MILLIS + endTimeMin*LONG_MIN_MILLIS;
+                        long retLStartTimeMillis = startTimeHour*LONG_HOUR_MILLIS + startTimeMin*LONG_MIN_MILLIS + iStartWeek*LONG_DAY_MILLIS;  //hour + min + day(WEEK);
+                        long retLEndTimeMillis = endTimeHour*LONG_HOUR_MILLIS + endTimeMin*LONG_MIN_MILLIS + iEndWeek*LONG_DAY_MILLIS;;
                         dialogWeekItemModifyViewFragmentListener.doModify(textViewTitle.getText().toString(), retLStartTimeMillis, retLEndTimeMillis, markerDataListIdx, textViewMemo.getText().toString());
                     }
                 })

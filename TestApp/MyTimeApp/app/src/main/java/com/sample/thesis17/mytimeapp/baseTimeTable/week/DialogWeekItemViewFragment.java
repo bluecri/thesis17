@@ -17,8 +17,10 @@ import com.sample.thesis17.mytimeapp.R;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Locale;
 
 import static com.sample.thesis17.mytimeapp.Static.MyMath.LONG_DAY_MILLIS;
+import static com.sample.thesis17.mytimeapp.Static.MyMath.LONG_HOUR_MILLIS;
 import static com.sample.thesis17.mytimeapp.Static.MyMath.LONG_WEEK_MILLIS;
 import static com.sample.thesis17.mytimeapp.Static.MyMath.WEEK_STRING;
 
@@ -105,13 +107,17 @@ public class DialogWeekItemViewFragment extends DialogFragment {
         textViewStartWeek.setText(WEEK_STRING[startWeek]);
         textViewEndWeek.setText(WEEK_STRING[endWeek]);
 
-        SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss");
+        /*
+        SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss", Locale.US);
         Date startDate = new Date();
         Date endDate = new Date();
         startDate.setTime(startTimeArg);
         endDate.setTime(endTimeArg);
-        textViewStartTime.setText(sdf.format(startDate));
-        textViewEndTime.setText(sdf.format(endDate));
+        */
+        textViewStartTime.setText(String.format(Locale.US, "%02d:%02d", (int)(startTimeArg%LONG_DAY_MILLIS/LONG_HOUR_MILLIS), (int)(startTimeArg%LONG_HOUR_MILLIS/LONG_DAY_MILLIS)));
+        textViewEndTime.setText(String.format(Locale.US, "%02d:%02d", (int)(endTimeArg%LONG_DAY_MILLIS/LONG_HOUR_MILLIS), (int)(endTimeArg%LONG_HOUR_MILLIS/LONG_DAY_MILLIS)));
+        //textViewStartTime.setText(sdf.format(startDate));
+        //textViewEndTime.setText(sdf.format(endDate));
 
         /*
         buttonSelectType.setOnClickListener(new View.OnClickListener() {
