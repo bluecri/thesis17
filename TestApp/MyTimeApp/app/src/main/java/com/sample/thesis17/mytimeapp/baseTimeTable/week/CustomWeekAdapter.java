@@ -1,5 +1,7 @@
 package com.sample.thesis17.mytimeapp.baseTimeTable.week;
 
+import android.content.Context;
+import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 
 import com.sample.thesis17.mytimeapp.DB.tables.ActiveListFixedTimeTableData;
@@ -23,23 +25,25 @@ public class CustomWeekAdapter {
     List<CustomWeekItem> customWeekItemList = null;
 
     //fixed
-    float scrollCol, scrollRow;   //최상단, 하단 위치
-    float colBlockSize, rowBlockSize;
-    long longStartDate = 0; //최초 시작 시간(Week의 start time)
+    private float scrollCol, scrollRow;   //최상단, 하단 위치
+    private float colBlockSize, rowBlockSize;
+    private long longStartDate = 0; //최초 시작 시간(Week의 start time)
+    private Context curContext;
 
     //after calc
-    long one, two, three, four;
+    private long one, two, three, four;
 
 
     //maybe fixed
-    float fUpSideSpace, fLeftSideSpace; //좌단, 상단 빈 공간 (요일 & 시간표시)
-    float fCustomViewWidthExceptSpace, fCustomViewHeightExceptSpace;    //좌단, 상단 빈 공간 제외(block이 그려질 공간 절대값)
+    private float fUpSideSpace, fLeftSideSpace; //좌단, 상단 빈 공간 (요일 & 시간표시)
+    private float fCustomViewWidthExceptSpace, fCustomViewHeightExceptSpace;    //좌단, 상단 빈 공간 제외(block이 그려질 공간 절대값)
 
     int countIdx = 0;   //block index count
-    float fCoordHeight, fCoordLeft, fCoordRight;
+    private float fCoordHeight, fCoordLeft, fCoordRight;
 
 
-    CustomWeekAdapter(List<FixedTimeTableData> inListFixedTimeTableData){
+    CustomWeekAdapter(Context context, List<FixedTimeTableData> inListFixedTimeTableData){
+        curContext = context;
         arrLIstFixedTimeTableData = inListFixedTimeTableData;
         customWeekItemList = new ArrayList<CustomWeekItem>();
     }
@@ -238,6 +242,7 @@ public class CustomWeekAdapter {
     public int getIdxWithClicked(float x, float y){
         for(CustomWeekItem item : customWeekItemList){
             if(item.getLeft() <= x && x < item.getRight() && item.getTop() <= y && y < item.getBottom()){
+                ((TimetableWeekFragment)(((FragmentActivity)curContext).getSupportFragmentManager().findFragmentByTag("timetable_week_fragment"))).openDialogWithIdx(item.getIdx());
                 return item.getIdx();
             }
         }

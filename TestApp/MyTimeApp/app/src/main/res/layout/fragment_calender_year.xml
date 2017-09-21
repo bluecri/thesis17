@@ -2,7 +2,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.sample.thesis17.mytimeapp.baseCalendar.CalenderYearFragment">
+    tools:context="com.sample.thesis17.mytimeapp.baseCalendar.year.CalenderYearFragment">
 
     <!-- TODO: Update blank fragment layout -->
 

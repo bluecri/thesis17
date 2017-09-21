@@ -108,7 +108,7 @@ public class TimetableWeekFragment extends Fragment implements DialogWeekItemVie
             daoMarkerDataInteger = getDatabaseHelperMain().getDaoMarkerData();
             if(daoFixedTimeTableDataInteger != null) {
                 listFixedTimeTableData = daoFixedTimeTableDataInteger.queryForAll();
-                customWeekAdapter = new CustomWeekAdapter(listFixedTimeTableData);  //adapter create
+                customWeekAdapter = new CustomWeekAdapter(curContext, listFixedTimeTableData);  //adapter create
             }
             //fixedTimeTableData와 연결된 markerData를 정하기 위한 list
             if(daoMarkerDataInteger != null) {

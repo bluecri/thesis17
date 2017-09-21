@@ -4,12 +4,12 @@ import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
 
 /**
- * Created by kimz on 2017-07-26.
+ * Created by kimz on 2017-09-21.
  */
 
 
-@DatabaseTable(tableName = "history")
-public class HistoryData {
+@DatabaseTable(tableName = "tempHistory")
+public class TempHistoryData {
     @DatabaseField(generatedId = true)
     private int id;
 
@@ -25,50 +25,9 @@ public class HistoryData {
     @DatabaseField
     private long lEndTime;
 
-    @DatabaseField
-    private String memo;
-
-    HistoryData(){
+    TempHistoryData() {
         // empty constructor is needed
     }
-
-    public HistoryData(FixedTimeTableData foreFixedTimeTable, MarkerData foreMarkerData, long lStartTime, long lEndTime, String memo) {
-        this.foreFixedTimeTable = foreFixedTimeTable;
-        this.foreMarkerData = foreMarkerData;
-        this.lStartTime = lStartTime;
-        this.lEndTime = lEndTime;
-        this.memo = memo;
-    }
-
-    /*
-    public void setForeFixedTimeTable(FixedTimeTableData fixedTimeTableData){
-        foreFixedTimeTable = fixedTimeTableData;
-    }
-    public FixedTimeTableData getForeFixedTimeTable(){
-        return foreFixedTimeTable;
-    }
-
-    public void setForeMarkerData(MarkerData markerData){
-        foreMarkerData = markerData;
-    }
-    public MarkerData getForeMarkerData(){
-        return foreMarkerData;
-    }
-
-    public void setLStartTime(Long lStartTime){
-        this.lStartTime = lStartTime;
-    }
-    public long GetLStartTime(){
-        return lStartTime;
-    }
-
-    public void setLEndTime(Long lEndTime){
-        this.lEndTime = lEndTime;
-    }
-    public long GetLEndtTime(){
-        return lEndTime;
-    }
-    */
 
     public int getId() {
         return id;
@@ -108,13 +67,5 @@ public class HistoryData {
 
     public void setlEndTime(long lEndTime) {
         this.lEndTime = lEndTime;
-    }
-
-    public String getMemo() {
-        return memo;
-    }
-
-    public void setMemo(String memo) {
-        this.memo = memo;
     }
 }

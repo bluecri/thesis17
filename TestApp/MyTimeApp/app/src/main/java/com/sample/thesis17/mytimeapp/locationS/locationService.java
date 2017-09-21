@@ -137,7 +137,7 @@ public class locationService extends Service {
         Log.d("locationService", "startLocationService");
         locationListenerCustom = new LocationListenerNet();
         getLocationListenerCustomGps = new LocationListenerGps();
-        dataLMForGpsThread = new LocationMemoryData(0.0, 0.0, 0, (float)0.0);
+        dataLMForGpsThread = new LocationMemoryData(0.0, 0.0, 0, (float)0.0, null, null);
         // minDistance = 0;
 
         try {
@@ -181,7 +181,7 @@ public class locationService extends Service {
             Double longitude = location.getLongitude();
             float accuracy = location.getAccuracy();
 
-            dataLMForSave = new LocationMemoryData(latitude, longitude, System.currentTimeMillis(), accuracy);
+            dataLMForSave = new LocationMemoryData(latitude, longitude, System.currentTimeMillis(), accuracy, null, null);
 
             Log.d("locatoinService", "new thread created..");
             locationThread = new Thread(new ThreadLocationMemoryDataProcessWithGps());
@@ -402,7 +402,7 @@ public class locationService extends Service {
                 List<LocationMemoryData> listLMData = daoLocationMemoryDataInteger.queryForAll();
                 StringBuilder strbListLmData = new StringBuilder();
                 for (LocationMemoryData data : listLMData){
-                    Date date = new Date(data.getLillisTimeWritten());
+                    Date date = new Date(data.getlMillisTimeWritten());
                     DateFormat formatter = new SimpleDateFormat("HH:mm:ss:SSS");
                     String strDateFormatted = formatter.format(date);
                     strbListLmData.append("lat : ").append(data.getLat()).append("..lng : ").append(data.getLng()).append("..time : ").append(strDateFormatted).append("..Accur : ").append(data.getfAccur());

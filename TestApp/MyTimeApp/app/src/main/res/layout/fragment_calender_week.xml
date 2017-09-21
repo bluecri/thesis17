@@ -14,7 +14,7 @@
         android:orientation="horizontal">
 
         <Button
-            android:id="@+id/button2"
+            android:id="@+id/fragment_calender_week_prev_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
@@ -28,7 +28,7 @@
             android:text="TextView" />
 
         <Button
-            android:id="@+id/fragment_calender_week_add_button"
+            android:id="@+id/fragment_calender_week_next_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
@@ -36,7 +36,7 @@
     </LinearLayout>
 
     <com.sample.thesis17.mytimeapp.baseTimeTable.week.CustomWeekView
-        android:id="@+id/customWeekView"
+        android:id="@+id/calenderWeekView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
 

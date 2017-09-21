@@ -455,12 +455,8 @@ public class CustomWeekView extends View {
                 Toast.makeText(super.getContext(), "click : " + event.getX() + ", " + event.getY() + ", " + getWidth() + ", " + getHeight(), Toast.LENGTH_LONG).show();
                 //Click
                 int retIdx = curCustomWeekAdapter.getIdxWithClicked(event.getX(), event.getY());
-                Log.d("block", "call openDialogWithIdx");
                 if(retIdx == -1){
                     Log.d("block", "click box find error");
-                }
-                else{
-                    ((TimetableWeekFragment)(((FragmentActivity)curContext).getSupportFragmentManager().findFragmentByTag("timetable_week_fragment"))).openDialogWithIdx(retIdx);
                 }
                 Log.d("block", "ACTION_UP click");
 

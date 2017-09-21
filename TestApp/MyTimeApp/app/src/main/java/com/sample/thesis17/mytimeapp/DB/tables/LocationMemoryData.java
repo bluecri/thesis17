@@ -26,15 +26,24 @@ public class LocationMemoryData {
     @DatabaseField
     private float fAccur;
 
+    @DatabaseField(canBeNull = true, foreign = true)
+    private HistoryData bindedHistoryData;
+
+    @DatabaseField(canBeNull = true, foreign = true)
+    private TempHistoryData bindedTempHistoryData;
+
+
     LocationMemoryData(){
         // empty constructor is needed
     }
 
-    public LocationMemoryData(double lat, double lng, long lMillisTimeWritten, float fAccur) {
+    public LocationMemoryData(double lat, double lng, long lMillisTimeWritten, float fAccur, HistoryData bindedHistoryData, TempHistoryData bindedTempHistoryData) {
         this.lMillisTimeWritten = lMillisTimeWritten;
         this.lat = lat;
         this.lng = lng;
         this.fAccur = fAccur;
+        this.bindedHistoryData = bindedHistoryData;
+        this.bindedTempHistoryData = bindedTempHistoryData;
     }
 
     public int getId(){
@@ -45,32 +54,51 @@ public class LocationMemoryData {
         // none
     }
 
-    public double getLat(){
+    public double getLat() {
         return lat;
     }
 
-    public double getLng(){
-        return lng;
-    }
-
-    public long getLillisTimeWritten(){
-        return lMillisTimeWritten;
-    }
-
-    public float getfAccur(){ return fAccur; }
-
-    public void setLat(double lat){
+    public void setLat(double lat) {
         this.lat = lat;
     }
 
-    public void setLng(double lng){
+    public double getLng() {
+        return lng;
+    }
+
+    public void setLng(double lng) {
         this.lng = lng;
     }
 
-    public void setLMillisTimeWritten(long lMillisTimeWritten){
+    public long getlMillisTimeWritten() {
+        return lMillisTimeWritten;
+    }
+
+    public void setlMillisTimeWritten(long lMillisTimeWritten) {
         this.lMillisTimeWritten = lMillisTimeWritten;
     }
-    public void setfAccur(float fAccur){
+
+    public float getfAccur() {
+        return fAccur;
+    }
+
+    public void setfAccur(float fAccur) {
         this.fAccur = fAccur;
+    }
+
+    public HistoryData getBindedHistoryData() {
+        return bindedHistoryData;
+    }
+
+    public void setBindedHistoryData(HistoryData bindedHistoryData) {
+        this.bindedHistoryData = bindedHistoryData;
+    }
+
+    public TempHistoryData getBindedTempHistoryData() {
+        return bindedTempHistoryData;
+    }
+
+    public void setBindedTempHistoryData(TempHistoryData bindedTempHistoryData) {
+        this.bindedTempHistoryData = bindedTempHistoryData;
     }
 }
