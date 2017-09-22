@@ -1,11 +1,15 @@
 package com.sample.thesis17.mytimeapp.baseTimeTable.week;
 
+import android.app.Activity;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.RectF;
 import android.os.Build;
 import android.support.annotation.Nullable;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.FragmentActivity;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -14,11 +18,23 @@ import android.view.ViewConfiguration;
 import android.view.ViewTreeObserver;
 import android.widget.Toast;
 
+import com.j256.ormlite.dao.Dao;
+import com.sample.thesis17.mytimeapp.DB.baseClass.DatabaseHelperMain;
+import com.sample.thesis17.mytimeapp.DB.tables.FixedTimeTableData;
+
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
+
+import static java.lang.Math.min;
+
 /**
  * Created by kimz on 2017-05-07.
  */
 
 public class CustomWeekView extends View {
+    public Context curContext;
+
     public static int COL_NUM = 7;
     public static int ROW_NUM = 24;
 
@@ -42,8 +58,15 @@ public class CustomWeekView extends View {
     private int touchMode;	//0 = cancel, 4 = draginit, 1 = Drag horizontal, 2=drag vertical, 3.pan
     long startClickTime = 0;
 
+    //db
+
+    CustomWeekAdapter curCustomWeekAdapter = null;
+    List<CustomWeekItem> customItemList = null;
+
+
     public CustomWeekView(Context context) {
         super(context);
+        curContext = context;
 
         paint = new Paint();
         //init();
@@ -51,6 +74,7 @@ public class CustomWeekView extends View {
 
     public CustomWeekView(Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
+        curContext = context;
 
         paint = new Paint();
         //init();
@@ -65,6 +89,8 @@ public class CustomWeekView extends View {
         drawAllBaseBlock(canvas);
         drawTimeAndWeek(canvas);
         //canvas.drawRect(0,0,200,200, paint);
+        drawContentBlocks(canvas);
+        Log.d("draw", "draw");
 
     }
 
@@ -86,6 +112,8 @@ public class CustomWeekView extends View {
         fScrollBottomEnd = ROW_NUM * pCurBlock.fRow - fCustomViewHeightExceptSpace;
         Log.d("block", customViewHeight  +" "+ customViewWidth);
         Log.d("block", fLeftSideSpace  +" "+ fUpSideSpace  +" "+ fCustomViewHeightExceptSpace  +" "+ fCustomViewWidthExceptSpace  +" "+ pCurScrollLeftUp.fCol  +" "+ pCurScrollLeftUp.fRow);
+        curCustomWeekAdapter.setConfig(0, fUpSideSpace, fLeftSideSpace, fCustomViewWidthExceptSpace, fCustomViewHeightExceptSpace);
+        //adapt.setFlexibleConfig(pCurScrollLeftUp.fCol, pCurScrollLeftUp.fRow, pCurBlock.fCol, pCurBlock.fRow);
     }
 
     public void refreshInit(){
@@ -356,7 +384,7 @@ public class CustomWeekView extends View {
                 float moveY2 = event.getY(1);
                 float centerX, centerY, detX, detY;	//center 변화량, xy 변화량
                 Log.d("block", "touchX[0] : " + touchX[0] + " " + "touchX[1] : " + touchX[1] + " " + "moveX : " + moveX + " " + "moveX2 : " + moveX2 + " ");
-                Log.d("block", "getfCurBlockCol[0] : " + getfCurBlockCol(touchX[0]) + " " + "getfCurBlockCol[1] : " + getfCurBlockCol(touchX[1]));
+                Log.d("block", "getfCurBlockCol[0] : " + getfCurBlockCol(touchX[0]) + " " + "getfCurBlockRow[1] : " + getfCurBlockRow(touchX[1]));
                 if(touchX[0] < touchX[1]){  // touchX[0] == left finger
                     centerX = -getfCurBlockCol(touchX[1])*(moveX - touchX[0]);
                 }
@@ -425,11 +453,16 @@ public class CustomWeekView extends View {
 
                 // Touch was a simple tap. Do whatever.	Click
                 Toast.makeText(super.getContext(), "click : " + event.getX() + ", " + event.getY() + ", " + getWidth() + ", " + getHeight(), Toast.LENGTH_LONG).show();
+                //Click
+                int retIdx = curCustomWeekAdapter.getIdxWithClicked(event.getX(), event.getY());
+                if(retIdx == -1){
+                    Log.d("block", "click box find error");
+                }
                 Log.d("block", "ACTION_UP click");
 
             } else {
 
-                // 오래 눌렀다 손을 놓는 경우 아무 처리하지 않음?
+                // 오래 눌렀다 손을 놓는 경우 아무 처리하지 않음
                 Log.d("block", "ACTION_UP long click");
             }
             touchMode = MODE_NONE;
@@ -450,7 +483,6 @@ public class CustomWeekView extends View {
             //Toast.makeText(super.getContext(), "pos : " + event.getX() + ", " + event.getY() + ", " + getWidth() + ", " + getHeight(), Toast.LENGTH_LONG).show();
         }
 
-        //todo invalidate();
         invalidate();
         return true;
         //return super.onTouchEvent(event);
@@ -488,4 +520,86 @@ public class CustomWeekView extends View {
         }
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
     }
+
+    //datalist를 가져온다.
+    /*public void setListCustomWeekItem(List<CustomWeekItem> customItemList){
+        this.customItemList = customItemList;
+    }*/
+
+    //adapter를 등록한다.
+    public void setCustomWeekAdapter(CustomWeekAdapter adapt){
+        //adapt.updateCustomWeekItemList();
+        curCustomWeekAdapter = adapt;
+    }
+
+    //customItemList로 block과 text를 draw 한다.
+    public void drawContentBlocks(Canvas canvas){
+        Log.d("draws", "drawContentBlocks()");
+        //rect Paint
+        Paint tempRectPaint= new Paint();
+        tempRectPaint.setColor(Color.GREEN);
+
+        //text Paint
+        Paint tempTextPaint= new Paint();
+        tempTextPaint.setColor(Color.BLACK);
+        tempTextPaint.setAntiAlias(true);
+        tempTextPaint.setTextAlign(Paint.Align.LEFT);
+        tempTextPaint.setTextSize((float)20.0);
+        Paint.FontMetrics fm = tempTextPaint.getFontMetrics();
+        float textHeight = fm.descent - fm.ascent;      //use textHeight( < lineHeight)
+        Log.d("draws", "textHeight:"+textHeight);
+        //float lineHeight = fm.bottom - fm.top + fm.leading;
+
+        if(curCustomWeekAdapter != null){
+            curCustomWeekAdapter.setFlexibleConfig(pCurScrollLeftUp.fCol, pCurScrollLeftUp.fRow, pCurBlock.fCol, pCurBlock.fRow);
+            curCustomWeekAdapter.updateCustomWeekItemList();
+            //curCustomWeekAdapter.customWeekItemList
+            if(curCustomWeekAdapter.customWeekItemList != null){
+                //TODO : draw
+                for(CustomWeekItem item : curCustomWeekAdapter.customWeekItemList){
+                    RectF tempRectF = new RectF(item.left, item.top, item.right,item.bottom);
+                    //Log.d("draws", "draw rect / " + item.left + "/" + item.top + "/" + item.right + "/" +item.bottom);
+                    //Log.d("draws", "customWeekItemList leng: "+ curCustomWeekAdapter.customWeekItemList.size());
+                    canvas.drawRect(tempRectF, tempRectPaint);
+                    String tempString = item.getText();
+                    int startIdx = 0, endIdx = tempString.length();
+                    float curHeight = (float)0.0;
+                    float totalHeight = tempRectF.height() - textHeight*4/3;
+                    //Log.d("draws", "totalHeight:"+totalHeight);
+                    //필요한 공간 > 실제 공간
+                    if(curHeight + textHeight > totalHeight){   //첫 문장 들어갈 수 있는지 계산
+                        continue;   //사각형크기 < 글씨 크기
+                    }
+                    //multiple line text
+                    while(true){
+                        int breakedCharLen = tempTextPaint.breakText(tempString.substring(startIdx), true, tempRectF.width(), null);
+                        if(breakedCharLen == 0){
+                            break;  //더 이상 인쇄 할 문장이 없음.
+                        }
+                        //Log.d("draws", "breakedCharren:"+breakedCharLen);
+                        //현재 문장 말고 다음 문장이 사각형을 벗어나는 경우
+                        if(curHeight + textHeight + textHeight > totalHeight){
+                            //필요한 공간 > 실제 공간
+                            int summLen = min(breakedCharLen, 3);   //축약할 단어 길이를 정해진 문장 길이를 넘지 못하도록 함.
+                            String finalString = tempString.substring(startIdx, startIdx + breakedCharLen - summLen); //축약
+                            for(int loop = 0; loop < summLen; loop++){
+                                finalString = finalString + ".";
+                            }
+                            canvas.drawText(finalString, 0, breakedCharLen, tempRectF.left, tempRectF.top + curHeight + textHeight*2/3, tempTextPaint);
+                            break;
+                        }
+                        else {
+                            canvas.drawText(tempString, startIdx, startIdx + breakedCharLen, tempRectF.left, tempRectF.top + curHeight + textHeight*2/3, tempTextPaint);
+                            startIdx = startIdx + breakedCharLen;
+                            curHeight += textHeight;
+                        }
+                        //Log.d("draws", "drawing text...");
+                    }
+                    //Log.d("draws", "drawContentBlocks end.");
+                }
+            }
+        }
+        return;
+    }
+
 }

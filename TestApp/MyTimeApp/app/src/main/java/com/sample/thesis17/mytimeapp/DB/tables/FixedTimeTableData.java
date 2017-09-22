@@ -62,6 +62,87 @@ public class FixedTimeTableData {
         this.isCache = isCache;
     }
 
+
+    public MarkerData getForeMarkerData() {
+        return foreMarkerData;
+    }
+
+    public void setForeMarkerData(MarkerData foreMarkerData) {
+        this.foreMarkerData = foreMarkerData;
+    }
+
+    public String getStrFixedTimeTableName() {
+        return strFixedTimeTableName;
+    }
+
+    public void setStrFixedTimeTableName(String strFixedTimeTableName) {
+        this.strFixedTimeTableName = strFixedTimeTableName;
+    }
+
+    public long getlStartTime() {
+        return lStartTime;
+    }
+
+    public void setlStartTime(long lStartTime) {
+        this.lStartTime = lStartTime;
+    }
+
+    public long getlEndTime() {
+        return lEndTime;
+    }
+
+    public void setlEndTime(long lEndTime) {
+        this.lEndTime = lEndTime;
+    }
+
+    public long getlBoundStartTime() {
+        return lBoundStartTime;
+    }
+
+    public void setlBoundStartTime(long lBoundStartTime) {
+        this.lBoundStartTime = lBoundStartTime;
+    }
+
+    public long getlBoundEndTime() {
+        return lBoundEndTime;
+    }
+
+    public void setlBoundEndTime(long lBoundEndTime) {
+        this.lBoundEndTime = lBoundEndTime;
+    }
+
+    public long getlInnerBoundStartTime() {
+        return lInnerBoundStartTime;
+    }
+
+    public void setlInnerBoundStartTime(long lInnerBoundStartTime) {
+        this.lInnerBoundStartTime = lInnerBoundStartTime;
+    }
+
+    public long getlInnerBoundEndTime() {
+        return lInnerBoundEndTime;
+    }
+
+    public void setlInnerBoundEndTime(long lInnerBoundEndTime) {
+        this.lInnerBoundEndTime = lInnerBoundEndTime;
+    }
+
+    public String getStrMemo() {
+        return strMemo;
+    }
+
+    public void setStrMemo(String strMemo) {
+        this.strMemo = strMemo;
+    }
+
+    public boolean isCache() {
+        return isCache;
+    }
+
+    public void setCache(boolean cache) {
+        isCache = cache;
+    }
+/*
     public void setForeMarkerData(MarkerData markerData){
         foreMarkerData = markerData;
     }
@@ -131,7 +212,7 @@ public class FixedTimeTableData {
     public boolean getIsCache(){
         return isCache;
     }
-
+*/
 
 
 
