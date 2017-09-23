@@ -27,6 +27,7 @@ import com.sample.thesis17.mytimeapp.baseCalendar.CalenderWeekItemIdxWithIsHisto
 import com.sample.thesis17.mytimeapp.baseCalendar.DialogCreateCalenderItemFragment;
 import com.sample.thesis17.mytimeapp.baseCalendar.DialogModifyCalenderItemFragment;
 import com.sample.thesis17.mytimeapp.baseCalendar.DialogViewCalenderItemFragment;
+import com.sample.thesis17.mytimeapp.baseCalendar.DialogViewCalenderTempItemFragment;
 import com.sample.thesis17.mytimeapp.baseTimeTable.week.CustomWeekView;
 
 import java.sql.SQLException;
@@ -34,7 +35,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-public class CalenderWeekFragment extends Fragment implements DialogWeekItemViewFragment.DialogWeekItemViewFragmentListener, DialogWeekItemModifyViewFragment.DialogWeekItemModifyViewFragmentListener, DialogWeekItemCreateFragment.DialogWeekItemCreateFragmentListener{
+public class CalenderWeekFragment extends Fragment implements DialogViewCalenderItemFragment.DialogViewCalenderItemFragmentListener, DialogViewCalenderTempItemFragment.DialogViewCalenderTempItemFragmentListener{
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
@@ -56,9 +57,11 @@ public class CalenderWeekFragment extends Fragment implements DialogWeekItemView
 
     //DB
     List<FixedTimeTableData> listFixedTimeTableData = null;
+    //List<FixedTimeTableData> listFixedTimeTableDataQueryedByMarkerData = null;
     List<MarkerData> listMarkerData = null;
     List<TempHistoryData> listTempHistoryData = null;
     List<HistoryData> listHistoryData = null;
+
     //List<DateForTempHisoryData> listDateForTempHisoryData = null;
 
     Dao<FixedTimeTableData, Integer> daoFixedTimeTableDataInteger = null;
@@ -73,11 +76,17 @@ public class CalenderWeekFragment extends Fragment implements DialogWeekItemView
     //dialog
     DialogCreateCalenderItemFragment dialogCreateCalenderItemFragment = null;
     DialogModifyCalenderItemFragment dialogModifyCalenderItemFragment = null;
+
+
+    DialogViewCalenderTempItemFragment dialogViewCalenderTempItemFragment = null;
     DialogViewCalenderItemFragment dialogViewCalenderItemFragment = null;
     Bundle bundleArg = null;
 
     CalenderWeekItemIdxWithIsHistoryData idxWithIsHistoryData = null;        //listFixedTimeTableData(시간표box list)에서 선택된 index
 
+    //origin value
+    FixedTimeTableData originFixedTimeTableData = null;
+    MarkerData originMarkerData = null;
 
     //int curYear;        //현재 달력의 년, 월.
     //int curMonth;
@@ -152,7 +161,7 @@ public class CalenderWeekFragment extends Fragment implements DialogWeekItemView
         customWeekView = (CustomWeekView) weekGridview;
 
         //adapter View에 등록
-        customWeekView.setCalenderWeekAdapter(calenderWeekAdapter);
+        customWeekView.setCustomWeekAdapter(calenderWeekAdapter);
 
 
 
@@ -242,15 +251,12 @@ public class CalenderWeekFragment extends Fragment implements DialogWeekItemView
         //mListener = null;
     }
 
+
     public interface OnFragmentInteractionListener {
         // TODO: Update argument type and name
         void onFragmentInteraction(Uri uri);
     }
 
-    //db
-    /*List<FixedTimeTableData> getFixedTimeTableDataList(){
-        return listFixedTimeTableData;
-    }*/
 
     //DB
     private DatabaseHelperMain databaseHelperMain = null;
@@ -267,139 +273,49 @@ public class CalenderWeekFragment extends Fragment implements DialogWeekItemView
 
     //open dialogWeekItemViewFragment
     void openDialogWithIdx(CalenderWeekItemIdxWithIsHistoryData idxWithIsHistoryData){
-        //TODO: make dialog
+
         this.idxWithIsHistoryData = idxWithIsHistoryData;
-        //listFixedTimeTableData use
-        //dialog call
-        dialogWeekItemViewFragment = new DialogWeekItemViewFragment();
-        bundleArg = new Bundle();
-        bundleArg.putString("title", listFixedTimeTableData.get(selectedBoxIdx).getStrFixedTimeTableName());
-        bundleArg.putLong("starttime", listFixedTimeTableData.get(selectedBoxIdx).getlStartTime());
-        bundleArg.putLong("endtime", listFixedTimeTableData.get(selectedBoxIdx).getlEndTime());
-        bundleArg.putString("marker", listFixedTimeTableData.get(selectedBoxIdx).getForeMarkerData().getStrMarkerName());
-        bundleArg.putString("memo", listFixedTimeTableData.get(selectedBoxIdx).getStrMemo());
+        int iIdx = idxWithIsHistoryData.getIdx();
+        if(iIdx == -1){
+            return;
+        }
 
-        dialogWeekItemViewFragment.setArguments(bundleArg);
-        dialogWeekItemViewFragment.setTargetFragment(this, 0);
-        //dialogWeekItemViewFragment.dismiss();
+        if(idxWithIsHistoryData.isHistory()){
+            //open history dialog
+            dialogViewCalenderItemFragment = new DialogViewCalenderItemFragment();
 
-        Log.d("timetableweekF", "opendialogwithidx()");
-        dialogWeekItemViewFragment.show(((FragmentActivity)curContext).getSupportFragmentManager(), "DialogWeekItemViewFragment");
+            bundleArg = new Bundle();
+            bundleArg.putString("title", listHistoryData.get(iIdx).getForeFixedTimeTable().getStrFixedTimeTableName());
+            bundleArg.putLong("starttime", listHistoryData.get(iIdx).getlStartTime());
+            bundleArg.putLong("endtime", listHistoryData.get(iIdx).getlEndTime());
+            bundleArg.putString("marker", listHistoryData.get(iIdx).getForeMarkerData().getStrMarkerName());
+            bundleArg.putString("memo", listHistoryData.get(iIdx).getMemo());
+            dialogViewCalenderItemFragment.setArguments(bundleArg);
+            dialogViewCalenderItemFragment.setTargetFragment(this, 0);
+            dialogViewCalenderItemFragment.show(((FragmentActivity)curContext).getSupportFragmentManager(), "DialogViewCalenderItemFragment");
+        }
+        else{
+            //open temp history dialog
+            dialogViewCalenderTempItemFragment = new DialogViewCalenderTempItemFragment();
+
+            bundleArg = new Bundle();
+
+            originFixedTimeTableData = listTempHistoryData.get(iIdx).getForeFixedTimeTable();
+            originMarkerData = listTempHistoryData.get(iIdx).getForeMarkerData();
+
+            bundleArg.putInt("fixedTimeTableIdx", listFixedTimeTableData.indexOf(listTempHistoryData.get(iIdx).getForeFixedTimeTable()));
+            bundleArg.putLong("starttime", listTempHistoryData.get(iIdx).getlStartTime());
+            bundleArg.putLong("endtime", listTempHistoryData.get(iIdx).getlEndTime());
+            bundleArg.putInt("markerIdx", listMarkerData.indexOf(listTempHistoryData.get(iIdx).getForeMarkerData()));
+            bundleArg.putString("memo", listTempHistoryData.get(iIdx).getMemo());
+            dialogViewCalenderTempItemFragment.setArguments(bundleArg);
+            dialogViewCalenderTempItemFragment.setTargetFragment(this, 0);
+            dialogViewCalenderTempItemFragment.show(((FragmentActivity)curContext).getSupportFragmentManager(), "DialogViewCalenderTempItemFragment");
+        }
+
     }
 
 
-    //DialogWeekItemViewFragment LIstener
-    @Override
-    public void openModifyDialogWithIdx(){
-        //open dialogWeekItemModifyViewFragment using selectedBoxIdx
-        bundleArg = new Bundle();
-        bundleArg.putString("title", listFixedTimeTableData.get(selectedBoxIdx).getStrFixedTimeTableName());
-        bundleArg.putLong("starttime", listFixedTimeTableData.get(selectedBoxIdx).getlStartTime());
-        bundleArg.putLong("endtime", listFixedTimeTableData.get(selectedBoxIdx).getlEndTime());
-        //가져온 listFixedTimeTableData에서 selectedBoxIdx 해당되는 MarkerData를 사용하여, listMarkerData의 어느 index에 존재하는지 확인.
-        bundleArg.putInt("markerIdx", listMarkerData.indexOf(listFixedTimeTableData.get(selectedBoxIdx).getForeMarkerData()));
-        bundleArg.putString("memo", listFixedTimeTableData.get(selectedBoxIdx).getStrMemo());
-
-
-        dialogWeekItemModifyViewFragment = new DialogWeekItemModifyViewFragment();
-
-        dialogWeekItemModifyViewFragment.setArguments(bundleArg);
-        dialogWeekItemModifyViewFragment.setTargetFragment(this, 0);
-
-        Log.d("timetableweekF", "openModifyDialogWithIdx()");
-        //close dialogWeekItemViewFragment
-        if(dialogWeekItemViewFragment != null){
-            dialogWeekItemViewFragment.dismiss();
-            dialogWeekItemViewFragment = null;
-        }
-
-        dialogWeekItemModifyViewFragment.show(((FragmentActivity)curContext).getSupportFragmentManager(), "DialogWeekItemModifyViewFragment");
-    }
-    @Override
-    public void doDelete() {
-        //listFixedTimeTableData, selectedIndex
-        FixedTimeTableData delData = listFixedTimeTableData.get(selectedBoxIdx);
-        listFixedTimeTableData.remove(selectedBoxIdx);
-
-        try{
-            daoFixedTimeTableDataInteger = getDatabaseHelperMain().getDaoFixedTimeTableData();
-            daoFixedTimeTableDataInteger.delete(delData);
-        }
-        catch(SQLException e){
-            Log.d("timetableweek", "doDelete sql");
-        }
-
-        customWeekView.invalidate();
-
-
-        //finally close dialogWeekItemViewFragment
-        if(dialogWeekItemViewFragment != null){
-            dialogWeekItemViewFragment.dismiss();
-            dialogWeekItemViewFragment = null;
-        }
-    }
-
-
-
-    //DialogWeekItemModifyViewFragment LIstener
-    @Override
-    public void doModify(String title, long startTime, long endTime, int markerIdx, String memo) {
-        FixedTimeTableData modifyData = listFixedTimeTableData.get(selectedBoxIdx);
-        modifyData.setStrFixedTimeTableName(title);
-        modifyData.setStrMemo(memo);
-        modifyData.setlStartTime(startTime);
-        modifyData.setlEndTime(endTime);
-        modifyData.setForeMarkerData(listMarkerData.get(markerIdx));
-
-        try{
-            daoFixedTimeTableDataInteger = getDatabaseHelperMain().getDaoFixedTimeTableData();
-            daoFixedTimeTableDataInteger.update(modifyData);
-        }
-        catch(SQLException e){
-            Log.d("timetableweek", "doDelete sql");
-        }
-
-        customWeekView.invalidate();
-
-        //finally close dialogWeekItemModifyViewFragment
-        if(dialogWeekItemModifyViewFragment != null){
-            dialogWeekItemModifyViewFragment.dismiss();
-            dialogWeekItemModifyViewFragment = null;
-        }
-    }
-    //DialogWeekItemCreateFragment LIstener
-    @Override
-    public void doCreate(String title, long startTime, long endTime, int markerIdx, String memo) {
-        FixedTimeTableData createData = new FixedTimeTableData(listMarkerData.get(markerIdx), title, startTime, endTime, startTime, endTime, startTime, endTime, memo, true);
-        listFixedTimeTableData.add(createData);
-
-        try{
-            daoFixedTimeTableDataInteger = getDatabaseHelperMain().getDaoFixedTimeTableData();
-            daoFixedTimeTableDataInteger.create(createData);
-        }
-        catch(SQLException e){
-            Log.d("timetableweek", "doDelete sql");
-        }
-
-        customWeekView.invalidate();
-        //finally close DialogWeekItemCreateFragment
-        if(dialogWeekItemCreateFragment != null){
-            dialogWeekItemCreateFragment.dismiss();
-            dialogWeekItemCreateFragment = null;
-        }
-        //TODO:
-    }
-
-    //DialogWeekItemCreateFragment LIstener & DialogWeekItemModifyViewFragment LIstener
-    @Override
-    public ArrayList<String> getArrayListMarkerDataTitle() {
-        ArrayList<String> retArrayLIst = new ArrayList<String>();
-        if(listMarkerData != null){
-            for(MarkerData mtd : listMarkerData)
-                retArrayLIst.add(mtd.getStrMarkerName());
-        }
-        return retArrayLIst;
-    }
 
     public boolean isAlreadyCalculated(){
         try{
@@ -453,5 +369,28 @@ public class CalenderWeekFragment extends Fragment implements DialogWeekItemView
         return markerMarkerTypeQb.prepare();
     }
 
+
+    @Override
+    public void doSlightDelete() {
+
+    }
+
+    @Override
+    public void doSave(FixedTimeTableData fttd, long startTime, long endTime, MarkerData md, String memo) {
+
+    }
+    @Override
+    public void doDeepDelete() {
+
+    }
+    @Override
+    public List<MarkerData> getListMarkerData() {
+        return null;
+    }
+    @Override
+    public List<FixedTimeTableData> getListFixedTimeTableData() {
+        return null;
+    }
+    //TODO : 날짜 바뀔때 adapter. long time 시작지점 change
 }
 

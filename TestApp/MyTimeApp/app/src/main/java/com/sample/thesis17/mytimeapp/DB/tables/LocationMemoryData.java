@@ -32,18 +32,22 @@ public class LocationMemoryData {
     @DatabaseField(canBeNull = true, foreign = true)
     private TempHistoryData bindedTempHistoryData;
 
+    @DatabaseField
+    private boolean bDummy;
+
 
     LocationMemoryData(){
         // empty constructor is needed
     }
 
-    public LocationMemoryData(double lat, double lng, long lMillisTimeWritten, float fAccur, HistoryData bindedHistoryData, TempHistoryData bindedTempHistoryData) {
+    public LocationMemoryData(double lat, double lng, long lMillisTimeWritten, float fAccur, HistoryData bindedHistoryData, TempHistoryData bindedTempHistoryData, boolean bDummy) {
         this.lMillisTimeWritten = lMillisTimeWritten;
         this.lat = lat;
         this.lng = lng;
         this.fAccur = fAccur;
         this.bindedHistoryData = bindedHistoryData;
         this.bindedTempHistoryData = bindedTempHistoryData;
+        this.bDummy = bDummy;
     }
 
     public int getId(){
@@ -100,5 +104,13 @@ public class LocationMemoryData {
 
     public void setBindedTempHistoryData(TempHistoryData bindedTempHistoryData) {
         this.bindedTempHistoryData = bindedTempHistoryData;
+    }
+
+    public boolean isbDummy() {
+        return bDummy;
+    }
+
+    public void setbDummy(boolean bDummy) {
+        this.bDummy = bDummy;
     }
 }
