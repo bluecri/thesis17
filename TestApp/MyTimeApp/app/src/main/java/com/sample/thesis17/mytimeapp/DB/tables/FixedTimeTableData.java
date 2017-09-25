@@ -214,6 +214,19 @@ public class FixedTimeTableData {
     }
 */
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof FixedTimeTableData)) return false;
 
+        FixedTimeTableData that = (FixedTimeTableData) o;
 
+        return id == that.id;
+
+    }
+
+    @Override
+    public int hashCode() {
+        return id;
+    }
 }

@@ -8,11 +8,11 @@ public class Points {
 
     public float fCol;
     public float fRow;
-    Points(){
+    public Points(){
         fCol = 0;
         fRow = 0;
     }
-    Points(float x, float y){
+    public Points(float x, float y){
         fCol = x;
         fRow = y;
     }

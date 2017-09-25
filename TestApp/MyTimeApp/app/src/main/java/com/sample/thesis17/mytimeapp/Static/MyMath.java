@@ -16,6 +16,7 @@ public class MyMath {
     public static long LONG_WEEK_MILLIS = 60*60*24*7*1000;
 
     public static String[] WEEK_STRING = {"일", "월", "화", "수", "목", "금", "토"};
+    public static String[] WEEK_STRING_REAL = {"수", "목", "금", "토", "일", "월", "화"};
 
 
     public static double doubleRound(double value, int places) {

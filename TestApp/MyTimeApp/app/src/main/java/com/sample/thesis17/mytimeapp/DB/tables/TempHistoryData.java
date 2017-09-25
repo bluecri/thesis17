@@ -25,6 +25,9 @@ public class TempHistoryData {
     @DatabaseField
     private long lEndTime;
 
+    @DatabaseField
+    private String memo;
+
     TempHistoryData() {
         // empty constructor is needed
     }
@@ -67,5 +70,13 @@ public class TempHistoryData {
 
     public void setlEndTime(long lEndTime) {
         this.lEndTime = lEndTime;
+    }
+
+    public String getMemo() {
+        return memo;
+    }
+
+    public void setMemo(String memo) {
+        this.memo = memo;
     }
 }
