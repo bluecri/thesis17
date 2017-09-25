@@ -9,9 +9,17 @@ import java.util.Date;
  * Created by kimz on 2017-07-26.
  */
 
+
+
 @DatabaseTable(tableName = "locationMemory")
 public class LocationMemoryData {
-    @DatabaseField(generatedId = true)
+    public final static String LOCATIONMEMORY_ID_FIELD_NAME = "locationmem_id";
+    public final static String LOCATIONMEMORY_BINDEDHISTORYDATA_FIELD_NAME = "locationmem_history";
+    public final static String LOCATIONMEMORY_BINDEDTEMPHISTORYDATA_FIELD_NAME = "locationmem_temphistory";
+    public final static String LOCATIONMEMORY_BDUMMY_FIELD_NAME = "locationmem_dummy";
+    public final static String LOCATIONMEMORY_TIMEWRITTEN_FIELD_NAME = "locationmem_writtentime";
+
+    @DatabaseField(generatedId = true, columnName = LOCATIONMEMORY_ID_FIELD_NAME)
     private int id;
 
     @DatabaseField
@@ -20,27 +28,27 @@ public class LocationMemoryData {
     @DatabaseField
     private double lng;
 
-    @DatabaseField
+    @DatabaseField(columnName = LOCATIONMEMORY_TIMEWRITTEN_FIELD_NAME)
     private long lMillisTimeWritten;
 
     @DatabaseField
     private float fAccur;
 
-    @DatabaseField(canBeNull = true, foreign = true)
+    @DatabaseField(canBeNull = true, foreign = true, columnName = LOCATIONMEMORY_BINDEDHISTORYDATA_FIELD_NAME)
     private HistoryData bindedHistoryData;
 
-    @DatabaseField(canBeNull = true, foreign = true)
+    @DatabaseField(canBeNull = true, foreign = true, columnName = LOCATIONMEMORY_BINDEDTEMPHISTORYDATA_FIELD_NAME)
     private TempHistoryData bindedTempHistoryData;
 
-    @DatabaseField
-    private boolean bDummy;
+    @DatabaseField(columnName = LOCATIONMEMORY_BDUMMY_FIELD_NAME)
+    private int bDummy;
 
 
     LocationMemoryData(){
         // empty constructor is needed
     }
 
-    public LocationMemoryData(double lat, double lng, long lMillisTimeWritten, float fAccur, HistoryData bindedHistoryData, TempHistoryData bindedTempHistoryData, boolean bDummy) {
+    public LocationMemoryData(double lat, double lng, long lMillisTimeWritten, float fAccur, HistoryData bindedHistoryData, TempHistoryData bindedTempHistoryData, int bDummy) {
         this.lMillisTimeWritten = lMillisTimeWritten;
         this.lat = lat;
         this.lng = lng;
@@ -106,11 +114,11 @@ public class LocationMemoryData {
         this.bindedTempHistoryData = bindedTempHistoryData;
     }
 
-    public boolean isbDummy() {
+    public int getbDummy() {
         return bDummy;
     }
 
-    public void setbDummy(boolean bDummy) {
+    public void setbDummy(int bDummy) {
         this.bDummy = bDummy;
     }
 }

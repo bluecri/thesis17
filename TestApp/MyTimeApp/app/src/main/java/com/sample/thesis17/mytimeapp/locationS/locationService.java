@@ -137,7 +137,7 @@ public class locationService extends Service {
         Log.d("locationService", "startLocationService");
         locationListenerCustom = new LocationListenerNet();
         getLocationListenerCustomGps = new LocationListenerGps();
-        dataLMForGpsThread = new LocationMemoryData(0.0, 0.0, 0, (float)0.0, null, null, false);
+        dataLMForGpsThread = new LocationMemoryData(0.0, 0.0, 0, (float)0.0, null, null, 0);
         // minDistance = 0;
 
         try {
@@ -181,7 +181,7 @@ public class locationService extends Service {
             Double longitude = location.getLongitude();
             float accuracy = location.getAccuracy();
 
-            dataLMForSave = new LocationMemoryData(latitude, longitude, System.currentTimeMillis(), accuracy, null, null, false);
+            dataLMForSave = new LocationMemoryData(latitude, longitude, System.currentTimeMillis(), accuracy, null, null, 0);
 
             Log.d("locatoinService", "new thread created..");
             locationThread = new Thread(new ThreadLocationMemoryDataProcessWithGps());

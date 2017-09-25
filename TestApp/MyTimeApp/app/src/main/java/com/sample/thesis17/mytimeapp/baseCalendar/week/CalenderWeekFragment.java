@@ -14,12 +14,16 @@ import android.widget.TextView;
 
 import com.j256.ormlite.dao.Dao;
 import com.j256.ormlite.stmt.PreparedQuery;
+import com.j256.ormlite.stmt.PreparedUpdate;
 import com.j256.ormlite.stmt.QueryBuilder;
 import com.j256.ormlite.stmt.SelectArg;
+import com.j256.ormlite.stmt.UpdateBuilder;
+import com.sample.thesis17.mytimeapp.DB.baseClass.DatabaseHelperLocationMemory;
 import com.sample.thesis17.mytimeapp.DB.baseClass.DatabaseHelperMain;
 import com.sample.thesis17.mytimeapp.DB.tables.DateForTempHisoryData;
 import com.sample.thesis17.mytimeapp.DB.tables.FixedTimeTableData;
 import com.sample.thesis17.mytimeapp.DB.tables.HistoryData;
+import com.sample.thesis17.mytimeapp.DB.tables.LocationMemoryData;
 import com.sample.thesis17.mytimeapp.DB.tables.MarkerData;
 import com.sample.thesis17.mytimeapp.DB.tables.TempHistoryData;
 import com.sample.thesis17.mytimeapp.R;
@@ -28,11 +32,19 @@ import com.sample.thesis17.mytimeapp.baseCalendar.DialogCreateCalenderItemFragme
 import com.sample.thesis17.mytimeapp.baseCalendar.DialogModifyCalenderItemFragment;
 import com.sample.thesis17.mytimeapp.baseCalendar.DialogViewCalenderItemFragment;
 import com.sample.thesis17.mytimeapp.baseCalendar.DialogViewCalenderTempItemFragment;
+import com.sample.thesis17.mytimeapp.baseCalendar.LocationGroup;
 import com.sample.thesis17.mytimeapp.baseTimeTable.week.CustomWeekView;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+
+import static com.sample.thesis17.mytimeapp.DB.tables.LocationMemoryData.LOCATIONMEMORY_BDUMMY_FIELD_NAME;
+import static com.sample.thesis17.mytimeapp.DB.tables.LocationMemoryData.LOCATIONMEMORY_BINDEDHISTORYDATA_FIELD_NAME;
+import static com.sample.thesis17.mytimeapp.DB.tables.LocationMemoryData.LOCATIONMEMORY_BINDEDTEMPHISTORYDATA_FIELD_NAME;
+import static com.sample.thesis17.mytimeapp.DB.tables.LocationMemoryData.LOCATIONMEMORY_TIMEWRITTEN_FIELD_NAME;
+import static com.sample.thesis17.mytimeapp.Static.MyMath.LONG_DAY_MILLIS;
 
 
 public class CalenderWeekFragment extends Fragment implements DialogViewCalenderItemFragment.DialogViewCalenderItemFragmentListener, DialogViewCalenderTempItemFragment.DialogViewCalenderTempItemFragmentListener{
@@ -48,12 +60,13 @@ public class CalenderWeekFragment extends Fragment implements DialogViewCalender
     private OnFragmentInteractionListener mListener;
 
     View weekGridview;
-    CustomWeekView customWeekView;
+    CalenderWeekView customWeekView;
     TextView centerText;
     Button prevButton, nextButton;
     Context curContext;
 
     long weekFirstTimeLong = 0;
+    long curTimeLong = 0;
 
     //DB
     List<FixedTimeTableData> listFixedTimeTableData = null;
@@ -69,6 +82,7 @@ public class CalenderWeekFragment extends Fragment implements DialogViewCalender
     Dao<TempHistoryData, Integer> daoTempHistoryData = null;
     Dao<DateForTempHisoryData, Integer> daoDateForTempHistoryData = null;
     Dao<HistoryData, Integer> daoHistoryData = null;
+    Dao<LocationMemoryData, Integer> daoLocationMemoryData = null;
 
     CalenderWeekAdapter calenderWeekAdapter = null;
 
@@ -90,6 +104,9 @@ public class CalenderWeekFragment extends Fragment implements DialogViewCalender
 
     //int curYear;        //현재 달력의 년, 월.
     //int curMonth;
+
+    //CONSTANTS
+    double DOUBLE_GROUPING_2POW_RADIUS = 0.000000035;  // 0.0.0000000676 공학관 한동, 운동장크기
 
     public CalenderWeekFragment() {
         // Required empty public constructor
@@ -114,6 +131,7 @@ public class CalenderWeekFragment extends Fragment implements DialogViewCalender
             daoTempHistoryData = getDatabaseHelperMain().getDaoTempHistoryData();
             daoHistoryData = getDatabaseHelperMain().getDaoHistoryData();
             daoDateForTempHistoryData = getDatabaseHelperMain().getDaoDateForTempHisoryData();
+            daoLocationMemoryData = getDatabaseHelperLocationMemory().getDaoLocationMemoryData();
 
             listFixedTimeTableData = daoFixedTimeTableDataInteger.queryForAll();
             listMarkerData = daoMarkerDataInteger.queryForAll();
@@ -158,7 +176,7 @@ public class CalenderWeekFragment extends Fragment implements DialogViewCalender
         centerText = (TextView)retView.findViewById(R.id.fragment_timetable_week_textMonth);
 
         weekGridview = (View)(retView.findViewById(R.id.calenderWeekView));
-        customWeekView = (CustomWeekView) weekGridview;
+        customWeekView = (CalenderWeekView) weekGridview;
 
         //adapter View에 등록
         customWeekView.setCustomWeekAdapter(calenderWeekAdapter);
@@ -269,6 +287,15 @@ public class CalenderWeekFragment extends Fragment implements DialogViewCalender
         return databaseHelperMain;
     }
 
+    private DatabaseHelperLocationMemory databaseHelperLocationMemory = null;
+
+    private DatabaseHelperLocationMemory getDatabaseHelperLocationMemory() {
+        if (databaseHelperLocationMemory == null) {
+            databaseHelperLocationMemory = DatabaseHelperLocationMemory.getHelper(curContext);
+        }
+        return databaseHelperLocationMemory;
+    }
+
 
 
     //open dialogWeekItemViewFragment
@@ -296,6 +323,9 @@ public class CalenderWeekFragment extends Fragment implements DialogViewCalender
         }
         else{
             //open temp history dialog
+
+
+
             dialogViewCalenderTempItemFragment = new DialogViewCalenderTempItemFragment();
 
             bundleArg = new Bundle();
@@ -330,8 +360,291 @@ public class CalenderWeekFragment extends Fragment implements DialogViewCalender
     }
     //locationmem -> 계산 -> create tempHistoryData & list
     public void doCalcTempHistoryData(){
-        daoDateForTempHistoryData, weekFirstTimeLong
-                //계산 뒤 DateForTempHisoryData에 weekFirstTimeLong추가
+        //use daoDateForTempHistoryData, weekFirstTimeLong
+        //계산 뒤 DateForTempHisoryData에 weekFirstTimeLong추가
+        List<LocationGroup> listLocationGroup = new ArrayList<>();
+
+        int ret = 0;
+        //calc ~~ weekFirstTimeLong + 3day
+        curTimeLong = System.currentTimeMillis();
+
+        if(curTimeLong < weekFirstTimeLong){
+            //do nothing
+        }
+        else if(curTimeLong < weekFirstTimeLong + 3 * LONG_DAY_MILLIS){      //현재 시간(쿼리 대상)이 중간 분기점보다 이전인 경우 [alpha~curTime] & recursively
+            ret = createLocatoinGrouppingUpperSide(curTimeLong, listLocationGroup);
+            if(ret == -1){
+                return; //no list in [starttime-endtime]
+            }
+            else if(ret == -2){
+                Log.d("calender", "createLocatoinGrouppingUpperSide -2 ERROR");
+            }
+        }
+        else{
+            //현재 시간(쿼리 대상)이 중간 분기점 이후인 경우 [alpha ~ weekFirstTimeLong + 3 * LONG_DAY_MILLIS)
+            ret = createLocatoinGrouppingUpperSide(weekFirstTimeLong + 3 * LONG_DAY_MILLIS, listLocationGroup);
+            if(ret == -2){
+                Log.d("calender", "createLocatoinGrouppingUpperSide -2 ERROR");
+            }
+
+            if(curTimeLong < weekFirstTimeLong + 7 * LONG_DAY_MILLIS) {  // [weekFirstTimeLong + 3 * LONG_DAY_MILLIS ~ curTimeLong)
+                ret = createLocatoinGrouppingDownSide(curTimeLong, listLocationGroup);
+                if(ret == -2){
+                    Log.d("calender", "createLocatoinGrouppingUpperSide -2 ERROR");
+                }
+            }
+            else{   // [weekFirstTimeLong + 3 * LONG_DAY_MILLIS ~ weekFirstTimeLong + 7 * LONG_DAY_MILLIS) & recursively
+                ret = createLocatoinGrouppingDownSide(weekFirstTimeLong + 7 * LONG_DAY_MILLIS, listLocationGroup);
+                if(ret == -2){
+                    Log.d("calender", "createLocatoinGrouppingUpperSide -2 ERROR");
+                }
+            }
+
+        }
+        //listLocationGroup setting targetMarkerData
+        for(int i = 0; i < listLocationGroup.size(); i++){
+            double minDist = 100000.0;
+            boolean thereIsInCricle = false;
+            for(int k=0; k<listMarkerData.size(); i++){
+                double dist = getPowRadius(listLocationGroup.get(i).getCenterLat(), listLocationGroup.get(i).getCenterLng(), listMarkerData.get(k).getLat(), listMarkerData.get(k).getLng());
+                if(thereIsInCricle == true){
+                    if(dist <= listMarkerData.get(k).getDInnerRadius()){
+                        listLocationGroup.get(i).getListInnerMarkerData().add(listMarkerData.get(k));   //inner markerData add
+                        if(minDist > dist){
+                            listLocationGroup.get(i).setTargetMarkerData(listMarkerData.get(k));    //set target markerData with min value
+                            minDist = dist;
+                        }
+                        //minDist = minDist
+                    }
+                }
+                else{
+                    if(dist <= listMarkerData.get(k).getDInnerRadius()){
+                        thereIsInCricle = true;
+                        listLocationGroup.get(i).getListInnerMarkerData().add(listMarkerData.get(k));   //inner markerData add
+                        listLocationGroup.get(i).setTargetMarkerData(listMarkerData.get(k));        //set target markerData
+                        minDist = dist;
+                    }
+                    else{   //not inner radius
+                        if(minDist > dist - listMarkerData.get(k).getDInnerRadius()){
+                            listLocationGroup.get(i).setTargetMarkerData(listMarkerData.get(k));        //set target markerData
+                            minDist = dist - listMarkerData.get(k).getDInnerRadius();
+                        }
+                        //minDist = minDist;
+                    }
+                }
+            }
+        }
+
+        List<LocationGroup> tempListLocationGroup = new ArrayList<>();
+        tempListLocationGroup.add(listLocationGroup.get(0));
+        int cntSameMarkerData= 0;
+        int k = 0;
+        LocationGroup templg = tempListLocationGroup.get(k);    //이전 group
+        k++;
+        for(int i=1; i<listLocationGroup.size(); i++){
+            LocationGroup curLocationGroup = listLocationGroup.get(i);
+            if(curLocationGroup.getTargetMarkerData().equals(templg.getTargetMarkerData())){
+                //combine
+                cntSameMarkerData++;
+                //LocationGroup templg = tempListLocationGroup.get(k);    //이전 group
+                templg.setCenterLat(templg.getCenterLat()*cntSameMarkerData/(cntSameMarkerData+1) + curLocationGroup.getCenterLat()/(cntSameMarkerData+1));
+                templg.setCenterLng(templg.getCenterLng()*cntSameMarkerData/(cntSameMarkerData+1) + curLocationGroup.getCenterLng()/(cntSameMarkerData+1));
+                templg.getListInnerMarkerData().addAll(curLocationGroup.getListInnerMarkerData());
+                templg.getListLMD().addAll(curLocationGroup.getListLMD());
+            }
+            else{       //이전과 다른 그룹
+                //TODO : k index에 대한 in out 판단  다 해서 out이면 ListInnerMarkerData -> empty
+                if(!isInnerRangeDot(templg.getCenterLat(), templg.getCenterLng(), templg.getTargetMarkerData().getLat(),templg.getTargetMarkerData().getLng(), templg.getTargetMarkerData().getDInnerRadius())){
+                    tempListLocationGroup.get(k).getListInnerMarkerData().clear();
+                }
+                tempListLocationGroup.add(listLocationGroup.get(i));
+                templg = tempListLocationGroup.get(k);    //이전 group
+                k++;
+            }
+        }
+        listLocationGroup = tempListLocationGroup;  //바뀐 group으로 전환.
+        
+        //TODO : location group -> fixedTimeTable 판단(분해 판단 포함) 및 tempHistoryData 생성
+
+    }
+
+    int createLocatoinGrouppingUpperSide(long endTime, List<LocationGroup> listLocationGroup){
+        //grouping & check before part recursively
+        long alpha = weekFirstTimeLong;
+        double groupCenterLat = 0.0, groupCenterLng = 0.0;
+        boolean extensionStart = false;
+        List<LocationMemoryData> listLocationMemWithTime = null;
+        //int cnt = 0;
+        try{
+            listLocationMemWithTime = getListLocationMemForInnerTimeQuery(alpha, endTime);
+        }
+        catch(SQLException e){
+            Log.d("calender", "createLocatoinGrouppingUpperSide sql error : " + e.toString());
+        }
+        if(listLocationMemWithTime == null || listLocationMemWithTime.size() == 0){
+            return -1;
+        }
+        Collections.reverse(listLocationMemWithTime);
+
+        groupCenterLat = listLocationMemWithTime.get(0).getLat();
+        groupCenterLng = listLocationMemWithTime.get(0).getLng();
+        int startGroupIdx = 0;
+        boolean doGrouping = false;
+        int iLoopEnd = listLocationMemWithTime.size();
+        for(int i=1; i< iLoopEnd; i++){
+            if(listLocationMemWithTime.get(i).getBindedHistoryData() != null){  //이미 HistoryData에 binding 되어있는 경우
+                doGrouping = true;
+            }
+            else{
+                groupCenterLat = groupCenterLat*i/(i+1) + listLocationMemWithTime.get(i).getLat()/(i+1);
+                groupCenterLng = groupCenterLng*i/(i+1) + listLocationMemWithTime.get(i).getLng()/(i+1);
+                for(int k = startGroupIdx; k <= i; k++){
+                    if(isInnerRangeDot(groupCenterLat, groupCenterLng, listLocationMemWithTime.get(k).getLat(),listLocationMemWithTime.get(k).getLng(), DOUBLE_GROUPING_2POW_RADIUS)){
+                        //do Grouping
+                        doGrouping = true;
+                        break;
+                    }
+                    //check isInnerRangeDot continue
+                }
+            }
+
+            if(doGrouping == true){
+                if(startGroupIdx - (i-1) + 1 != 1){ //group 개수가 1이 아닌 경우 (2개 이상일 시 grouoping)
+                    //TODO : group startGroupIdx ~ (i-1) with reverse
+                    List<LocationMemoryData> locationMemGroup = new ArrayList<>();
+                    for(int idx = i-1; idx >= startGroupIdx; idx--){
+                        locationMemGroup.add(listLocationMemWithTime.get(idx));
+                    }
+
+                    LocationGroup lg = new LocationGroup(locationMemGroup, groupCenterLat, groupCenterLng, null, null);
+                    listLocationGroup.add(lg);
+                }
+                groupCenterLat = listLocationMemWithTime.get(i).getLat();
+                groupCenterLng = listLocationMemWithTime.get(i).getLng();
+                startGroupIdx = i;
+                doGrouping = false;
+                if(extensionStart == true){
+                    Collections.reverse(listLocationGroup);
+                    return 0;
+                }
+            }
+
+            if(i == listLocationMemWithTime.size()-1){
+                List<LocationMemoryData> listMoreLocationMemWithTime = null;
+                try{
+                    listMoreLocationMemWithTime = getListLocationMemForInnerTimeQuery(alpha-LONG_DAY_MILLIS, alpha-1);
+                }
+                catch(SQLException e){
+                    Log.d("calender", "createLocatoinGrouppingUpperSide sql error : " + e.toString());
+                }
+                if(listMoreLocationMemWithTime == null || listMoreLocationMemWithTime.size() == 0){
+                    Collections.reverse(listLocationGroup);
+                    return 0;
+                }
+                alpha = alpha-LONG_DAY_MILLIS;
+                Collections.reverse(listMoreLocationMemWithTime);
+                listLocationMemWithTime.addAll(listMoreLocationMemWithTime);
+                iLoopEnd += listMoreLocationMemWithTime.size();
+                extensionStart = true;
+            }
+        }
+        //reverse group
+        return -2;
+    }
+
+    int createLocatoinGrouppingDownSide(long endTime, List<LocationGroup> listLocationGroup){
+        //grouping & check before part recursively
+        long alpha = weekFirstTimeLong + 3 * LONG_DAY_MILLIS;
+        double groupCenterLat = 0.0, groupCenterLng = 0.0;
+
+        boolean extensionStart = false;
+        //int cnt = 0;
+        List<LocationMemoryData> listLocationMemWithTime = null;
+        try{
+            listLocationMemWithTime = getListLocationMemForInnerTimeQuery(alpha, endTime);
+        }
+        catch(SQLException e){
+            Log.d("calender", "createLocatoinGrouppingUpperSide sql error : " + e.toString());
+        }
+        //Collections.reverse(listLocationMemWithTime);
+        if(listLocationMemWithTime == null || listLocationMemWithTime.size() == 0){
+            return -1;
+        }
+        groupCenterLat = listLocationMemWithTime.get(0).getLat();
+        groupCenterLng = listLocationMemWithTime.get(0).getLng();
+        int startGroupIdx = 0;
+        boolean doGrouping = false;
+        int iLoopEnd = listLocationMemWithTime.size();
+        for(int i=1; i<iLoopEnd; i++){
+            if(listLocationMemWithTime.get(i).getBindedHistoryData() != null){  //이미 HistoryData에 binding 되어있는 경우
+                doGrouping = true;
+            }
+            else{
+                groupCenterLat = groupCenterLat*i/(i+1) + listLocationMemWithTime.get(i).getLat()/(i+1);
+                groupCenterLng = groupCenterLng*i/(i+1) + listLocationMemWithTime.get(i).getLng()/(i+1);
+                for(int k = startGroupIdx; k <= i; k++){
+                    if(isInnerRangeDot(groupCenterLat, groupCenterLng, listLocationMemWithTime.get(k).getLat(),listLocationMemWithTime.get(k).getLng(), DOUBLE_GROUPING_2POW_RADIUS)){
+                        doGrouping = true;
+                        break;
+                    }
+                    //check isInnerRangeDot continue
+                }
+            }
+
+            if(doGrouping == true){
+                if(startGroupIdx - (i-1) + 1 != 1){ //group 개수가 1이 아닌 경우 (2개 이상일 시 grouoping)
+                    //TODO : group startGroupIdx ~ (i-1) with No reverse
+                    List<LocationMemoryData> locationMemGroup = new ArrayList<>();
+                    for(int idx = i-1; idx >= startGroupIdx; idx--){
+                        locationMemGroup.add(listLocationMemWithTime.get(idx));
+                    }
+                    LocationGroup lg = new LocationGroup(locationMemGroup, groupCenterLat, groupCenterLng, null, null);
+                    listLocationGroup.add(lg);
+                }
+                groupCenterLat = listLocationMemWithTime.get(i).getLat();
+                groupCenterLng = listLocationMemWithTime.get(i).getLng();
+                startGroupIdx = i;
+                doGrouping = false;
+                if(extensionStart == true){
+                    return 0;
+                }
+            }
+
+            if(i == listLocationMemWithTime.size()-1){
+                List<LocationMemoryData> listMoreLocationMemWithTime = null;
+                try{
+                    listMoreLocationMemWithTime = getListLocationMemForInnerTimeQuery(endTime + 1, endTime+LONG_DAY_MILLIS);
+                }
+                catch(SQLException e){
+                    Log.d("calender", "createLocatoinGrouppingUpperSide sql error : " + e.toString());
+                }
+                if(listMoreLocationMemWithTime == null || listMoreLocationMemWithTime.size() == 0){
+                    return 0;
+                }
+                endTime = endTime+LONG_DAY_MILLIS;
+                //Collections.reverse(listMoreLocationMemWithTime);
+                listLocationMemWithTime.addAll(listMoreLocationMemWithTime);
+                iLoopEnd += listMoreLocationMemWithTime.size();
+                extensionStart = true;
+            }
+        }
+        //No reverse group
+        return -2;  //error
+    }
+
+    boolean isInnerRangeDot(double cx, double cy, double d1, double d2, double range){
+        return (cx - d1)*(cx - d1) + (cy - d2)*(cy - d2) < range;
+    }
+
+    double getPowRadius(double cx, double cy, double d1, double d2 ){
+        return (cx - d1)*(cx - d1) + (cy - d2)*(cy - d2);
+    }
+
+    double minD(double d1, double d2){
+        if(d1 < d2){
+            return d1;
+        }
+        return d2;
     }
 
     public void changeWeekWithFirstWeekLong(){
@@ -370,27 +683,178 @@ public class CalenderWeekFragment extends Fragment implements DialogViewCalender
     }
 
 
+    //history
     @Override
     public void doSlightDelete() {
-
+        HistoryData delHD = listHistoryData.get(idxWithIsHistoryData.getIdx());
+        try{
+            slightDeleteWithHistoryData(delHD);
+            listHistoryData.remove(delHD);
+            daoHistoryData.delete(delHD);
+        }
+        catch(SQLException e){
+            Log.d("calender", "doSlightDelete SQLException");
+        }
     }
 
+    //tempHistory
     @Override
     public void doSave(FixedTimeTableData fttd, long startTime, long endTime, MarkerData md, String memo) {
+        //originFixedTimeTableData originMarkerData -> fttd, md
+        TempHistoryData tempTHD = listTempHistoryData.get(idxWithIsHistoryData.getIdx());
 
+        //add historyData
+        HistoryData retHD = new HistoryData(fttd, md, startTime, endTime, memo);
+
+        try{
+            daoHistoryData.create(retHD);
+            listHistoryData.add(retHD);
+
+            //locationMemData : tempHistoryData->null,-1
+            // time range : historyData->retHD, dummy->true/false
+            //makeNullTempHistoryDataInLocationMem(tempTHD);  //locationMemData's tempHistoryData -> null, dummy to -1
+            List<LocationMemoryData> locList = getListLocationMemForInnerTimeQuery(startTime, endTime);
+            for(LocationMemoryData lmd : locList){
+                lmd.setBindedHistoryData(retHD);
+                lmd.setBindedTempHistoryData(null);
+                if(lmd.getlMillisTimeWritten() < originFixedTimeTableData.getlStartTime()){
+                    lmd.setbDummy(-1);
+                }
+                else if(lmd.getlMillisTimeWritten() >= originFixedTimeTableData.getlEndTime()){
+                    lmd.setbDummy(1);
+                }
+                else{
+                    lmd.setbDummy(0);
+                }
+                daoLocationMemoryData.update(lmd);
+            }
+        }
+        catch(SQLException e){
+            Log.d("calender", "SQLEXCEPTION in doSave");
+        }
     }
     @Override
     public void doDeepDelete() {
+        //tempHistoryData -> null, dummy -> true
+        TempHistoryData delTHD = listTempHistoryData.get(idxWithIsHistoryData.getIdx());
+        try{
+            deepDeleteWithTempHistoryData(delTHD);
+            daoTempHistoryData.delete(delTHD);
+            listTempHistoryData.remove(delTHD);
+        }
+        catch(SQLException e){
+            Log.d("calender", "doDeepDelete SQLException");
+        }
 
     }
     @Override
     public List<MarkerData> getListMarkerData() {
-        return null;
+        return listMarkerData;
     }
     @Override
     public List<FixedTimeTableData> getListFixedTimeTableData() {
-        return null;
+        return listFixedTimeTableData;
     }
     //TODO : 날짜 바뀔때 adapter. long time 시작지점 change
+
+    private PreparedUpdate<LocationMemoryData>locationMemForHistoryDataUpdateQuery = null;
+
+    //HistoryData에 해당하는 locationMem의 HistoryDatabind = null로 만듬.
+    private PreparedUpdate<LocationMemoryData> makeLocationMemForHistoryDataUpdateQuery() throws SQLException {
+        // build our inner query for UserPost objects
+        UpdateBuilder<LocationMemoryData, Integer> locationMemQb = daoLocationMemoryData.updateBuilder();
+
+        SelectArg userSelectArg = new SelectArg();
+        locationMemQb.where().eq(LOCATIONMEMORY_BINDEDHISTORYDATA_FIELD_NAME, userSelectArg);
+        locationMemQb.updateColumnValue(LOCATIONMEMORY_BINDEDHISTORYDATA_FIELD_NAME, null);
+        locationMemQb.updateColumnValue(LOCATIONMEMORY_BDUMMY_FIELD_NAME, 0);
+
+        return locationMemQb.prepare();
+    }
+
+    private void slightDeleteWithHistoryData(HistoryData hd) throws SQLException{
+        if(hd == null){
+            return;
+        }
+        if(locationMemForHistoryDataUpdateQuery == null){
+            locationMemForHistoryDataUpdateQuery = makeLocationMemForHistoryDataUpdateQuery();
+        }
+
+        locationMemForHistoryDataUpdateQuery.setArgumentHolderValue(0, hd);
+        daoLocationMemoryData.update(locationMemForHistoryDataUpdateQuery);
+
+    }
+
+    private PreparedUpdate<LocationMemoryData>locationMemForTempHistoryDataUpdateQuery = null;
+    private SelectArg boolSelectArg = new SelectArg();
+
+    //TempHistoryData에 해당하는 locationMem의 TempHistoryDatabind = null로 만듬.
+    private PreparedUpdate<LocationMemoryData> makeLocationMemForTempHistoryDataUpdateQuery() throws SQLException {
+        // build our inner query for UserPost objects
+        UpdateBuilder<LocationMemoryData, Integer> locationMemQb = daoLocationMemoryData.updateBuilder();
+
+        SelectArg userSelectArg = new SelectArg();
+        locationMemQb.where().eq(LOCATIONMEMORY_BINDEDHISTORYDATA_FIELD_NAME, userSelectArg);
+        locationMemQb.updateColumnValue(LOCATIONMEMORY_BINDEDTEMPHISTORYDATA_FIELD_NAME, null);
+        locationMemQb.updateColumnValue(LOCATIONMEMORY_BDUMMY_FIELD_NAME, boolSelectArg);
+
+        return locationMemQb.prepare();
+    }
+
+    private void deepDeleteWithTempHistoryData(TempHistoryData thd) throws SQLException{
+        if(thd == null){
+            return;
+        }
+        if(locationMemForTempHistoryDataUpdateQuery == null){
+            locationMemForTempHistoryDataUpdateQuery = makeLocationMemForTempHistoryDataUpdateQuery();
+        }
+
+        locationMemForTempHistoryDataUpdateQuery.setArgumentHolderValue(0, thd);
+        boolSelectArg.setValue(true);
+        daoLocationMemoryData.update(locationMemForTempHistoryDataUpdateQuery);
+
+    }
+
+    private void makeNullTempHistoryDataInLocationMem(TempHistoryData thd) throws SQLException{
+        if(thd == null){
+            return;
+        }
+        if(locationMemForTempHistoryDataUpdateQuery == null){
+            locationMemForTempHistoryDataUpdateQuery = makeLocationMemForTempHistoryDataUpdateQuery();
+        }
+
+        locationMemForTempHistoryDataUpdateQuery.setArgumentHolderValue(0, thd);
+        boolSelectArg.setValue(-1);
+        daoLocationMemoryData.update(locationMemForTempHistoryDataUpdateQuery);
+
+    }
+
+
+
+    private PreparedQuery<LocationMemoryData>locationMemForInnerTimeQuery = null;
+    SelectArg argStartTime = new SelectArg();
+    SelectArg argEndTime = new SelectArg();
+
+    //HistoryData에 해당하는 locationMem의 HistoryDatabind = null로 만듬.
+    private PreparedQuery<LocationMemoryData> makeLocationMemForInnerTimeQueryUpdateQuery() throws SQLException {
+        // build our inner query for UserPost objects
+        QueryBuilder<LocationMemoryData, Integer> locationMemQb = daoLocationMemoryData.queryBuilder();
+
+        locationMemQb.where().ge(LOCATIONMEMORY_TIMEWRITTEN_FIELD_NAME, argStartTime).and().lt(LOCATIONMEMORY_TIMEWRITTEN_FIELD_NAME, argEndTime);
+
+        return locationMemQb.prepare();
+    }
+
+    private List<LocationMemoryData> getListLocationMemForInnerTimeQuery(long sTime, long eTime) throws SQLException{
+        if(locationMemForInnerTimeQuery == null){
+            locationMemForInnerTimeQuery = makeLocationMemForInnerTimeQueryUpdateQuery();
+        }
+        argStartTime.setValue(sTime);
+        argEndTime.setValue(eTime);
+
+        return daoLocationMemoryData.query(locationMemForInnerTimeQuery);
+    }
+
+
 }
 
