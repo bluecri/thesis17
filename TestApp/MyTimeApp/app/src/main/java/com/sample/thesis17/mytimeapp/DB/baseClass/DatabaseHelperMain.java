@@ -18,6 +18,8 @@ import com.sample.thesis17.mytimeapp.DB.tables.MarkerData;
 import com.sample.thesis17.mytimeapp.DB.tables.MarkerMarkerTypeData;
 import com.sample.thesis17.mytimeapp.DB.tables.MarkerTypeData;
 import com.sample.thesis17.mytimeapp.DB.tables.TempHistoryData;
+import com.sample.thesis17.mytimeapp.DB.tables.TempHistoryLMData;
+import com.sample.thesis17.mytimeapp.DB.tables.TempHistoryMarkerData;
 
 import java.sql.SQLException;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -45,6 +47,8 @@ public class DatabaseHelperMain extends OrmLiteSqliteOpenHelper
     private Dao<MarkerMarkerTypeData, Integer> daoMarkerMarkerTypeData;
     private Dao<TempHistoryData, Integer> daoTempHistoryData;
     private Dao<DateForTempHisoryData, Integer> daoDateForTempHisoryData;
+    private Dao<TempHistoryLMData, Integer> daoTempHistoryLMData;
+    private Dao<TempHistoryMarkerData, Integer> daoTempHistoryMarkerData;
 
 
     //Constructor
@@ -74,6 +78,8 @@ public class DatabaseHelperMain extends OrmLiteSqliteOpenHelper
             daoMarkerMarkerTypeData = null;
             daoTempHistoryData = null;
             daoDateForTempHisoryData = null;
+            daoTempHistoryLMData = null;
+            daoTempHistoryMarkerData = null;
             dbHelper = null;
         }
 
@@ -180,6 +186,20 @@ public class DatabaseHelperMain extends OrmLiteSqliteOpenHelper
             daoDateForTempHisoryData = getDao(DateForTempHisoryData.class);
         }
         return daoDateForTempHisoryData;
+    }
+
+    public Dao<TempHistoryLMData, Integer> getDaoTempHistoryLMData() throws SQLException{
+        if(daoTempHistoryLMData == null){
+            daoTempHistoryLMData = getDao(TempHistoryLMData.class);
+        }
+        return daoTempHistoryLMData;
+    }
+
+    public Dao<TempHistoryMarkerData, Integer> getDaoTempHistoryMarkerData() throws  SQLException{
+        if(daoTempHistoryMarkerData == null){
+            daoTempHistoryMarkerData = getDao(TempHistoryMarkerData.class);
+        }
+        return daoTempHistoryMarkerData;
     }
 /*
     public Dao<MarkerTypeData, Integer> getDao() throws SQLException{

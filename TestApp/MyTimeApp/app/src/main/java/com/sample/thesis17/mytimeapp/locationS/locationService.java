@@ -52,7 +52,7 @@ public class locationService extends Service {
     boolean isUsedata = false;
 
     long iInterval = 10*60*1000;    //10분
-    long lGpsWaitMillis = 1000 * 20;    //20초
+    long lGpsWaitMillis = 1000 * 30;    //30초
 
     private DatabaseHelperLocationMemory databaseHelperLocationMemory = null;
 
@@ -141,14 +141,6 @@ public class locationService extends Service {
         // minDistance = 0;
 
         try {
-            //use locationManager's LOCATION_SERVICE and set listener
-            /*if(isUseGps){
-                locationManager.requestLocationUpdates(
-                        LocationManager.GPS_PROVIDER,
-                        iInterval,
-                        0,
-                        locationListenerCustom);
-            }*/
             if(isHaveToUseNetworkProvider){
                 locationManager.requestLocationUpdates(
                         LocationManager.NETWORK_PROVIDER,
@@ -157,18 +149,16 @@ public class locationService extends Service {
                         locationListenerCustom);
                 Log.d("locationService", "network listener running..." + String.valueOf(iInterval));
             }
+            else if(isUseGps){
+                //use only gps
+                if(locationThread != null){
+                    locationThread.interrupt();
+                    locationThread = null;
+                }
+                locationThread = new Thread(new ThreadLocationMemoryDataProcessWithOnlyGps());
+                locationThread.start();
+            }
 
-
-
-            //first location msg and textView
-            /*Location lastLocation = locationManager.getLastKnownLocation(strProvider);
-            if (lastLocation != null) {
-                Double latitude = lastLocation.getLatitude();
-                Double longitude = lastLocation.getLongitude();
-
-                //textView.setText("위/경도 : " + latitude + ", " + longitude);
-                Toast.makeText(getApplicationContext(), "최근위치 : " + "위도: " + latitude + "\n경도:" + longitude, Toast.LENGTH_LONG).show();
-            }*/
         } catch (SecurityException ex) {
             ex.printStackTrace();
         }
@@ -279,6 +269,7 @@ public class locationService extends Service {
         ConnectivityManager connectivityManager = (ConnectivityManager) this.getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo nInfo = connectivityManager.getActiveNetworkInfo();
         if(nInfo != null){
+            isHaveToUseNetworkProvider = false;
             if((nInfo.getType() == ConnectivityManager.TYPE_WIFI) && nInfo.isConnectedOrConnecting()){
                 Log.d("WifiInfoBroad", "wifi");
                 strCurrentUsingNetwork = WifiInfoBroadcastReceiver.STR_WIFI_CONN;
@@ -330,7 +321,7 @@ public class locationService extends Service {
                         //compare gps vs network accuracy
                         Log.d("locationService","gps acc : " + String.valueOf(dataLMForGpsThread.getfAccur()) + " / net acc : " + String.valueOf(dataLMForSave.getfAccur()));
 
-                        if(dataLMForGpsThread.getfAccur() - dataLMForSave.getfAccur() > 0.01){
+                        if(dataLMForGpsThread.getfAccur() - dataLMForSave.getfAccur() < 0.01){
                             //use gps for writing
                             Log.d("locationService", "use Gps for writing!");
                             Dao<LocationMemoryData, Integer> daoLocationMemoryDataInteger = getDatabaseHelperLocationMemory().getDaoLocationMemoryData();
@@ -359,6 +350,49 @@ public class locationService extends Service {
                     //interrupted
                 }
 
+            }
+            catch(SecurityException e){
+                Log.e("locationService", "threadLocationMemoryDataProcessWithGps security exception", e);   //because of locationManager
+            }
+            catch(InterruptedException e){
+                Log.e("locationService", "threadLocationMemoryDataProcessWithGps Interrupted exception", e);    //due to Thread Interrupt
+            }
+            catch(SQLException e){
+                Log.e("locationService", "threadLocationMemoryDataProcessWithGps SQLExcption", e);
+            }
+            finally{
+                dataLMForGpsThread.setfAccur((float)0.0);   //init mark
+                locationManagerGps.removeUpdates(getLocationListenerCustomGps);
+                //close DB
+            }
+        }
+    }
+
+    private class ThreadLocationMemoryDataProcessWithOnlyGps implements Runnable{
+        @Override
+        public void run() {
+            Log.d("locationService", "thread run");
+            try{
+                if(isUseGps){
+                    hMainHandler.sendEmptyMessage(0);   // run locationManager.requestUpdates(getLocationListenerCustomGps);
+                    sleep(lGpsWaitMillis);
+                    locationManagerGps.removeUpdates(getLocationListenerCustomGps);    //if there is no getLocationListenerCustomGps update, mListeners.remove return null.. Therefore, can be called with same param again.
+
+                }
+                if(!Thread.currentThread().isInterrupted()){
+                    if(isDataLMForGpsThreadWritten()) {
+                        locationManagerGps.removeUpdates(getLocationListenerCustomGps);
+                        Log.d("locationService", "use Gps");
+                        if (dataLMForGpsThread.getfAccur() < 100.0) {
+                            //use gps for writing
+                            Log.d("locationService", "use Gps for writing!");
+                            Dao<LocationMemoryData, Integer> daoLocationMemoryDataInteger = getDatabaseHelperLocationMemory().getDaoLocationMemoryData();
+                            daoLocationMemoryDataInteger.create(dataLMForGpsThread);
+                            debugPrintLMData(dataLMForGpsThread);
+                            debugPrintDAOInfo(daoLocationMemoryDataInteger);
+                        }
+                    }
+                }
             }
             catch(SecurityException e){
                 Log.e("locationService", "threadLocationMemoryDataProcessWithGps security exception", e);   //because of locationManager

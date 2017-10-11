@@ -14,6 +14,7 @@ public class MyMath {
     public static long LONG_MIN_MILLIS = 60*1000;
     public static long LONG_DAY_MILLIS = 60*60*24*1000;
     public static long LONG_WEEK_MILLIS = 60*60*24*7*1000;
+    public static long LONG_GROUP_INTERVAL = LONG_MIN_MILLIS * 10;  //10분 내면 같은 group
 
     public static String[] WEEK_STRING = {"일", "월", "화", "수", "목", "금", "토"};
     public static String[] WEEK_STRING_REAL = {"수", "목", "금", "토", "일", "월", "화"};

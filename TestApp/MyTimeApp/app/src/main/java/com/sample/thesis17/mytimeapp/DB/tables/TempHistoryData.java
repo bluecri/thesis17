@@ -10,6 +10,9 @@ import com.j256.ormlite.table.DatabaseTable;
 
 @DatabaseTable(tableName = "tempHistory")
 public class TempHistoryData {
+    public final static String TH_TEMPHISTORYDATA_STARTTIME_FIELD_NAME = "temphistorydata_starttime";
+    public final static String TH_TEMPHISTORYDATA_ENDTIME_FIELD_NAME = "locationmemorydata_endtime";
+
     @DatabaseField(generatedId = true)
     private int id;
 
@@ -19,17 +22,26 @@ public class TempHistoryData {
     @DatabaseField(canBeNull = false, foreign = true)
     private MarkerData foreMarkerData;
 
-    @DatabaseField
+    @DatabaseField(columnName = TH_TEMPHISTORYDATA_STARTTIME_FIELD_NAME)
     private long lStartTime;
 
-    @DatabaseField
+    @DatabaseField(columnName = TH_TEMPHISTORYDATA_ENDTIME_FIELD_NAME)
     private long lEndTime;
 
     @DatabaseField
     private String memo;
 
+
     TempHistoryData() {
         // empty constructor is needed
+    }
+
+    public TempHistoryData(FixedTimeTableData foreFixedTimeTable, MarkerData foreMarkerData, long lStartTime, long lEndTime, String memo) {
+        this.foreFixedTimeTable = foreFixedTimeTable;
+        this.foreMarkerData = foreMarkerData;
+        this.lStartTime = lStartTime;
+        this.lEndTime = lEndTime;
+        this.memo = memo;
     }
 
     public int getId() {

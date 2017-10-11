@@ -11,10 +11,13 @@ import com.j256.ormlite.table.DatabaseTable;
 
 @DatabaseTable(tableName = "fixedTimeTableData")
 public class FixedTimeTableData {
-    @DatabaseField(generatedId = true)
+    public final static String FIXEDTIMETABLE_ID_FIELD_NAME = "fixedtimetable_id";
+    public final static String FIXEDTIMETABLE_MARKERDATA_FIELD_NAME = "fixedtimetable_markerdata";
+    //public final static String LOCATIONMEMORY_BINDEDTEMPHISTORYDATA_FIELD_NAME = "locationmem_temphistory";
+    @DatabaseField(generatedId = true, columnName = FIXEDTIMETABLE_ID_FIELD_NAME)
     private int id;
 
-    @DatabaseField(canBeNull = false, foreign = true)
+    @DatabaseField(canBeNull = false, foreign = true, columnName = FIXEDTIMETABLE_MARKERDATA_FIELD_NAME)
     private MarkerData foreMarkerData;
 
     @DatabaseField
