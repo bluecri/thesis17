@@ -33,11 +33,15 @@ public class CalenderMonthAdapter extends BaseAdapter{
 
     int mStartDay, startDay;    //달력의 시작 일수(1일부터 시작) , 나라별 시작 요일
 
+    long inParamTimeLong = 0;
+
     private int selectedPosition = -1;  //초기 selected position
 
-    public CalenderMonthAdapter(Context context){
+
+    public CalenderMonthAdapter(Context context, long inTime){
         super();
         mContext = context;
+        inParamTimeLong = inTime;
         init();
     }
 
@@ -50,22 +54,27 @@ public class CalenderMonthAdapter extends BaseAdapter{
         monthItems = new MonthItem[8 * 6];
 
         calender = Calendar.getInstance();      //calendar 시작지점.
+        calender.setTimeInMillis(inParamTimeLong);
         recalculate();
         resetDayNumbers();
     }
 
-    public void setPreviousMonth() {
+    public long setPreviousMonth() {
         calender.add(Calendar.MONTH, -1);       //calendar의 month 계산
         recalculate();
         resetDayNumbers();
         selectedPosition = -1;      //position 초기화
+        inParamTimeLong = calender.getTimeInMillis();
+        return calender.getTimeInMillis();
     }
 
-    public void setNextMonth() {
+    public long setNextMonth() {
         calender.add(Calendar.MONTH, 1);
         recalculate();
         resetDayNumbers();
         selectedPosition = -1;
+        inParamTimeLong = calender.getTimeInMillis();
+        return calender.getTimeInMillis();
     }
 
     //selectedPosition Get/Set function
@@ -123,8 +132,12 @@ public class CalenderMonthAdapter extends BaseAdapter{
                   }
                   else{
                       //int weekNum = calender.get(Calendar.WEEK_OF_YEAR);
-                      int weekNum = getCurWeekWithYewrMonthDay(currentYear, currentMonth, iday);       //1'st week of year.month + week acc
+                      Long getMillis = 0L;
+                      int weekNum = getCurWeekWithYewrMonthDay(currentYear, currentMonth, dayNumber, getMillis);       //1'st week of year.month + week acc
+                      Log.d("calendCalc", "week : " + weekNum + " / Y:M:D : " + currentYear + ":" + (currentMonth+1) + ":" + dayNumber);
                       monthItems[i] = new MonthItem(weekNum, true);
+                      monthItems[i].setlWeekValue(getMillis);
+
                       //monthItems[i] = new MonthItem(weekNum+weekNumAcc, true);
                       //++weekNumAcc;
                   }
@@ -270,11 +283,29 @@ public class CalenderMonthAdapter extends BaseAdapter{
         }
     }
 
-    public int getCurWeekWithYewrMonthDay(int year, int month, int day){
+    public int getCurWeekWithYewrMonthDay(int year, int month, int day, Long millis){
         Calendar tempCal = Calendar.getInstance();
-        tempCal.set(year, month, day);
+        tempCal.set(year, month, 1, 0, 0, 0);
+        tempCal.add(Calendar.DAY_OF_MONTH, day-1);
+
+        Log.d("calendCalc", "getCurWeekWithYewrMonthDay " + tempCal.getTime() + tempCal.getTimeInMillis());
+        millis = tempCal.getTimeInMillis();
+
+        //getCurMillisWithYearAndWeek(year, tempCal.get(Calendar.WEEK_OF_YEAR));
         return tempCal.get(Calendar.WEEK_OF_YEAR);
     }
+
+/*
+    public long getCurMillisWithYearAndWeek(int year, int week){
+        Calendar tempCal = Calendar.getInstance();
+        tempCal.set(year, 0, 1);
+
+        tempCal.set(Calendar.WEEK_OF_YEAR, week);
+        //Log.d("calendCalc", "tttt " + tempCal.getTime());
+        //Log.d("calendCalc", "Y:M:D : " + year + ":" + (tempCal.get(Calendar.MONTH)+1) + ":" + (tempCal.get(Calendar.DATE)-1) + ":" + tempCal.getTime() + ":"+ tempCal.getTimeInMillis());
+        return tempCal.getTimeInMillis();
+    }
+    */
 
     public int getCurYear() {
         return currentYear;

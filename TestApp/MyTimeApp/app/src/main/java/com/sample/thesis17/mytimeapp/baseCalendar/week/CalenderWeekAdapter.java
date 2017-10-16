@@ -15,6 +15,7 @@ import static com.sample.thesis17.mytimeapp.Static.MyMath.LONG_DAY_MILLIS;
 import static com.sample.thesis17.mytimeapp.Static.MyMath.LONG_HOUR_MILLIS;
 import static com.sample.thesis17.mytimeapp.Static.MyMath.LONG_WEEK_MILLIS;
 import static java.lang.Math.max;
+import static java.lang.Math.min;
 
 /**
  * Created by kimz on 2017-09-21.
@@ -82,11 +83,11 @@ public class CalenderWeekAdapter {
             long blockStartTime = hd.getlStartTime(), blockEndTime = hd.getlEndTime();
             long blockStartTimeModWithDay = blockStartTime % LONG_DAY_MILLIS, blockEndTimeModWithDay = blockEndTime % LONG_DAY_MILLIS;
             //starttime이나 endtime 둘중 하나가 범위내에 있는 경우, 해당 box가 window 내부에 존재함.
-            if(((blockStartTime<=four&&three<=blockStartTime)||(blockEndTime<=four&&three<=blockEndTime))&&
-                    ((blockStartTimeModWithDay<=two&&one<=blockStartTimeModWithDay)||(blockEndTimeModWithDay<=two&&one<=blockEndTimeModWithDay))){
+            /*if(((blockStartTime<=four&&three<=blockStartTime)||(blockEndTime<=four&&three<=blockEndTime))&&
+                    ((blockStartTimeModWithDay<=two&&one<=blockStartTimeModWithDay)||(blockEndTimeModWithDay<=two&&one<=blockEndTimeModWithDay))){*/
                 makeItemsWithHistoryData(hd);
 
-            }
+            //}
             //}
             countIdx++;
         }
@@ -99,11 +100,11 @@ public class CalenderWeekAdapter {
             long blockStartTime = thd.getlStartTime(), blockEndTime = thd.getlEndTime();
             long blockStartTimeModWithDay = blockStartTime % LONG_DAY_MILLIS, blockEndTimeModWithDay = blockEndTime % LONG_DAY_MILLIS;
             //starttime이나 endtime 둘중 하나가 범위내에 있는 경우, 해당 box가 window 내부에 존재함.
-            if(((blockStartTime<=four&&three<=blockStartTime)||(blockEndTime<=four&&three<=blockEndTime))&&
-                    ((blockStartTimeModWithDay<=two&&one<=blockStartTimeModWithDay)||(blockEndTimeModWithDay<=two&&one<=blockEndTimeModWithDay))){
+            /*if(((blockStartTime<=four&&three<=blockStartTime)||(blockEndTime<=four&&three<=blockEndTime))&&
+                    ((blockStartTimeModWithDay<=two&&one<=blockStartTimeModWithDay)||(blockEndTimeModWithDay<=two&&one<=blockEndTimeModWithDay))){*/
                 makeItemsWithTempHistoryData(thd);
 
-            }
+            //}
             //}
             countIdx++;
         }
@@ -135,7 +136,14 @@ public class CalenderWeekAdapter {
         //block이 중간에 잘리는지 확인한다.
         long startTime = inData.getlStartTime();
         long endTime = inData.getlEndTime();
-        int timeModulo = (int)((endTime - startTime) % LONG_WEEK_MILLIS/LONG_DAY_MILLIS);
+        int timeModulo = 0;
+
+        if(startTime > endTime){
+            timeModulo = (int)((endTime + LONG_WEEK_MILLIS - startTime) % LONG_WEEK_MILLIS/LONG_DAY_MILLIS);
+        }
+        else{
+            timeModulo = (int)((endTime - startTime) % LONG_WEEK_MILLIS/LONG_DAY_MILLIS);
+        }
 
         CalenderWeekItem tempCalenderWeekItem = null;
 
@@ -176,10 +184,10 @@ public class CalenderWeekAdapter {
 
                 //multiple line
                 for(int i=0; i<timeModulo-1; i++){
-                    getCoordWithTimes(startTime+i*LONG_DAY_MILLIS);
+                    getCoordMindayWithTimes(startTime+(i+1)*LONG_DAY_MILLIS % LONG_WEEK_MILLIS);
                     left = fCoordLeft;
                     up = fCoordHeight;
-                    getCoordMaxdayWithTimes(startTime+i*LONG_DAY_MILLIS);
+                    getCoordMaxdayWithTimes(startTime+(i+1)*LONG_DAY_MILLIS % LONG_WEEK_MILLIS);
                     right = fCoordRight;
                     bottom = fCoordHeight;
 
@@ -218,7 +226,15 @@ public class CalenderWeekAdapter {
         //block이 중간에 잘리는지 확인한다.
         long startTime = inData.getlStartTime();
         long endTime = inData.getlEndTime();
-        int timeModulo = (int)((endTime - startTime) % LONG_WEEK_MILLIS/LONG_DAY_MILLIS);
+
+        int timeModulo = 0;
+
+        if(startTime > endTime){
+            timeModulo = (int)((endTime + LONG_WEEK_MILLIS - startTime) % LONG_WEEK_MILLIS/LONG_DAY_MILLIS);
+        }
+        else{
+            timeModulo = (int)((endTime - startTime) % LONG_WEEK_MILLIS/LONG_DAY_MILLIS);
+        }
 
         CalenderWeekItem tempCalenderWeekItem = null;
 
@@ -259,10 +275,10 @@ public class CalenderWeekAdapter {
 
                 //multiple line
                 for(int i=0; i<timeModulo-1; i++){
-                    getCoordWithTimes(startTime+i*LONG_DAY_MILLIS);
+                    getCoordMindayWithTimes(startTime+(i+1)*LONG_DAY_MILLIS % LONG_WEEK_MILLIS);
                     left = fCoordLeft;
                     up = fCoordHeight;
-                    getCoordMaxdayWithTimes(startTime+i*LONG_DAY_MILLIS);
+                    getCoordMaxdayWithTimes(startTime+(i+1)*LONG_DAY_MILLIS % LONG_WEEK_MILLIS);
                     right = fCoordRight;
                     bottom = fCoordHeight;
 
@@ -300,16 +316,16 @@ public class CalenderWeekAdapter {
             times = longStartDate;  //week time 0 이전일 경우 longStartDate로 계산한다.
         }
         if(longStartDate + LONG_WEEK_MILLIS < times){
-            times = longStartDate + LONG_WEEK_MILLIS;  //week time이 week 이후인 경우 longStartDatef로 계산한다.
+            times = longStartDate + LONG_WEEK_MILLIS - 1;  //week time이 week 이후인 경우 longStartDatef로 계산한다.
         }
         //hour를 0~24로 표현한 뒤 rowBlockSIze(1hour)를 곱한다. 그 뒤 scroll위치와 sideSpace위치를 고려한 좌표를 반환한다.
-        fCoordHeight = max((((float)(times%LONG_DAY_MILLIS))/LONG_HOUR_MILLIS)*rowBlockSize-scrollRow+fUpSideSpace, fUpSideSpace);
+        fCoordHeight = min(max((((float)(times%LONG_DAY_MILLIS))/LONG_HOUR_MILLIS)*rowBlockSize-scrollRow+fUpSideSpace, fUpSideSpace), fUpSideSpace+fCustomViewHeightExceptSpace);
         //day를 0~7으로 표현한 뒤 colBlockSize만큼 곱한다. 그 뒤 scroll 위치와 sideSpace 위치를 고려한 좌표를 반환한다.
 
-        fCoordLeft = max((((times+LONG_DAY_MILLIS*3)%LONG_WEEK_MILLIS))/LONG_DAY_MILLIS*colBlockSize-scrollCol+fLeftSideSpace, fLeftSideSpace);
+        fCoordLeft = max(((times%LONG_WEEK_MILLIS))/LONG_DAY_MILLIS*colBlockSize-scrollCol+fLeftSideSpace, fLeftSideSpace);
 
         if(fCoordLeft == fLeftSideSpace){
-            fCoordRight = fCoordLeft + colBlockSize + (((times+LONG_DAY_MILLIS*3)%LONG_WEEK_MILLIS))/LONG_DAY_MILLIS*colBlockSize-scrollCol;
+            fCoordRight = fCoordLeft + colBlockSize + ((times%LONG_WEEK_MILLIS))/LONG_DAY_MILLIS*colBlockSize-scrollCol;
         }
         else{
             fCoordRight = fCoordLeft + colBlockSize;
@@ -320,18 +336,30 @@ public class CalenderWeekAdapter {
     //해당 날짜의 0시 0분에 가장 가까우면서 window에 valid한 좌표
     public void getCoordMindayWithTimes(long times){
         //가장 상위 좌표
-        fCoordHeight = fUpSideSpace-scrollRow;
+        //fCoordHeight = fUpSideSpace-scrollRow;
+        fCoordHeight = fUpSideSpace;
         //day를 0~7으로 표현한 뒤 colBlockSize만큼 곱한다. 그 뒤 scroll 위치와 sideSpace 위치를 고려한 좌표를 반환한다.
-        fCoordLeft = (((float)((times+LONG_DAY_MILLIS*3)%LONG_WEEK_MILLIS))/LONG_DAY_MILLIS)*colBlockSize-scrollCol+fLeftSideSpace;
+        //fCoordLeft = (((float)(times%LONG_WEEK_MILLIS))/LONG_DAY_MILLIS)*colBlockSize-scrollCol+fLeftSideSpace;
+        fCoordLeft = max(((times%LONG_WEEK_MILLIS))/LONG_DAY_MILLIS*colBlockSize-scrollCol+fLeftSideSpace, fLeftSideSpace);
+
         return;
     }
 
     //해당 날짜의 23시 59분 59초에 가장 가까우면서 window에 valid한 좌표
     public void getCoordMaxdayWithTimes(long times){
         //가장 하위 좌표
-        fCoordHeight = rowBlockSize*24+fUpSideSpace-scrollRow;
+        //fCoordHeight = rowBlockSize*24+fUpSideSpace-scrollRow;
+        fCoordHeight = min(rowBlockSize*24+fUpSideSpace, fUpSideSpace + fCustomViewHeightExceptSpace);
         //day를 0~7으로 표현한 뒤 colBlockSize만큼 곱한다. 그 뒤 scroll 위치와 sideSpace 위치를 고려한 좌표를 반환한다.
-        fCoordLeft = (((float)((times+LONG_DAY_MILLIS*3)%LONG_WEEK_MILLIS))/LONG_DAY_MILLIS)*colBlockSize-scrollCol+fLeftSideSpace;
+        //fCoordLeft = (((float)(times%LONG_WEEK_MILLIS))/LONG_DAY_MILLIS)*colBlockSize-scrollCol+fLeftSideSpace;
+        fCoordLeft = max(((times%LONG_WEEK_MILLIS))/LONG_DAY_MILLIS*colBlockSize-scrollCol+fLeftSideSpace, fLeftSideSpace);
+
+        if(fCoordLeft == fLeftSideSpace){
+            fCoordRight = fCoordLeft + colBlockSize + ((times%LONG_WEEK_MILLIS))/LONG_DAY_MILLIS*colBlockSize-scrollCol;
+        }
+        else{
+            fCoordRight = fCoordLeft + colBlockSize;
+        }
         return;
     }
 

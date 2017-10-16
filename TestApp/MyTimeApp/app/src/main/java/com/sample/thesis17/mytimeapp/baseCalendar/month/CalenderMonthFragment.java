@@ -4,6 +4,7 @@ import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,6 +14,11 @@ import android.widget.GridView;
 import android.widget.TextView;
 
 import com.sample.thesis17.mytimeapp.R;
+
+import java.util.Calendar;
+
+import static com.sample.thesis17.mytimeapp.Static.MyMath.LONG_HOUR_MILLIS;
+import static com.sample.thesis17.mytimeapp.Static.MyMath.LONG_WEEK_MILLIS;
 
 
 /**
@@ -41,24 +47,27 @@ public class CalenderMonthFragment extends Fragment {
 
     private OnFragmentInteractionListener mListener;
 
+    private CalenderMonthFragmentListener calenderMonthFragmentListener = null;
+
+    long inParamTimeLong = 0L;
+
+    Context curContext = null;
+
+    public interface CalenderMonthFragmentListener{
+        void fragmentChangeToWeekView(long startTime);
+    }
+
     public CalenderMonthFragment() {
         // Required empty public constructor
     }
 
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment CalenderMonthFragment.
-     */
+
     // TODO: Rename and change types and number of parameters
-    public static CalenderMonthFragment newInstance(String param1, String param2) {
+    public static CalenderMonthFragment newInstance(long inTime) {
         CalenderMonthFragment fragment = new CalenderMonthFragment();
         Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
+        args.putLong(ARG_PARAM1, inTime);
+        //.putString(ARG_PARAM2, param2);
         fragment.setArguments(args);
         return fragment;
     }
@@ -66,12 +75,14 @@ public class CalenderMonthFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         /*if (getArguments() != null) {
             mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
         }*/
-        //monthGridview = (GridView)getView().findViewById(R.id.fragment_calender_month_GridView);
+        inParamTimeLong = getArguments().getLong(ARG_PARAM1);
 
+        //monthGridview = (GridView)getView().findViewById(R.id.fragment_calender_month_GridView);
 
     }
 
@@ -87,8 +98,16 @@ public class CalenderMonthFragment extends Fragment {
         centerText = (TextView)retView.findViewById(R.id.fragment_calender_month_textMonth);
 
         monthGridview = (GridView)(retView.findViewById(R.id.fragment_calender_month_GridView));    //retView에서 gridview 찾아 할당
-        calenderMonthAdapter = new CalenderMonthAdapter(getActivity());
+
+        if(savedInstanceState != null && savedInstanceState.getLong("savedTimeLong") != 0L){
+            inParamTimeLong = savedInstanceState.getLong("savedTimeLong");
+
+        }
+
+        calenderMonthAdapter = new CalenderMonthAdapter(getActivity(), inParamTimeLong);
         monthGridview.setAdapter(calenderMonthAdapter); //adpater 설정
+
+        setCenterText();
 
         // GridView의 click 리스너 설정
         monthGridview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -101,13 +120,17 @@ public class CalenderMonthFragment extends Fragment {
                     //빈 공간을 클릭했으므로 무시
                 }
                 else{
+                    int day = curItem.getiDayValue();   //click position에 해당하는 item의 day획득
                     if(curItem.isWeek() == true){
                         //Todo CalendarWeekFragment로 교체
+                        //Calendar tempCalendar = Calendar.getInstance();
+                        //tempCalendar.setTimeInMillis(curItem.getlWeekValue());
+                        calenderMonthFragmentListener.fragmentChangeToWeekView(curItem.getlWeekValue() - LONG_HOUR_MILLIS * 9); //for LOCALE_US
                     }
                     else{
                         //Todo CalendarDayFragment로 교체
                     }
-                    int day = curItem.getiDayValue();   //click position에 해당하는 item의 day획득
+
                     calenderMonthAdapter.notifyDataSetChanged();    //adapter에 data가 변경되었음을 알려 view를 바꾸는 동작을 하는 함수
                 }
 
@@ -119,26 +142,36 @@ public class CalenderMonthFragment extends Fragment {
                 }
         });
 
+
         //Move Month button
         leftButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                calenderMonthAdapter.setPreviousMonth();;
-                calenderMonthAdapter.notifyDataSetChanged();;
+                inParamTimeLong = calenderMonthAdapter.setPreviousMonth();
+                getArguments().putLong(ARG_PARAM1, inParamTimeLong);
+                calenderMonthAdapter.notifyDataSetChanged();
                 setCenterText();
+
             }
         });
 
         rightButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                calenderMonthAdapter.setNextMonth();;
+                inParamTimeLong = calenderMonthAdapter.setNextMonth();;
+                getArguments().putLong(ARG_PARAM1, inParamTimeLong);
                 calenderMonthAdapter.notifyDataSetChanged();
                 setCenterText();
             }
         });
 
         return retView;
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putLong("savedTimeLong",inParamTimeLong );
     }
 
     private void setCenterText(){
@@ -157,12 +190,13 @@ public class CalenderMonthFragment extends Fragment {
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        /*if (context instanceof OnFragmentInteractionListener) {
-            mListener = (OnFragmentInteractionListener) context;
+        curContext = context;
+        if (context instanceof CalenderMonthFragmentListener) {
+            calenderMonthFragmentListener = (CalenderMonthFragmentListener) context;
         } else {
             throw new RuntimeException(context.toString()
-                    + " must implement OnFragmentInteractionListener");
-        }*/
+                    + " must implement CalenderMonthFragmentListener");
+        }
     }
 
     @Override

@@ -64,6 +64,7 @@ public class CustomWeekView extends View {
     List<CustomWeekItem> customItemList = null;
 
 
+
     public CustomWeekView(Context context) {
         super(context);
         curContext = context;
@@ -556,10 +557,11 @@ public class CustomWeekView extends View {
             //curCustomWeekAdapter.customWeekItemList
             if(curCustomWeekAdapter.customWeekItemList != null){
                 //TODO : draw
+                Log.d("draws", "customWeekItemList leng: "+ curCustomWeekAdapter.customWeekItemList.size());
                 for(CustomWeekItem item : curCustomWeekAdapter.customWeekItemList){
                     RectF tempRectF = new RectF(item.left, item.top, item.right,item.bottom);
-                    //Log.d("draws", "draw rect / " + item.left + "/" + item.top + "/" + item.right + "/" +item.bottom);
-                    //Log.d("draws", "customWeekItemList leng: "+ curCustomWeekAdapter.customWeekItemList.size());
+                    Log.d("draws", "draw rect / " + item.left + "/" + item.top + "/" + item.right + "/" +item.bottom);
+
                     canvas.drawRect(tempRectF, tempRectPaint);
                     String tempString = item.getText();
                     int startIdx = 0, endIdx = tempString.length();

@@ -28,6 +28,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
+import static com.sample.thesis17.mytimeapp.Static.MyMath.LONG_HOUR_MILLIS;
 import static java.lang.Thread.sleep;
 
 //dataLMForSave is not need to be created with 'New'
@@ -171,7 +172,7 @@ public class locationService extends Service {
             Double longitude = location.getLongitude();
             float accuracy = location.getAccuracy();
 
-            dataLMForSave = new LocationMemoryData(latitude, longitude, System.currentTimeMillis(), accuracy, null, null, 0);
+            dataLMForSave = new LocationMemoryData(latitude, longitude, System.currentTimeMillis()- LONG_HOUR_MILLIS * 9, accuracy, null, null, 0); //for LOCALE_US
 
             Log.d("locatoinService", "new thread created..");
             locationThread = new Thread(new ThreadLocationMemoryDataProcessWithGps());
@@ -436,7 +437,7 @@ public class locationService extends Service {
             dataLMForGpsThread.setLat(location.getLatitude());
             dataLMForGpsThread.setLng(location.getLongitude());
             dataLMForGpsThread.setfAccur(location.getAccuracy());
-            dataLMForGpsThread.setlMillisTimeWritten(System.currentTimeMillis());
+            dataLMForGpsThread.setlMillisTimeWritten(System.currentTimeMillis()- LONG_HOUR_MILLIS * 9); //for LOCALE_US
         }
     }
 

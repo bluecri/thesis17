@@ -94,7 +94,7 @@ public class DialogViewCalenderTempItemFragment extends DialogFragment{
         public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
             startTimeHour = hourOfDay;
             startTimeMin = minute;
-            textViewStartTime.setText(String.format(Locale.US, "%02d:%02d", startTimeHour, startTimeMin));
+            textViewStartTime.setText(String.format(Locale.KOREA, "%02d:%02d", startTimeHour, startTimeMin));
 
         }
     };
@@ -104,7 +104,7 @@ public class DialogViewCalenderTempItemFragment extends DialogFragment{
         public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
             endTimeHour = hourOfDay;
             endTimeMin = minute;
-            textViewEndTime.setText(String.format(Locale.US, "%02d:%02d", endTimeHour, endTimeMin));
+            textViewEndTime.setText(String.format(Locale.KOREA, "%02d:%02d", endTimeHour, endTimeMin));
         }
     };
 
@@ -115,7 +115,7 @@ public class DialogViewCalenderTempItemFragment extends DialogFragment{
             GregorianCalendar calendar = new GregorianCalendar();
             calendar.set(year, month, dayOfMonth, 0, 0, 0);
             lStartWeek = calendar.getTimeInMillis();
-            buttonStartWeek.setText(String.format(Locale.US, "%02d월 %02d일", month, dayOfMonth));
+            buttonStartWeek.setText(String.format(Locale.KOREA, "%02d월 %02d일", month, dayOfMonth));
         }
     };
 
@@ -126,7 +126,7 @@ public class DialogViewCalenderTempItemFragment extends DialogFragment{
             GregorianCalendar calendar = new GregorianCalendar();
             calendar.set(year, month, dayOfMonth, 0, 0, 0);
             lEndWeek = calendar.getTimeInMillis();
-            buttonEndWeek.setText(String.format(Locale.US, "%02d월 %02d일", month, dayOfMonth));
+            buttonEndWeek.setText(String.format(Locale.KOREA, "%02d월 %02d일", month, dayOfMonth));
         }
     };
 
@@ -193,8 +193,8 @@ public class DialogViewCalenderTempItemFragment extends DialogFragment{
         endTimeHour = (int)((endTimeArg%LONG_DAY_MILLIS)/LONG_HOUR_MILLIS);
         endTimeMin = (int)(endTimeArg%LONG_HOUR_MILLIS/LONG_MIN_MILLIS);
 
-        textViewStartTime.setText(String.format(Locale.US, "%02d:%02d", startTimeHour, startTimeMin));
-        textViewEndTime.setText(String.format(Locale.US, "%02d:%02d", endTimeHour, endTimeMin));
+        textViewStartTime.setText(String.format(Locale.KOREA, "%02d:%02d", startTimeHour, startTimeMin));
+        textViewEndTime.setText(String.format(Locale.KOREA, "%02d:%02d", endTimeHour, endTimeMin));
 
         //TimePickerDialog timeDialog = new TimePickerDialog(curContext, timePickerListener, , , false);
         //timeDialog.show();
@@ -225,11 +225,11 @@ public class DialogViewCalenderTempItemFragment extends DialogFragment{
 
         GregorianCalendar calendar = new GregorianCalendar();
         calendar.setTimeInMillis(startTimeArg);
-        buttonStartWeek.setText(String.format(Locale.US, "%02d월 %02d일", calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH)));
+        buttonStartWeek.setText(String.format(Locale.KOREA, "%02d월 %02d일", calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH)));
 
         calendar = new GregorianCalendar();
         calendar.setTimeInMillis(endTimeArg);
-        buttonEndWeek.setText(String.format(Locale.US, "%02d월 %02d일", calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH)));
+        buttonEndWeek.setText(String.format(Locale.KOREA, "%02d월 %02d일", calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH)));
 
         textViewStartTime.setOnClickListener(new View.OnClickListener() {
             @Override

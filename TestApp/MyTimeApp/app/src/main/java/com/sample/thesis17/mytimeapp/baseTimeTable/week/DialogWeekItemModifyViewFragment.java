@@ -77,7 +77,7 @@ public class DialogWeekItemModifyViewFragment extends DialogFragment{
         public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
             startTimeHour = hourOfDay;
             startTimeMin = minute;
-            textViewStartTime.setText(String.format(Locale.US, "%02d:%02d", startTimeHour, startTimeMin));
+            textViewStartTime.setText(String.format(Locale.KOREA, "%02d:%02d", startTimeHour, startTimeMin));
 
         }
     };
@@ -87,7 +87,7 @@ public class DialogWeekItemModifyViewFragment extends DialogFragment{
         public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
             endTimeHour = hourOfDay;
             endTimeMin = minute;
-            textViewEndTime.setText(String.format(Locale.US, "%02d:%02d", endTimeHour, endTimeMin));
+            textViewEndTime.setText(String.format(Locale.KOREA, "%02d:%02d", endTimeHour, endTimeMin));
         }
     };
 
@@ -161,8 +161,8 @@ public class DialogWeekItemModifyViewFragment extends DialogFragment{
         endTimeHour = (int)((endTimeArg%LONG_DAY_MILLIS)/LONG_HOUR_MILLIS);
         endTimeMin = (int)(endTimeArg%LONG_HOUR_MILLIS/LONG_MIN_MILLIS);
 
-        textViewStartTime.setText(String.format(Locale.US, "%02d:%02d", startTimeHour, startTimeMin));
-        textViewEndTime.setText(String.format(Locale.US, "%02d:%02d", endTimeHour, endTimeMin));
+        textViewStartTime.setText(String.format(Locale.KOREA, "%02d:%02d", startTimeHour, startTimeMin));
+        textViewEndTime.setText(String.format(Locale.KOREA, "%02d:%02d", endTimeHour, endTimeMin));
 
         //TimePickerDialog timeDialog = new TimePickerDialog(curContext, timePickerListener, , , false);
         //timeDialog.show();

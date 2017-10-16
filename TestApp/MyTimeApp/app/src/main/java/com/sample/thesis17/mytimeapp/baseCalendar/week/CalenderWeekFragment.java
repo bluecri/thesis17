@@ -101,6 +101,8 @@ public class CalenderWeekFragment extends Fragment implements DialogViewCalender
 
     CalenderWeekAdapter calenderWeekAdapter = null;
 
+    CalenderWeekFragmentListener calenderWeekFragmentListener = null;
+
 
     //dialog
     DialogCreateCalenderItemFragment dialogCreateCalenderItemFragment = null;
@@ -123,6 +125,10 @@ public class CalenderWeekFragment extends Fragment implements DialogViewCalender
     //CONSTANTS
     double DOUBLE_GROUPING_2POW_RADIUS = 0.000000035;  // 0.0.0000000676 공학관 한동, 운동장크기
 
+    public interface CalenderWeekFragmentListener{
+        void fragmentChangeToMonthView(long inTime);
+    }
+
     public CalenderWeekFragment() {
         // Required empty public constructor
     }
@@ -140,6 +146,7 @@ public class CalenderWeekFragment extends Fragment implements DialogViewCalender
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         weekFirstTimeLong = getArguments().getLong(ARG_PARAM1);
+
         try{
             daoFixedTimeTableDataInteger = getDatabaseHelperMain().getDaoFixedTimeTableData();
             daoMarkerDataInteger = getDatabaseHelperMain().getDaoMarkerData();
@@ -272,12 +279,12 @@ public class CalenderWeekFragment extends Fragment implements DialogViewCalender
     public void onAttach(Context context) {
         super.onAttach(context);
         curContext = context;
-        /*if (context instanceof OnFragmentInteractionListener) {
-            mListener = (OnFragmentInteractionListener) context;
+        if (context instanceof CalenderWeekFragmentListener) {
+            calenderWeekFragmentListener = (CalenderWeekFragmentListener) context;
         } else {
             throw new RuntimeException(context.toString()
-                    + " must implement OnFragmentInteractionListener");
-        }*/
+                    + " must implement CalenderWeekFragmentListener");
+        }
     }
 
     @Override

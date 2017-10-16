@@ -19,7 +19,11 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
 
+import com.j256.ormlite.dao.Dao;
+import com.sample.thesis17.mytimeapp.DB.baseClass.DatabaseHelperMain;
+import com.sample.thesis17.mytimeapp.DB.tables.FixedTimeTableData;
 import com.sample.thesis17.mytimeapp.baseCalendar.month.CalenderMonthFragment;
+import com.sample.thesis17.mytimeapp.baseCalendar.week.CalenderWeekFragment;
 import com.sample.thesis17.mytimeapp.baseTimeTable.week.TimetableWeekFragment;
 import com.sample.thesis17.mytimeapp.locationS.SettingFragment;
 import com.sample.thesis17.mytimeapp.map.MapsActivity;
@@ -29,13 +33,20 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.nio.channels.FileChannel;
+import java.sql.SQLException;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener {
+        implements NavigationView.OnNavigationItemSelectedListener, CalenderMonthFragment.CalenderMonthFragmentListener, CalenderWeekFragment.CalenderWeekFragmentListener {
+
+    CalenderWeekFragment calenderWeekFragment = null;
+    CalenderMonthFragment calenderMonthFragment = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        databaseHelperMain = getDatabaseHelperMain();
+        refreshDB();
         //sqliteExport();       //copy db to sdcard
 
         setContentView(R.layout.activity_main);
@@ -132,11 +143,23 @@ public class MainActivity extends AppCompatActivity
         else if (id == R.id.nav_gallery) {
             FragmentManager fragmentManager = getSupportFragmentManager();
             FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-            CalenderMonthFragment calenderFragment = CalenderMonthFragment.newInstance("", "");
-            fragmentTransaction.replace(R.id.mainFragmentContainer, calenderFragment, "calender_fragment");
-            fragmentTransaction.commit();
+            if(calenderMonthFragment == null && calenderWeekFragment == null){
+                calenderMonthFragment = CalenderMonthFragment.newInstance(System.currentTimeMillis());
+                fragmentTransaction.replace(R.id.mainFragmentContainer, calenderMonthFragment, "calenderMonthFragment");
+                fragmentTransaction.commit();
+                Log.d("mainActivity", "both null");
+            }
+            else if(calenderWeekFragment != null){
+                //calenderWeekFragment = CalenderMonthFragment.newInstance(System.currentTimeMillis());
+                fragmentTransaction.replace(R.id.mainFragmentContainer, calenderWeekFragment, "calenderWeekFragment");
+                fragmentTransaction.commit();
+            }
+            else if(calenderMonthFragment != null){ //always true
+                fragmentTransaction.replace(R.id.mainFragmentContainer, calenderMonthFragment, "calenderMonthFragment");
+                fragmentTransaction.commit();
+                Log.d("mainActivity", "month frag not null");
+            }
         }
-
         //map
         else if (id == R.id.nav_slideshow) {
             Intent mapIntent = new Intent(this, MapsActivity.class);
@@ -180,6 +203,50 @@ public class MainActivity extends AppCompatActivity
     protected void onRestoreInstanceState(Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
     }
+
+    @Override
+    public void fragmentChangeToWeekView(long startTime){
+        FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
+        calenderWeekFragment = CalenderWeekFragment.newInstance(startTime);
+        fragmentTransaction.replace(R.id.mainFragmentContainer, calenderWeekFragment, "calenderWeekFragment");
+        fragmentTransaction.commit();
+    }
+
+    @Override
+    public void fragmentChangeToMonthView(long inTime) {
+        FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
+        calenderMonthFragment = CalenderMonthFragment.newInstance(inTime);
+        fragmentTransaction.replace(R.id.mainFragmentContainer, calenderMonthFragment, "calenderMonthFragment");
+        fragmentTransaction.commit();
+        calenderWeekFragment = null;
+    }
+
+    public void refreshDB(){
+        try{
+
+            Dao<FixedTimeTableData, Integer> daoFixedTimeTableDataInteger = databaseHelperMain.getDaoFixedTimeTableData();
+            List<FixedTimeTableData> listFixedTimeTableData = daoFixedTimeTableDataInteger.queryForAll();
+            for(FixedTimeTableData fttd : listFixedTimeTableData){
+                daoFixedTimeTableDataInteger.delete(fttd);
+            }
+        }
+        catch(SQLException e){
+            Log.d("mainActivity", "SQLException mainActivity");
+        }
+
+    }
+
+    private DatabaseHelperMain databaseHelperMain = null;
+
+
+
+    private DatabaseHelperMain getDatabaseHelperMain(){
+        if(databaseHelperMain == null){
+            databaseHelperMain = DatabaseHelperMain.getHelper(this);
+        }
+        return databaseHelperMain;
+    }
+
 
 
     public void sqliteExport(){
