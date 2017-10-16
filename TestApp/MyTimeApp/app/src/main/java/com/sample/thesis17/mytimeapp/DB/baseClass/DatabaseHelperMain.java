@@ -2,6 +2,7 @@ package com.sample.thesis17.mytimeapp.DB.baseClass;
 
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
+import android.os.Environment;
 import android.util.Log;
 
 import com.j256.ormlite.android.apptools.OrmLiteSqliteOpenHelper;
@@ -21,6 +22,7 @@ import com.sample.thesis17.mytimeapp.DB.tables.TempHistoryData;
 import com.sample.thesis17.mytimeapp.DB.tables.TempHistoryLMData;
 import com.sample.thesis17.mytimeapp.DB.tables.TempHistoryMarkerData;
 
+import java.io.File;
 import java.sql.SQLException;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -31,7 +33,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class DatabaseHelperMain extends OrmLiteSqliteOpenHelper
 {
-    private static final String DATABASE_NAME = "timetable_main.db";
+    //private static final String DATABASE_NAME = "timetable_main.db";
+    private static final String DATABASE_NAME = Environment.getExternalStorageDirectory().getPath()+ File.separator+"timetable_main.db";
     private static final int DATABASE_VERSION = 1;
 
     private static final AtomicInteger usageCounter = new AtomicInteger(0);     //usage counter

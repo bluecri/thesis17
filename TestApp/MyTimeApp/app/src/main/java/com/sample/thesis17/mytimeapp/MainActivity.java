@@ -2,10 +2,12 @@ package com.sample.thesis17.mytimeapp;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Environment;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
+import android.util.Log;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -15,6 +17,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 import com.sample.thesis17.mytimeapp.baseCalendar.month.CalenderMonthFragment;
 import com.sample.thesis17.mytimeapp.baseTimeTable.week.TimetableWeekFragment;
@@ -22,12 +25,19 @@ import com.sample.thesis17.mytimeapp.locationS.SettingFragment;
 import com.sample.thesis17.mytimeapp.map.MapsActivity;
 import com.sample.thesis17.mytimeapp.setting.SettingActivity;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.nio.channels.FileChannel;
+
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        //sqliteExport();       //copy db to sdcard
+
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -55,6 +65,8 @@ public class MainActivity extends AppCompatActivity
         MainBlankFragment blankFragment = MainBlankFragment.newInstance("", "");
         fragmentTransaction.replace(R.id.mainFragmentContainer, blankFragment, "wtimetable");
         fragmentTransaction.commit();
+
+
 
     }
 
@@ -168,4 +180,41 @@ public class MainActivity extends AppCompatActivity
     protected void onRestoreInstanceState(Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
     }
+
+
+    public void sqliteExport(){
+        try {
+            File sdDir = Environment.getExternalStorageDirectory();
+            File dataDir = Environment.getDataDirectory();
+
+            if(sdDir.canWrite()){
+                String crDBPath = "//data//com.sample.thesis17.mytimeapp//databases//timetable_location_memory.db";
+                String bkDBPath = "timetable_location_memory.sqlite";
+
+                File crDB = new File(dataDir, crDBPath);
+                File bkDB = new File(sdDir, bkDBPath);
+
+                Log.d("coppp", dataDir.toString());
+                Log.d("coppp", sdDir.toString());
+
+                if(crDB.exists()){
+                    FileChannel src = new FileInputStream(crDB).getChannel();
+                    FileChannel dst = new FileOutputStream(bkDB).getChannel();
+                    dst.transferFrom(src, 0, src.size());
+                    src.close();
+                    dst.close();
+                    Log.d("coppp", "crdb exixt");
+                }
+
+                if(bkDB.exists()){
+                    Log.d("coppp", "bkDB exixt");
+                    Toast.makeText(this, "DB file Export Success!", Toast.LENGTH_SHORT).show();
+                }
+
+            }
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+    }
+
 }
