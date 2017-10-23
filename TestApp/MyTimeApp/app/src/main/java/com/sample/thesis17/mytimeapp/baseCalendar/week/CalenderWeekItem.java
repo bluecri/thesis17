@@ -74,6 +74,16 @@ public class CalenderWeekItem {
         this.bottom = bottom;
         this.right = right;
     }
+
+    @Override
+    public String toString() {
+        return "CalenderWeekItem{" +
+                "left=" + left +
+                ", top=" + top +
+                ", right=" + right +
+                ", bottom=" + bottom +
+                '}';
+    }
 }
 
 

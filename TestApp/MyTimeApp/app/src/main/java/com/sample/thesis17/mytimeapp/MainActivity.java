@@ -7,6 +7,7 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.app.SharedElementCallback;
 import android.util.Log;
 import android.view.View;
 import android.support.design.widget.NavigationView;
@@ -20,8 +21,10 @@ import android.view.MenuItem;
 import android.widget.Toast;
 
 import com.j256.ormlite.dao.Dao;
+import com.sample.thesis17.mytimeapp.DB.baseClass.DatabaseHelperLocationMemory;
 import com.sample.thesis17.mytimeapp.DB.baseClass.DatabaseHelperMain;
 import com.sample.thesis17.mytimeapp.DB.tables.FixedTimeTableData;
+import com.sample.thesis17.mytimeapp.DB.tables.LocationMemoryData;
 import com.sample.thesis17.mytimeapp.baseCalendar.month.CalenderMonthFragment;
 import com.sample.thesis17.mytimeapp.baseCalendar.week.CalenderWeekFragment;
 import com.sample.thesis17.mytimeapp.baseTimeTable.week.TimetableWeekFragment;
@@ -46,6 +49,7 @@ public class MainActivity extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         databaseHelperMain = getDatabaseHelperMain();
+        databaseHelperLocationMemory = getDatabaseHelperLocationMemory();
         refreshDB();
         //sqliteExport();       //copy db to sdcard
 
@@ -86,7 +90,14 @@ public class MainActivity extends AppCompatActivity
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
-        } else {
+        }
+        else if(calenderWeekFragment != null){
+            // move to Month of Week
+            long tempStartTimeLong = calenderWeekFragment.getStartLongTimeOfFragmentArgument();
+            Log.d("debbugged", "tempStarttimeLong : " + tempStartTimeLong);
+            fragmentChangeToMonthView(tempStartTimeLong);
+        }
+        else {
             super.onBackPressed();
         }
     }
@@ -208,6 +219,7 @@ public class MainActivity extends AppCompatActivity
     public void fragmentChangeToWeekView(long startTime){
         FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
         calenderWeekFragment = CalenderWeekFragment.newInstance(startTime);
+        //Log.d("debbugged", "CalenderWeekFragment() start" + startTime);
         fragmentTransaction.replace(R.id.mainFragmentContainer, calenderWeekFragment, "calenderWeekFragment");
         fragmentTransaction.commit();
     }
@@ -221,14 +233,37 @@ public class MainActivity extends AppCompatActivity
         calenderWeekFragment = null;
     }
 
+
+
     public void refreshDB(){
         try{
-
+/*
             Dao<FixedTimeTableData, Integer> daoFixedTimeTableDataInteger = databaseHelperMain.getDaoFixedTimeTableData();
             List<FixedTimeTableData> listFixedTimeTableData = daoFixedTimeTableDataInteger.queryForAll();
             for(FixedTimeTableData fttd : listFixedTimeTableData){
                 daoFixedTimeTableDataInteger.delete(fttd);
             }
+            */
+            //모든 locationMem bind data null로
+            Dao<LocationMemoryData, Integer> locationMemoryDataIntegerDao = databaseHelperLocationMemory.getDaoLocationMemoryData();
+            List<LocationMemoryData> locationMemoryDataList = locationMemoryDataIntegerDao.queryForAll();
+            for(LocationMemoryData fttd : locationMemoryDataList){
+                fttd.setBindedTempHistoryData(null);
+                fttd.setBindedHistoryData(null);
+                locationMemoryDataIntegerDao.update(fttd);
+            }
+
+            Log.d("exception", "getDaoTempHistoryData" );
+            deleteAllWithDao(databaseHelperMain.getDaoTempHistoryData());
+            Log.d("exception", "getDaoTempHistoryData" );
+            deleteAllWithDao(databaseHelperMain.getDaoTempHistoryLMData());
+            Log.d("exception", "getDaoTempHistoryData" );
+            deleteAllWithDao(databaseHelperMain.getDaoDateForTempHisoryData());
+            Log.d("exception", "getDaoTempHistoryData" );
+            deleteAllWithDao(databaseHelperMain.getDaoHistoryData());
+            Log.d("exception", "getDaoTempHistoryData" );
+            deleteAllWithDao(databaseHelperMain.getDaoTempHistoryMarkerData());
+
         }
         catch(SQLException e){
             Log.d("mainActivity", "SQLException mainActivity");
@@ -236,15 +271,35 @@ public class MainActivity extends AppCompatActivity
 
     }
 
+    private DatabaseHelperLocationMemory databaseHelperLocationMemory = null;
     private DatabaseHelperMain databaseHelperMain = null;
-
-
 
     private DatabaseHelperMain getDatabaseHelperMain(){
         if(databaseHelperMain == null){
             databaseHelperMain = DatabaseHelperMain.getHelper(this);
         }
         return databaseHelperMain;
+    }
+
+
+    private DatabaseHelperLocationMemory getDatabaseHelperLocationMemory(){
+        if(databaseHelperLocationMemory == null){
+            databaseHelperLocationMemory = DatabaseHelperLocationMemory.getHelper(this);
+        }
+        return databaseHelperLocationMemory;
+    }
+
+    private <T> void  deleteAllWithDao(Dao<T, Integer> inDao){
+        try{
+            List<T> locationMemoryDataList = inDao.queryForAll();
+            for(T fttd : locationMemoryDataList){
+                inDao.delete(fttd);
+            }
+        }
+        catch(SQLException e){
+            Log.d("mainActivity", "mainActivity deleteFunctionQuery exception : " + e.toString());
+        }
+
     }
 
 

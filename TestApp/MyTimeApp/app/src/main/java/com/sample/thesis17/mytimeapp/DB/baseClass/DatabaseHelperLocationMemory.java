@@ -22,6 +22,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class DatabaseHelperLocationMemory extends OrmLiteSqliteOpenHelper
 {
     private static final String DATABASE_NAME = Environment.getExternalStorageDirectory().getPath()+ File.separator +"timetable_location_memory.db";
+    //private static final String DATABASE_NAME = "timetable_location_memory.db";
     private static final int DATABASE_VERSION = 1;
 
     private static final AtomicInteger usageCounter = new AtomicInteger(0);     //usage counter

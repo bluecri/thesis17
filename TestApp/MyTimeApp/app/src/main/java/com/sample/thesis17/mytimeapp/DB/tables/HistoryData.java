@@ -19,6 +19,9 @@ public class HistoryData {
     @DatabaseField(canBeNull = false, foreign = true)
     private MarkerData foreMarkerData;
 
+    @DatabaseField(canBeNull = false, foreign = true)
+    private MarkerData minDistMarker;
+
     @DatabaseField
     private long lStartTime;
 
@@ -32,12 +35,16 @@ public class HistoryData {
         // empty constructor is needed
     }
 
-    public HistoryData(FixedTimeTableData foreFixedTimeTable, MarkerData foreMarkerData, long lStartTime, long lEndTime, String memo) {
+    public HistoryData(FixedTimeTableData foreFixedTimeTable, MarkerData foreMarkerData, long lStartTime, long lEndTime, String memo, MarkerData minDistMarker) {
         this.foreFixedTimeTable = foreFixedTimeTable;
-        this.foreMarkerData = foreMarkerData;
+        this.foreMarkerData = foreMarkerData;   //selected
         this.lStartTime = lStartTime;
         this.lEndTime = lEndTime;
         this.memo = memo;
+        this.minDistMarker = minDistMarker;
+        //HistoryData를 가지고 있는 Loc 가져오는 query... : 필요없음.
+        //inner marker list : HistoryDataInnerMarkerData == TempHistoryMarkerData
+        //origin target locationMem Time Range : HistoryDataLocTimeRangeIncDec
     }
 
     /*
@@ -116,5 +123,13 @@ public class HistoryData {
 
     public void setMemo(String memo) {
         this.memo = memo;
+    }
+
+    public MarkerData getMinDistMarker() {
+        return minDistMarker;
+    }
+
+    public void setMinDistMarker(MarkerData minDistMarker) {
+        this.minDistMarker = minDistMarker;
     }
 }

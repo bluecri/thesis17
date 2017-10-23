@@ -11,8 +11,8 @@ import com.j256.ormlite.table.DatabaseTable;
 @DatabaseTable(tableName = "temphistorylmdata")
 public class TempHistoryLMData {
 
-    public final static String THLM_TEMPHISTORYDATA_ID_FIELD_NAME = "temphistorydata_id";
-    public final static String THLM_LOCATIONMEMDATA_ID_FIELD_NAME = "locationmemorydata_id";
+    public final static String THLM_TEMPHISTORYDATA_ID_FIELD_NAME = "thlm_temphistorydata_id";
+    public final static String THLM_LOCATIONMEMDATA_ID_FIELD_NAME = "thlm_locationmemorydata_id";
 
 
     TempHistoryLMData(){

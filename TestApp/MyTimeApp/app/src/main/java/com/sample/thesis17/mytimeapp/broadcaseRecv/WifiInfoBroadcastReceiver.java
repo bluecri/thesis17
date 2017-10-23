@@ -22,8 +22,6 @@ public class WifiInfoBroadcastReceiver extends BroadcastReceiver {
     Intent intentLocationService = null;
     @Override
     public void onReceive(Context context, Intent intent) {
-        // TODO: This method is called when the BroadcastReceiver is receiving
-        // an Intent broadcast.
         /*if(intent.getAction().equals("android.net.wifi.WIFI_STATE_CHANGED")){
             NetworkInfo nInfo = intent.getParcelableExtra(WifiManager.EXTRA_NETWORK_INFO);
             if(nInfo != null && nInfo.isConnected()){

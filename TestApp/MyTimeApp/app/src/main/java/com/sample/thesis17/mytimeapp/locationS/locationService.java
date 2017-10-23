@@ -172,7 +172,7 @@ public class locationService extends Service {
             Double longitude = location.getLongitude();
             float accuracy = location.getAccuracy();
 
-            dataLMForSave = new LocationMemoryData(latitude, longitude, System.currentTimeMillis()- LONG_HOUR_MILLIS * 9, accuracy, null, null, 0); //for LOCALE_US
+            dataLMForSave = new LocationMemoryData(latitude, longitude, System.currentTimeMillis() + LONG_HOUR_MILLIS * 9, accuracy, null, null, 0); //for LOCALE_US
 
             Log.d("locatoinService", "new thread created..");
             locationThread = new Thread(new ThreadLocationMemoryDataProcessWithGps());
@@ -402,6 +402,7 @@ public class locationService extends Service {
                             }
                         }
                     }
+                    sleep(iInterval);
                 }
                 catch(SecurityException e){
                     Log.e("locationService", "threadLocationMemoryDataProcessWithGps security exception", e);   //because of locationManager
@@ -417,6 +418,7 @@ public class locationService extends Service {
                     locationManagerGps.removeUpdates(getLocationListenerCustomGps);
                     //close DB
                 }
+
             }
         }
     }
@@ -437,7 +439,7 @@ public class locationService extends Service {
             dataLMForGpsThread.setLat(location.getLatitude());
             dataLMForGpsThread.setLng(location.getLongitude());
             dataLMForGpsThread.setfAccur(location.getAccuracy());
-            dataLMForGpsThread.setlMillisTimeWritten(System.currentTimeMillis()- LONG_HOUR_MILLIS * 9); //for LOCALE_US
+            dataLMForGpsThread.setlMillisTimeWritten(System.currentTimeMillis() + LONG_HOUR_MILLIS * 9); //for LOCALE_US
         }
     }
 

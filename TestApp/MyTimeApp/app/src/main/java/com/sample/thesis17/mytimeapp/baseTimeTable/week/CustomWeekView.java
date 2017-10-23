@@ -556,7 +556,6 @@ public class CustomWeekView extends View {
             curCustomWeekAdapter.updateCustomWeekItemList();
             //curCustomWeekAdapter.customWeekItemList
             if(curCustomWeekAdapter.customWeekItemList != null){
-                //TODO : draw
                 Log.d("draws", "customWeekItemList leng: "+ curCustomWeekAdapter.customWeekItemList.size());
                 for(CustomWeekItem item : curCustomWeekAdapter.customWeekItemList){
                     RectF tempRectF = new RectF(item.left, item.top, item.right,item.bottom);

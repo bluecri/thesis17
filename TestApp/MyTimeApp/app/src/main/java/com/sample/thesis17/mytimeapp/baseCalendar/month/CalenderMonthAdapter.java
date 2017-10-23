@@ -133,8 +133,20 @@ public class CalenderMonthAdapter extends BaseAdapter{
                   else{
                       //int weekNum = calender.get(Calendar.WEEK_OF_YEAR);
                       Long getMillis = 0L;
-                      int weekNum = getCurWeekWithYewrMonthDay(currentYear, currentMonth, dayNumber, getMillis);       //1'st week of year.month + week acc
+
+
+                      Calendar tempCal = Calendar.getInstance();
+                      tempCal.set(currentYear, currentMonth, 1, 0, 0, 0);
+                      tempCal.add(Calendar.DAY_OF_MONTH, dayNumber-1);
+                      getMillis = tempCal.getTimeInMillis();
+                      Log.d("calendCalc", "getCurWeekWithYewrMonthDay " + tempCal.getTime() + tempCal.getTimeInMillis());
+
+                      //getCurMillisWithYearAndWeek(year, tempCal.get(Calendar.WEEK_OF_YEAR));
+
+                      int weekNum = tempCal.get(Calendar.WEEK_OF_YEAR);     //getCurWeekWithYewrMonthDay(currentYear, currentMonth, dayNumber, getMillis);       //1'st week of year.month + week acc
+
                       Log.d("calendCalc", "week : " + weekNum + " / Y:M:D : " + currentYear + ":" + (currentMonth+1) + ":" + dayNumber);
+                      Log.d("calendCalc", "inLong : " + getMillis);
                       monthItems[i] = new MonthItem(weekNum, true);
                       monthItems[i].setlWeekValue(getMillis);
 
@@ -281,18 +293,6 @@ public class CalenderMonthAdapter extends BaseAdapter{
                     return (28);
                 }
         }
-    }
-
-    public int getCurWeekWithYewrMonthDay(int year, int month, int day, Long millis){
-        Calendar tempCal = Calendar.getInstance();
-        tempCal.set(year, month, 1, 0, 0, 0);
-        tempCal.add(Calendar.DAY_OF_MONTH, day-1);
-
-        Log.d("calendCalc", "getCurWeekWithYewrMonthDay " + tempCal.getTime() + tempCal.getTimeInMillis());
-        millis = tempCal.getTimeInMillis();
-
-        //getCurMillisWithYearAndWeek(year, tempCal.get(Calendar.WEEK_OF_YEAR));
-        return tempCal.get(Calendar.WEEK_OF_YEAR);
     }
 
 /*

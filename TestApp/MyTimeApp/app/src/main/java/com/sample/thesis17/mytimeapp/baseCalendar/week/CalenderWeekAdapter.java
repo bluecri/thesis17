@@ -44,7 +44,8 @@ public class CalenderWeekAdapter {
     private float fCoordHeight, fCoordLeft, fCoordRight;
 
 
-    CalenderWeekAdapter(List<HistoryData> inlistHistoryData, List<TempHistoryData> inlistTempHistoryData){
+    CalenderWeekAdapter(Context context, List<HistoryData> inlistHistoryData, List<TempHistoryData> inlistTempHistoryData){
+        curContext = context;
         listHistoryData = inlistHistoryData;
         listTempHistoryData = inlistTempHistoryData;
         listCalenderWeekItem = new ArrayList<CalenderWeekItem>();
@@ -78,37 +79,42 @@ public class CalenderWeekAdapter {
         countIdx = 0;   //listHistoryData, listTempHistoryData index
 
         //현재 listHistoryData 순회하며 listCalenderWeekItem 만든다.
-        for(HistoryData hd : listHistoryData){
-            //내부에 있는 경우에만 그림.
-            long blockStartTime = hd.getlStartTime(), blockEndTime = hd.getlEndTime();
-            long blockStartTimeModWithDay = blockStartTime % LONG_DAY_MILLIS, blockEndTimeModWithDay = blockEndTime % LONG_DAY_MILLIS;
-            //starttime이나 endtime 둘중 하나가 범위내에 있는 경우, 해당 box가 window 내부에 존재함.
+        if(listHistoryData != null){
+            for(HistoryData hd : listHistoryData){
+                //내부에 있는 경우에만 그림.
+                long blockStartTime = hd.getlStartTime(), blockEndTime = hd.getlEndTime();
+                long blockStartTimeModWithDay = blockStartTime % LONG_DAY_MILLIS, blockEndTimeModWithDay = blockEndTime % LONG_DAY_MILLIS;
+                //starttime이나 endtime 둘중 하나가 범위내에 있는 경우, 해당 box가 window 내부에 존재함.
             /*if(((blockStartTime<=four&&three<=blockStartTime)||(blockEndTime<=four&&three<=blockEndTime))&&
                     ((blockStartTimeModWithDay<=two&&one<=blockStartTimeModWithDay)||(blockEndTimeModWithDay<=two&&one<=blockEndTimeModWithDay))){*/
                 makeItemsWithHistoryData(hd);
 
-            //}
-            //}
-            countIdx++;
+                //}
+                //}
+                countIdx++;
+            }
         }
-        Log.d("draws", "listHistoryData len : " + listHistoryData.size());
+        Log.d("draws", "listHistoryData len : " + countIdx);
 
         countIdx = 0;   //init idx
         //현재 listTempHistoryData 순회하며 listCalenderWeekItem 만든다.
-        for(TempHistoryData thd : listTempHistoryData){
-            //내부에 있는 경우에만 그림.
-            long blockStartTime = thd.getlStartTime(), blockEndTime = thd.getlEndTime();
-            long blockStartTimeModWithDay = blockStartTime % LONG_DAY_MILLIS, blockEndTimeModWithDay = blockEndTime % LONG_DAY_MILLIS;
-            //starttime이나 endtime 둘중 하나가 범위내에 있는 경우, 해당 box가 window 내부에 존재함.
+        if(listTempHistoryData != null){
+            for(TempHistoryData thd : listTempHistoryData){
+                //내부에 있는 경우에만 그림.
+                long blockStartTime = thd.getlStartTime(), blockEndTime = thd.getlEndTime();
+                long blockStartTimeModWithDay = blockStartTime % LONG_DAY_MILLIS, blockEndTimeModWithDay = blockEndTime % LONG_DAY_MILLIS;
+                //starttime이나 endtime 둘중 하나가 범위내에 있는 경우, 해당 box가 window 내부에 존재함.
             /*if(((blockStartTime<=four&&three<=blockStartTime)||(blockEndTime<=four&&three<=blockEndTime))&&
                     ((blockStartTimeModWithDay<=two&&one<=blockStartTimeModWithDay)||(blockEndTimeModWithDay<=two&&one<=blockEndTimeModWithDay))){*/
                 makeItemsWithTempHistoryData(thd);
 
-            //}
-            //}
-            countIdx++;
+                //}
+                //}
+                countIdx++;
+            }
         }
-        Log.d("draws", "listTempHistoryData len : " + listTempHistoryData.size());
+
+        Log.d("draws", "listTempHistoryData len : " + countIdx);
     }
 
 
@@ -136,14 +142,37 @@ public class CalenderWeekAdapter {
         //block이 중간에 잘리는지 확인한다.
         long startTime = inData.getlStartTime();
         long endTime = inData.getlEndTime();
+
+        //setting bound
+        if(startTime < longStartDate){
+            startTime = longStartDate;  //week time 0 이전일 경우 longStartDate로 계산한다.
+        }
+        if(longStartDate + LONG_WEEK_MILLIS < startTime){
+            startTime = longStartDate + LONG_WEEK_MILLIS - 1;  //week time이 week 이후인 경우 longStartDatef로 계산한다.
+        }
+        if(endTime < longStartDate){
+            endTime = longStartDate;  //week time 0 이전일 경우 longStartDate로 계산한다.
+        }
+        if(longStartDate + LONG_WEEK_MILLIS < endTime){
+            endTime = longStartDate + LONG_WEEK_MILLIS - 1;  //week time이 week 이후인 경우 longStartDatef로 계산한다.
+        }
+
         int timeModulo = 0;
 
+        /*
         if(startTime > endTime){
+
             timeModulo = (int)((endTime + LONG_WEEK_MILLIS - startTime) % LONG_WEEK_MILLIS/LONG_DAY_MILLIS);
         }
         else{
             timeModulo = (int)((endTime - startTime) % LONG_WEEK_MILLIS/LONG_DAY_MILLIS);
         }
+        */
+        timeModulo = (int)((endTime - startTime) % LONG_WEEK_MILLIS/LONG_DAY_MILLIS);
+
+        startTime = (startTime + 4 * LONG_DAY_MILLIS) % LONG_WEEK_MILLIS;
+        endTime = (endTime + 4 * LONG_DAY_MILLIS) % LONG_WEEK_MILLIS;
+
 
         CalenderWeekItem tempCalenderWeekItem = null;
 
@@ -164,6 +193,7 @@ public class CalenderWeekAdapter {
                 tempCalenderWeekItem.setHistoryData(true);
 
                 listCalenderWeekItem.add(tempCalenderWeekItem);
+                Log.d("draw", "block : " + tempCalenderWeekItem.toString());
                 break;
             default:
                 //different line
@@ -181,6 +211,7 @@ public class CalenderWeekAdapter {
                 tempCalenderWeekItem.setHistoryData(true);
 
                 listCalenderWeekItem.add(tempCalenderWeekItem);
+                Log.d("draw", "block : " + tempCalenderWeekItem.toString());
 
                 //multiple line
                 for(int i=0; i<timeModulo-1; i++){
@@ -198,6 +229,7 @@ public class CalenderWeekAdapter {
                     tempCalenderWeekItem.setHistoryData(true);
 
                     listCalenderWeekItem.add(tempCalenderWeekItem);
+                    Log.d("draw", "block : " + tempCalenderWeekItem.toString());
                 }
 
                 getCoordMindayWithTimes(endTime);
@@ -214,6 +246,7 @@ public class CalenderWeekAdapter {
                 tempCalenderWeekItem.setHistoryData(true);
 
                 listCalenderWeekItem.add(tempCalenderWeekItem);
+                Log.d("draw", "block : " + tempCalenderWeekItem.toString());
                 break;
 
         }
@@ -227,14 +260,44 @@ public class CalenderWeekAdapter {
         long startTime = inData.getlStartTime();
         long endTime = inData.getlEndTime();
 
-        int timeModulo = 0;
+        /*int timeModulo = 0;
 
         if(startTime > endTime){
             timeModulo = (int)((endTime + LONG_WEEK_MILLIS - startTime) % LONG_WEEK_MILLIS/LONG_DAY_MILLIS);
         }
         else{
             timeModulo = (int)((endTime - startTime) % LONG_WEEK_MILLIS/LONG_DAY_MILLIS);
+        }*/
+
+        //setting bound
+        if(startTime < longStartDate){
+            startTime = longStartDate;  //week time 0 이전일 경우 longStartDate로 계산한다.
         }
+        if(longStartDate + LONG_WEEK_MILLIS < startTime){
+            startTime = longStartDate + LONG_WEEK_MILLIS - 1;  //week time이 week 이후인 경우 longStartDatef로 계산한다.
+        }
+        if(endTime < longStartDate){
+            endTime = longStartDate;  //week time 0 이전일 경우 longStartDate로 계산한다.
+        }
+        if(longStartDate + LONG_WEEK_MILLIS < endTime){
+            endTime = longStartDate + LONG_WEEK_MILLIS - 1;  //week time이 week 이후인 경우 longStartDatef로 계산한다.
+        }
+
+        int timeModulo = 0;
+
+        /*
+        if(startTime > endTime){
+
+            timeModulo = (int)((endTime + LONG_WEEK_MILLIS - startTime) % LONG_WEEK_MILLIS/LONG_DAY_MILLIS);
+        }
+        else{
+            timeModulo = (int)((endTime - startTime) % LONG_WEEK_MILLIS/LONG_DAY_MILLIS);
+        }
+        */
+        timeModulo = (int)((endTime - startTime) % LONG_WEEK_MILLIS/LONG_DAY_MILLIS);
+
+        startTime = (startTime + 4 * LONG_DAY_MILLIS) % LONG_WEEK_MILLIS;
+        endTime = (endTime + 4 * LONG_DAY_MILLIS) % LONG_WEEK_MILLIS;
 
         CalenderWeekItem tempCalenderWeekItem = null;
 
@@ -250,7 +313,12 @@ public class CalenderWeekAdapter {
 
                 tempCalenderWeekItem = new CalenderWeekItem();
                 tempCalenderWeekItem.setIdx(countIdx);
-                tempCalenderWeekItem.setText(inData.getForeFixedTimeTable().getStrFixedTimeTableName());
+                if(inData.getForeFixedTimeTable() == null || inData.getForeFixedTimeTable().getStrFixedTimeTableName() == null){
+                    tempCalenderWeekItem.setText("알수없음");
+                }
+                else{
+                    tempCalenderWeekItem.setText(inData.getForeFixedTimeTable().getStrFixedTimeTableName());
+                }
                 tempCalenderWeekItem.setCoords(left, up, right, bottom);
                 tempCalenderWeekItem.setHistoryData(false);
 
@@ -267,7 +335,12 @@ public class CalenderWeekAdapter {
 
                 tempCalenderWeekItem = new CalenderWeekItem();
                 tempCalenderWeekItem.setIdx(countIdx);
-                tempCalenderWeekItem.setText(inData.getForeFixedTimeTable().getStrFixedTimeTableName());
+                if(inData.getForeFixedTimeTable() == null || inData.getForeFixedTimeTable().getStrFixedTimeTableName() == null){
+                    tempCalenderWeekItem.setText("알수없음");
+                }
+                else{
+                    tempCalenderWeekItem.setText(inData.getForeFixedTimeTable().getStrFixedTimeTableName());
+                }
                 tempCalenderWeekItem.setCoords(left, up, right, bottom);
                 tempCalenderWeekItem.setHistoryData(false);
 
@@ -284,7 +357,12 @@ public class CalenderWeekAdapter {
 
                     tempCalenderWeekItem = new CalenderWeekItem();
                     tempCalenderWeekItem.setIdx(countIdx);
-                    tempCalenderWeekItem.setText(inData.getForeFixedTimeTable().getStrFixedTimeTableName());
+                    if(inData.getForeFixedTimeTable() == null || inData.getForeFixedTimeTable().getStrFixedTimeTableName() == null){
+                        tempCalenderWeekItem.setText("알수없음");
+                    }
+                    else{
+                        tempCalenderWeekItem.setText(inData.getForeFixedTimeTable().getStrFixedTimeTableName());
+                    }
                     tempCalenderWeekItem.setCoords(left, up, right, bottom);
                     tempCalenderWeekItem.setHistoryData(false);
 
@@ -300,7 +378,12 @@ public class CalenderWeekAdapter {
 
                 tempCalenderWeekItem = new CalenderWeekItem();
                 tempCalenderWeekItem.setIdx(countIdx);
-                tempCalenderWeekItem.setText(inData.getForeFixedTimeTable().getStrFixedTimeTableName());
+                if(inData.getForeFixedTimeTable() == null || inData.getForeFixedTimeTable().getStrFixedTimeTableName() == null){
+                    tempCalenderWeekItem.setText("알수없음");
+                }
+                else{
+                    tempCalenderWeekItem.setText(inData.getForeFixedTimeTable().getStrFixedTimeTableName());
+                }
                 tempCalenderWeekItem.setCoords(left, up, right, bottom);
                 tempCalenderWeekItem.setHistoryData(false);
 
@@ -312,12 +395,13 @@ public class CalenderWeekAdapter {
     }
 
     public void getCoordWithTimes(long times){
-        if(times < longStartDate){
+        /*if(times < longStartDate){
             times = longStartDate;  //week time 0 이전일 경우 longStartDate로 계산한다.
         }
         if(longStartDate + LONG_WEEK_MILLIS < times){
             times = longStartDate + LONG_WEEK_MILLIS - 1;  //week time이 week 이후인 경우 longStartDatef로 계산한다.
         }
+        */
         //hour를 0~24로 표현한 뒤 rowBlockSIze(1hour)를 곱한다. 그 뒤 scroll위치와 sideSpace위치를 고려한 좌표를 반환한다.
         fCoordHeight = min(max((((float)(times%LONG_DAY_MILLIS))/LONG_HOUR_MILLIS)*rowBlockSize-scrollRow+fUpSideSpace, fUpSideSpace), fUpSideSpace+fCustomViewHeightExceptSpace);
         //day를 0~7으로 표현한 뒤 colBlockSize만큼 곱한다. 그 뒤 scroll 위치와 sideSpace 위치를 고려한 좌표를 반환한다.
@@ -367,7 +451,10 @@ public class CalenderWeekAdapter {
         for(CalenderWeekItem item : listCalenderWeekItem){
             if(item.getLeft() <= x && x < item.getRight() && item.getTop() <= y && y < item.getBottom()){
                 CalenderWeekItemIdxWithIsHistoryData retData = new CalenderWeekItemIdxWithIsHistoryData(item.getIdx(), item.isHistoryData());
-                ((CalenderWeekFragment)(((FragmentActivity)curContext).getSupportFragmentManager().findFragmentByTag("calender_week_fragment"))).openDialogWithIdx(retData);
+                if(((FragmentActivity)curContext).getSupportFragmentManager().findFragmentByTag("calenderWeekFragment") == null){
+                    Log.d("ddraw", "findFragmentByTag(\"calenderWeekFragment\") == null");
+                }
+                ((CalenderWeekFragment)(((FragmentActivity)curContext).getSupportFragmentManager().findFragmentByTag("calenderWeekFragment"))).openDialogWithIdx(retData);
                 return item.getIdx();
             }
         }

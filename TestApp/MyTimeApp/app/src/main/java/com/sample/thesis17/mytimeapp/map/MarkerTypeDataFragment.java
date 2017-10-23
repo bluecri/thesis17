@@ -177,7 +177,7 @@ public class MarkerTypeDataFragment extends Fragment implements MyMarkerTypeData
             try{
                 daoMarkerTypeDataInteger = getDatabaseHelperMain().getDaoMarkerTypeData();	//get
                 if(daoMarkerTypeDataInteger != null){
-                    //TODO : 해당 markerType를 가진 marker들의 bind 제거
+                    // 해당 markerType를 가진 marker들의 bind 제거
                     deleteMarkersForMarkerType(selectedMarkerTypeData);
                     daoMarkerTypeDataInteger.delete(selectedMarkerTypeData);
                     markerTypeDataList.remove(selectedMarkerTypeDataPos);

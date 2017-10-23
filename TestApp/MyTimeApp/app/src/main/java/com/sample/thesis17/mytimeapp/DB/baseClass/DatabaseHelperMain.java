@@ -33,8 +33,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class DatabaseHelperMain extends OrmLiteSqliteOpenHelper
 {
-    //private static final String DATABASE_NAME = "timetable_main.db";
-    private static final String DATABASE_NAME = Environment.getExternalStorageDirectory().getPath()+ File.separator+"timetable_main.db";
+    private static final String DATABASE_NAME = "timetable_main.db";
+    //private static final String DATABASE_NAME = Environment.getExternalStorageDirectory().getPath()+ File.separator+"timetable_main.db";
     private static final int DATABASE_VERSION = 1;
 
     private static final AtomicInteger usageCounter = new AtomicInteger(0);     //usage counter
@@ -101,6 +101,8 @@ public class DatabaseHelperMain extends OrmLiteSqliteOpenHelper
             TableUtils.createTable(connectionSource, MarkerMarkerTypeData.class);
             TableUtils.createTable(connectionSource, TempHistoryData.class);
             TableUtils.createTable(connectionSource, DateForTempHisoryData.class);
+            TableUtils.createTable(connectionSource, TempHistoryLMData.class);
+            TableUtils.createTable(connectionSource, TempHistoryMarkerData.class);
         }
         catch(SQLException e){
             Log.e("db", "Unable to create datbases", e);
@@ -120,6 +122,9 @@ public class DatabaseHelperMain extends OrmLiteSqliteOpenHelper
             TableUtils.dropTable(connectionSource, MarkerMarkerTypeData.class, true);
             TableUtils.dropTable(connectionSource, TempHistoryData.class, true);
             TableUtils.dropTable(connectionSource, DateForTempHisoryData.class, true);
+            TableUtils.dropTable(connectionSource, TempHistoryLMData.class, true);
+            TableUtils.dropTable(connectionSource, TempHistoryMarkerData.class, true);
+
             onCreate(sqLiteDatabase, connectionSource);
         }
         catch(SQLException e){

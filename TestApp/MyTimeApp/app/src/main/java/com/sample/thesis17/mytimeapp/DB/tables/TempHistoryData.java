@@ -11,7 +11,7 @@ import com.j256.ormlite.table.DatabaseTable;
 @DatabaseTable(tableName = "tempHistory")
 public class TempHistoryData {
     public final static String TH_TEMPHISTORYDATA_STARTTIME_FIELD_NAME = "temphistorydata_starttime";
-    public final static String TH_TEMPHISTORYDATA_ENDTIME_FIELD_NAME = "locationmemorydata_endtime";
+    public final static String TH_TEMPHISTORYDATA_ENDTIME_FIELD_NAME = "temphistorydata_endtime";
 
     @DatabaseField(generatedId = true)
     private int id;
@@ -21,6 +21,11 @@ public class TempHistoryData {
 
     @DatabaseField(canBeNull = false, foreign = true)
     private MarkerData foreMarkerData;
+
+    /*
+    @DatabaseField(canBeNull = false, foreign = true)
+    private MarkerData minDistMarkerData;
+    */
 
     @DatabaseField(columnName = TH_TEMPHISTORYDATA_STARTTIME_FIELD_NAME)
     private long lStartTime;
@@ -39,6 +44,7 @@ public class TempHistoryData {
     public TempHistoryData(FixedTimeTableData foreFixedTimeTable, MarkerData foreMarkerData, long lStartTime, long lEndTime, String memo) {
         this.foreFixedTimeTable = foreFixedTimeTable;
         this.foreMarkerData = foreMarkerData;
+        //this.minDistMarkerData = minDistMarkerData;
         this.lStartTime = lStartTime;
         this.lEndTime = lEndTime;
         this.memo = memo;
@@ -90,5 +96,25 @@ public class TempHistoryData {
 
     public void setMemo(String memo) {
         this.memo = memo;
+    }
+
+    /*
+    public MarkerData getMinDistMarkerData() {
+        return minDistMarkerData;
+    }
+
+    public void setMinDistMarkerData(MarkerData minDistMarkerData) {
+        this.minDistMarkerData = minDistMarkerData;
+    }
+    */
+
+    @Override
+    public String toString() {
+        return "TempHistoryData{" +
+                "foreFixedTimeTable=" + foreFixedTimeTable +
+                ", foreMarkerData=" + foreMarkerData +
+                ", lStartTime=" + lStartTime +
+                ", lEndTime=" + lEndTime +
+                '}';
     }
 }

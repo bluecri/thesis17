@@ -12,11 +12,11 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_weight="1"
-        android:orientation="horizontal">
+        android:orientation="vertical">
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:orientation="horizontal">
 
             <Button
@@ -39,9 +39,16 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="Button" />
+
+            <Button
+                android:id="@+id/fragment_calender_week_refresh_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Button" />
         </LinearLayout>
 
-        <com.sample.thesis17.mytimeapp.baseTimeTable.week.CustomWeekView
+        <com.sample.thesis17.mytimeapp.baseCalendar.week.CalenderWeekView
             android:id="@+id/calenderWeekView"
             android:layout_width="match_parent"
             android:layout_height="match_parent"

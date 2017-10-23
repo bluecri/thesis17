@@ -212,7 +212,6 @@ public class TimetableWeekFragment extends Fragment implements DialogWeekItemVie
         centerText.setText(curYear + " " + (curMonth+1));*/
     }
 
-    // TODO: Rename method, update argument and hook method into UI event
     public void onButtonPressed(Uri uri) {
         /*if (mListener != null) {
             mListener.onFragmentInteraction(uri);
@@ -248,7 +247,6 @@ public class TimetableWeekFragment extends Fragment implements DialogWeekItemVie
      * >Communicating with Other Fragments</a> for more information.
      */
     public interface OnFragmentInteractionListener {
-        // TODO: Update argument type and name
         void onFragmentInteraction(Uri uri);
     }
 
@@ -272,7 +270,6 @@ public class TimetableWeekFragment extends Fragment implements DialogWeekItemVie
 
     //open dialogWeekItemViewFragment
     void openDialogWithIdx(int idx){
-        //TODO: make dialog
         selectedIdx = idx;
         //listFixedTimeTableData use
         //dialog call
@@ -392,7 +389,6 @@ public class TimetableWeekFragment extends Fragment implements DialogWeekItemVie
             dialogWeekItemCreateFragment.dismiss();
             dialogWeekItemCreateFragment = null;
         }
-        //TODO:
     }
 
     //DialogWeekItemCreateFragment LIstener & DialogWeekItemModifyViewFragment LIstener

@@ -15,6 +15,7 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TimePicker;
@@ -129,6 +130,7 @@ public class DialogWeekItemCreateFragment extends DialogFragment{
         textViewEndTime = (Button)retView.findViewById(R.id.fragment_dialog_timetable_item_create_endtime);
         textViewMemo = (EditText)retView.findViewById(R.id.fragment_dialog_timetable_item_create_memo);
         spinnerMarkerName = (Spinner)retView.findViewById(R.id.fragment_dialog_timetable_item_create_marker);
+
 
 
 

@@ -8,11 +8,11 @@ import com.j256.ormlite.table.DatabaseTable;
  */
 
 
-@DatabaseTable(tableName = "temphistorylmdata")
+@DatabaseTable(tableName = "temphistorymarkerdata")
 public class TempHistoryMarkerData {
 
-    public final static String THLM_TEMPHISTORYDATA_ID_FIELD_NAME = "temphistorydata_id";
-    public final static String THLM_MARKERDATA_ID_FIELD_NAME = "markerdata_id";
+    public final static String THMM_TEMPHISTORYDATA_ID_FIELD_NAME = "thmm_temphistorydata_id";
+    public final static String THMM_MARKERDATA_ID_FIELD_NAME = "thmm_markerdata_id";
 
 
     TempHistoryMarkerData(){
@@ -27,10 +27,10 @@ public class TempHistoryMarkerData {
     @DatabaseField(generatedId = true)
     private int id;
 
-    @DatabaseField(foreign = true, columnName = THLM_TEMPHISTORYDATA_ID_FIELD_NAME)
+    @DatabaseField(foreign = true, columnName = THMM_TEMPHISTORYDATA_ID_FIELD_NAME)
     private TempHistoryData tempHistoryData;
 
-    @DatabaseField(foreign = true, columnName = THLM_MARKERDATA_ID_FIELD_NAME)
+    @DatabaseField(foreign = true, columnName = THMM_MARKERDATA_ID_FIELD_NAME)
     private MarkerData markerData;
 
     public TempHistoryData getTempHistoryData() {

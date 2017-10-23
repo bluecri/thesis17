@@ -47,4 +47,14 @@ public class CustomWeekItem {
         this.bottom = bottom;
         this.right = right;
     }
+
+    @Override
+    public String toString() {
+        return "CustomWeekItem{" +
+                "left=" + left +
+                ", top=" + top +
+                ", right=" + right +
+                ", bottom=" + bottom +
+                '}';
+    }
 }

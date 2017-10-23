@@ -27,8 +27,8 @@ import static java.lang.Math.min;
 public class CalenderWeekView extends View {
     public Context curContext;
 
-    public static int COL_NUM = 7;
-    public static int ROW_NUM = 24;
+    private static int COL_NUM = 7;
+    private static int ROW_NUM = 24;
 
     static int MODE_NONE = 0, MODE_DRAG_INIT = 1, MODE_DRAG_HOR = 2, MODE_DRAG_VER = 3, MODE_PAN = 4;
 
@@ -88,6 +88,7 @@ public class CalenderWeekView extends View {
 
 
     public void init(){
+        //Log.d("debbugged", "init()");
         //setCustomViewWidthHeight(); //setting CustomView size
         fLeftSideSpace = 30f;//(float)customViewWidth/10;		//setting left side empty space
         fUpSideSpace = 40f;//(float)customViewHeight/20;
@@ -109,6 +110,7 @@ public class CalenderWeekView extends View {
     }
 
     public void refreshInit(){
+        //Log.d("debbugged", "refreshInit()");
         fScrollRightEnd = COL_NUM * pCurBlock.fCol - fCustomViewWidthExceptSpace;
         fScrollBottomEnd = ROW_NUM * pCurBlock.fRow - fCustomViewHeightExceptSpace;
     }
@@ -500,6 +502,7 @@ public class CalenderWeekView extends View {
     //custom View를 생성하고 XML에 정의된 View의 fixed size를 가져오거나 match_parent, fill_parent와 같이 외부상황으로 인해 정해진 size를 얻어내어 view의 크기를 정한다.
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+        //Log.d("debbugged", "onMesure");
         int widthMode = MeasureSpec.getMode(widthMeasureSpec);
         int heightMode = MeasureSpec.getMode(heightMeasureSpec);
 
@@ -547,7 +550,6 @@ public class CalenderWeekView extends View {
             curCustomWeekAdapter.updateCustomWeekItemList();
             //curCustomWeekAdapter.customWeekItemList
             if(curCustomWeekAdapter.listCalenderWeekItem != null){
-                //TODO : draw
                 for(CalenderWeekItem item : curCustomWeekAdapter.listCalenderWeekItem){
                     RectF tempRectF = new RectF(item.left, item.top, item.right,item.bottom);
                     //Log.d("draws", "draw rect / " + item.left + "/" + item.top + "/" + item.right + "/" +item.bottom);

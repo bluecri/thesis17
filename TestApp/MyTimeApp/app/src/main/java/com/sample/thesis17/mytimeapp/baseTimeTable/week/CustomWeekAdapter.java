@@ -127,11 +127,15 @@ public class CustomWeekAdapter {
         long startTime = inData.getlStartTime();
         long endTime = inData.getlEndTime();
         int timeModulo = 0;
+
+        int startModulo = (int)(startTime % LONG_WEEK_MILLIS / LONG_DAY_MILLIS);
+        int endModulo = (int)(endTime % LONG_WEEK_MILLIS / LONG_DAY_MILLIS);
+
         if(startTime > endTime){
-            timeModulo = (int)((endTime + LONG_WEEK_MILLIS - startTime) % LONG_WEEK_MILLIS/LONG_DAY_MILLIS);
+            timeModulo = endModulo + 7 - startModulo;//(int)((endTime + LONG_WEEK_MILLIS - startTime) % LONG_WEEK_MILLIS/LONG_DAY_MILLIS);
         }
         else{
-            timeModulo = (int)((endTime - startTime) % LONG_WEEK_MILLIS/LONG_DAY_MILLIS);
+            timeModulo = endModulo - startModulo;//(int)((endTime - startTime) % LONG_WEEK_MILLIS/LONG_DAY_MILLIS);
         }
 
 
@@ -170,6 +174,7 @@ public class CustomWeekAdapter {
                 tempCustomWeekItem.setCoords(left, up, right, bottom);
 
                 customWeekItemList.add(tempCustomWeekItem);
+                Log.d("draws", "block info : " + tempCustomWeekItem.toString());
 
                 //multiple line
                 for(int i=0; i<timeModulo-1; i++){
@@ -186,6 +191,7 @@ public class CustomWeekAdapter {
                     tempCustomWeekItem.setCoords(left, up, right, bottom);
 
                     customWeekItemList.add(tempCustomWeekItem);
+                    Log.d("draws", "block info : " + tempCustomWeekItem.toString());
                 }
 
                 getCoordMindayWithTimes(endTime);
@@ -201,6 +207,7 @@ public class CustomWeekAdapter {
                 tempCustomWeekItem.setCoords(left, up, right, bottom);
 
                 customWeekItemList.add(tempCustomWeekItem);
+                Log.d("draws", "block info : " + tempCustomWeekItem.toString());
                 break;
 
         }
