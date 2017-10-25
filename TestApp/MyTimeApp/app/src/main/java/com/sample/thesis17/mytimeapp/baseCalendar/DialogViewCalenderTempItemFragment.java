@@ -9,6 +9,8 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.DialogFragment;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -45,10 +47,12 @@ import static com.sample.thesis17.mytimeapp.Static.MyMath.WEEK_STRING_REAL;
  */
 
 
-public class DialogViewCalenderTempItemFragment extends DialogFragment{
+public class DialogViewCalenderTempItemFragment extends DialogFragment implements DialogInvisibleMarkerAndFixedTimeTable.DialogInvisibleMarkerAndFixedTimeTableListener {
 
     private Context curContext = null;
+    private Fragment curFragment = null;
     private DialogViewCalenderTempItemFragmentListener dialogViewCalenderTempItemFragmentListener = null;
+    private Fragment targetFragment = null;
     //private ArrayList<MarkerTypeData> markerTypeList = null;
 
     Spinner spinnerViewTitle = null;
@@ -60,6 +64,8 @@ public class DialogViewCalenderTempItemFragment extends DialogFragment{
     Spinner spinnerMarkerName = null;
     CheckBox checkBoxTargetMarker = null;
     CheckBox checkBoxTargetTimetable = null;
+    EditText textMarkerTitle = null;
+    EditText textTimetableTitle = null;
 
 
     ArrayList<String> arrListMarkerDataTitle = null;
@@ -80,11 +86,10 @@ public class DialogViewCalenderTempItemFragment extends DialogFragment{
     int endTimeHour;
     int endTimeMin;
 
-
     public interface DialogViewCalenderTempItemFragmentListener{
         //method
         //public void modifyMarkerComplete(String title, String memo);
-        public void doSave(FixedTimeTableData fttd, long startTime, long endTime, MarkerData md, String memo);
+        public void doSave(FixedTimeTableData fttd, long startTime, long endTime, MarkerData md, String memo, String markerTitle, String timetableTitle);
         public void doDeepDelete();
         //public ArrayList<String> getArrayListMarkerDataTitle();
         //public void openModifyDialogWithIdx();
@@ -160,6 +165,8 @@ public class DialogViewCalenderTempItemFragment extends DialogFragment{
         catch(ClassCastException e){
             throw new ClassCastException("must implement dialogMarkerTypeModifyFragmentListener");
         }
+        //curFragment = this;
+        targetFragment = getTargetFragment();
     }
 
     @Override
@@ -189,6 +196,8 @@ public class DialogViewCalenderTempItemFragment extends DialogFragment{
         spinnerMarkerName = (Spinner)retView.findViewById(R.id.fragment_dialog_view_calender_temp_item_marker);
         checkBoxTargetMarker = (CheckBox)retView.findViewById(R.id.fragment_dialog_view_calender_temp_item_targetMarker_check);
         checkBoxTargetTimetable = (CheckBox)retView.findViewById(R.id.fragment_dialog_view_calender_temp_item_targetTimeTable_check);
+        textMarkerTitle = (EditText)retView.findViewById(R.id.fragment_dialog_view_calender_temp_item_markerTitle);
+        textTimetableTitle = (EditText)retView.findViewById(R.id.fragment_dialog_view_calender_temp_item_timetableTitle);
 
         checkBoxTargetMarker.setChecked(false);
         checkBoxTargetTimetable.setChecked(false);
@@ -201,9 +210,12 @@ public class DialogViewCalenderTempItemFragment extends DialogFragment{
                     //checkBoxTargetTimetable.notifyAll();
                     spinnerMarkerName.setEnabled(false);
                     spinnerViewTitle.setEnabled(false); //target marker off -> target timetable also off
+                    textMarkerTitle.setEnabled(true);
+                    textTimetableTitle.setEnabled(false);
                 }
                 else{
                     spinnerMarkerName.setEnabled(true);
+                    textMarkerTitle.setEnabled(false);
                 }
             }
         });
@@ -213,9 +225,11 @@ public class DialogViewCalenderTempItemFragment extends DialogFragment{
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if(isChecked){
                     spinnerViewTitle.setEnabled(false);
+                    textTimetableTitle.setEnabled(true);
                 }
                 else{
                     spinnerViewTitle.setEnabled(true);
+                    textTimetableTitle.setEnabled(false);
                 }
             }
         });
@@ -484,13 +498,26 @@ public class DialogViewCalenderTempItemFragment extends DialogFragment{
                         long retLEndTimeMillis = endTimeHour*LONG_HOUR_MILLIS + endTimeMin*LONG_MIN_MILLIS + lEndWeek;
                         if(checkBoxTargetMarker.isChecked() || arrListMarkerDataTitle.size() == 0){
                             //markerData => no bind, fixed also no bind
-                            dialogViewCalenderTempItemFragmentListener.doSave(null, retLStartTimeMillis, retLEndTimeMillis, null, textViewMemo.getText().toString());
+                            //DialogInvisibleMarkerAndFixedTimeTable invisibleDig = new DialogInvisibleMarkerAndFixedTimeTable();
+                            //invisibleDig.setTargetFragment(((FragmentActivity)curContext).getSupportFragmentManager().findFragmentByTag("DialogViewCalenderTempItemFragment"), 0);
+                            //invisibleDig.setTargetFragment(targetFragment, 0);
+                            ///Bundle arg = new Bundle();
+                            //invisibleDig.setArguments(arg); //empty bundle
+                            //invisibleDig.show(((FragmentActivity)curContext).getSupportFragmentManager(), "DialogInvisibleMarkerAndFixedTimeTable");
+                            dialogViewCalenderTempItemFragmentListener.doSave(null, retLStartTimeMillis, retLEndTimeMillis, null, textViewMemo.getText().toString(), textMarkerTitle.getText().toString(), textTimetableTitle.getText().toString());
                         }
                         else if(checkBoxTargetTimetable.isChecked() || arrListFixedTimeTable.size() == 0){
-                            dialogViewCalenderTempItemFragmentListener.doSave(null, retLStartTimeMillis, retLEndTimeMillis, listMarkerData.get(markerDataListIdx), textViewMemo.getText().toString());
+                            DialogInvisibleMarkerAndFixedTimeTable invisibleDig = new DialogInvisibleMarkerAndFixedTimeTable();
+                            //invisibleDig.setTargetFragment(((FragmentActivity)curContext).getSupportFragmentManager().findFragmentByTag("DialogViewCalenderTempItemFragment"), 0);
+                            //invisibleDig.setTargetFragment(targetFragment, 0);
+                            //Bundle arg = new Bundle();
+                            //arg.putString("markerTitle", listMarkerData.get(markerDataListIdx).getStrMarkerName());
+                            //invisibleDig.setArguments(arg); //empty bundle
+                            //invisibleDig.show(((FragmentActivity)curContext).getSupportFragmentManager(), "DialogInvisibleMarkerAndFixedTimeTable");
+                            dialogViewCalenderTempItemFragmentListener.doSave(null, retLStartTimeMillis, retLEndTimeMillis, listMarkerData.get(markerDataListIdx), textViewMemo.getText().toString(), null, textTimetableTitle.getText().toString());
                         }
                         else{
-                            dialogViewCalenderTempItemFragmentListener.doSave(listFixedTimeTableDataQueryedByMarkerData.get(fixedTimeTableDataListIdx), retLStartTimeMillis, retLEndTimeMillis, listMarkerData.get(markerDataListIdx), textViewMemo.getText().toString());
+                            dialogViewCalenderTempItemFragmentListener.doSave(listFixedTimeTableDataQueryedByMarkerData.get(fixedTimeTableDataListIdx), retLStartTimeMillis, retLEndTimeMillis, listMarkerData.get(markerDataListIdx), textViewMemo.getText().toString(), null, null);
                         }
                     }
                 })
@@ -510,4 +537,26 @@ public class DialogViewCalenderTempItemFragment extends DialogFragment{
 
         return builder.create();
     }
+
+
+    @Override
+    public void doSaveWithInvisibleMarkerAndTimeTable(String markerTitle, String timetableTitle) {
+        long retLStartTimeMillis = startTimeHour*LONG_HOUR_MILLIS + startTimeMin*LONG_MIN_MILLIS + lStartWeek;  //hour + min + day(WEEK);
+        long retLEndTimeMillis = endTimeHour*LONG_HOUR_MILLIS + endTimeMin*LONG_MIN_MILLIS + lEndWeek;
+        if(checkBoxTargetMarker.isChecked() || arrListMarkerDataTitle.size() == 0){
+            //with new markerTitle, timetableTitle
+
+            //create marker with invisible
+            dialogViewCalenderTempItemFragmentListener.doSave(null, retLStartTimeMillis, retLEndTimeMillis, null, textViewMemo.getText().toString(), markerTitle, timetableTitle);
+        }
+        else if(checkBoxTargetTimetable.isChecked() || arrListFixedTimeTable.size() == 0){
+            //with new markerTitle, timetableTitle
+            dialogViewCalenderTempItemFragmentListener.doSave(null, retLStartTimeMillis, retLEndTimeMillis, listMarkerData.get(markerDataListIdx), textViewMemo.getText().toString(), null, timetableTitle);
+        }
+        else{
+            dialogViewCalenderTempItemFragmentListener.doSave(listFixedTimeTableDataQueryedByMarkerData.get(fixedTimeTableDataListIdx), retLStartTimeMillis, retLEndTimeMillis, listMarkerData.get(markerDataListIdx), textViewMemo.getText().toString(), null, null);
+        }
+    }
+
+
 }

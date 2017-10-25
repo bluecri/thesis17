@@ -47,12 +47,15 @@ public class FixedTimeTableData {
     @DatabaseField
     private boolean isCache;
 
+    @DatabaseField
+    private boolean isInvisible;
+
 
     FixedTimeTableData() {
         // empty constructor is needed
     }
 
-    public FixedTimeTableData(MarkerData foreMarkerData, String strFixedTimeTableName, long lStartTime, long lEndTime, long lBoundStartTime, long lBoundEndTime, long lInnerBoundStartTime, long lInnerBoundEndTime, String strMemo, boolean isCache) {
+    public FixedTimeTableData(MarkerData foreMarkerData, String strFixedTimeTableName, long lStartTime, long lEndTime, long lBoundStartTime, long lBoundEndTime, long lInnerBoundStartTime, long lInnerBoundEndTime, String strMemo, boolean isCache, boolean isInvisible) {
         this.foreMarkerData = foreMarkerData;
         this.strFixedTimeTableName = strFixedTimeTableName;
         this.lStartTime = lStartTime;
@@ -63,6 +66,7 @@ public class FixedTimeTableData {
         this.lInnerBoundEndTime = lInnerBoundEndTime;
         this.strMemo = strMemo;
         this.isCache = isCache;
+        this.isInvisible = isInvisible;
     }
 
 
@@ -145,7 +149,16 @@ public class FixedTimeTableData {
     public void setCache(boolean cache) {
         isCache = cache;
     }
-/*
+
+    public boolean isInvisible() {
+        return isInvisible;
+    }
+
+    public void setInvisible(boolean invisible) {
+        isInvisible = invisible;
+    }
+
+    /*
     public void setForeMarkerData(MarkerData markerData){
         foreMarkerData = markerData;
     }

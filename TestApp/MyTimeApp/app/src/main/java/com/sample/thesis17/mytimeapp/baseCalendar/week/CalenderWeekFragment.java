@@ -27,6 +27,8 @@ import com.sample.thesis17.mytimeapp.DB.baseClass.DatabaseHelperMain;
 import com.sample.thesis17.mytimeapp.DB.tables.DateForTempHisoryData;
 import com.sample.thesis17.mytimeapp.DB.tables.FixedTimeTableData;
 import com.sample.thesis17.mytimeapp.DB.tables.HistoryData;
+import com.sample.thesis17.mytimeapp.DB.tables.HistoryDataInnerMarkerData;
+import com.sample.thesis17.mytimeapp.DB.tables.HistoryDataLocTimeRangeIncDecData;
 import com.sample.thesis17.mytimeapp.DB.tables.LocationMemoryData;
 import com.sample.thesis17.mytimeapp.DB.tables.MarkerData;
 import com.sample.thesis17.mytimeapp.DB.tables.TempHistoryData;
@@ -53,9 +55,16 @@ import static com.sample.thesis17.mytimeapp.DB.tables.LocationMemoryData.LOCATIO
 import static com.sample.thesis17.mytimeapp.DB.tables.LocationMemoryData.LOCATIONMEMORY_TIMEWRITTEN_FIELD_NAME;
 import static com.sample.thesis17.mytimeapp.DB.tables.TempHistoryData.TH_TEMPHISTORYDATA_ENDTIME_FIELD_NAME;
 import static com.sample.thesis17.mytimeapp.DB.tables.TempHistoryData.TH_TEMPHISTORYDATA_STARTTIME_FIELD_NAME;
+import static com.sample.thesis17.mytimeapp.Static.MyMath.CUSTOM_DRADIUS;
+import static com.sample.thesis17.mytimeapp.Static.MyMath.DIV_TIME_INCDEC;
+import static com.sample.thesis17.mytimeapp.Static.MyMath.DOUBLE_GROUPING_2POW_RADIUS;
+import static com.sample.thesis17.mytimeapp.Static.MyMath.IN_RADIUS_INCDEC;
 import static com.sample.thesis17.mytimeapp.Static.MyMath.LONG_DAY_MILLIS;
 import static com.sample.thesis17.mytimeapp.Static.MyMath.LONG_GROUP_INTERVAL;
 import static com.sample.thesis17.mytimeapp.Static.MyMath.LONG_WEEK_MILLIS;
+import static com.sample.thesis17.mytimeapp.Static.MyMath.MAX_TIME_INCDEC;
+import static com.sample.thesis17.mytimeapp.Static.MyMath.MINDIST_TO_GROUP_TO_MAKRER;
+import static com.sample.thesis17.mytimeapp.Static.MyMath.OUT_RADIUS_INCDEC;
 
 
 public class CalenderWeekFragment extends Fragment implements DialogViewCalenderItemFragment.DialogViewCalenderItemFragmentListener, DialogViewCalenderTempItemFragment.DialogViewCalenderTempItemFragmentListener{
@@ -93,6 +102,8 @@ public class CalenderWeekFragment extends Fragment implements DialogViewCalender
     Dao<LocationMemoryData, Integer> daoLocationMemoryDataInteger = null;
     Dao<TempHistoryLMData, Integer> daoTempHistoryLMDataInteger = null;
     Dao<TempHistoryMarkerData, Integer> daoTempHistoryMarkerDataInteger = null;
+    Dao<HistoryDataInnerMarkerData, Integer> daoHistoryDataInnerMarkerDataInteger = null;
+    Dao<HistoryDataLocTimeRangeIncDecData, Integer> daoHistoryDataLocTimeRangeIncDecDataInteger = null;
 
     CalenderWeekAdapter calenderWeekAdapter = null;
 
@@ -114,7 +125,7 @@ public class CalenderWeekFragment extends Fragment implements DialogViewCalender
     //int curMonth;
 
     //CONSTANTS
-    double DOUBLE_GROUPING_2POW_RADIUS = 0.000000035;  // 0.0.0000000676 공학관 한동, 운동장크기
+    //double DOUBLE_GROUPING_2POW_RADIUS = 0.000000035;  // 0.0.0000000676// 0.000187 공학관 한동, 운동장크기
 
     public interface CalenderWeekFragmentListener{
         void fragmentChangeToMonthView(long inTime);
@@ -153,6 +164,9 @@ public class CalenderWeekFragment extends Fragment implements DialogViewCalender
             daoLocationMemoryDataInteger = getDatabaseHelperLocationMemory().getDaoLocationMemoryData();
             daoTempHistoryLMDataInteger = getDatabaseHelperMain().getDaoTempHistoryLMData();
             daoTempHistoryMarkerDataInteger = getDatabaseHelperMain().getDaoTempHistoryMarkerData();
+
+            daoHistoryDataInnerMarkerDataInteger = getDatabaseHelperMain().getDaoHistoryDataInnerMarkerData();
+            daoHistoryDataLocTimeRangeIncDecDataInteger = getDatabaseHelperMain().getDaoHistoryDataLocTimeRangeIncDecData();
 
             listFixedTimeTableData = daoFixedTimeTableDataInteger.queryForAll();
             listMarkerData = daoMarkerDataInteger.queryForAll();
@@ -420,39 +434,159 @@ public class CalenderWeekFragment extends Fragment implements DialogViewCalender
         //listLocationGroup setting targetMarkerData
         Log.d("ddraw", "---locationGroup size : " + listLocationGroup.size());
         for(int i = 0; i < listLocationGroup.size(); i++){
-            double minDist = 100000.0;
-            boolean thereIsInCricle = false;
+            double visibleMinDist = 100000.0;
+            double invisibleMinDist = 100000.0;
+            boolean visibleThereIsInCricle = false;
+            boolean invisibleThereIsInCricle = false;
+            MarkerData visibleTargetMarkerData = null;
+            MarkerData invisibleTargetMarkerData = null;
+            List<MarkerData> visibleInnerMarkerDataList = new ArrayList<>();
+            List<MarkerData> invisibleInnerMarkerDataList = new ArrayList<>();
             for(int k=0; k<listMarkerData.size(); k++){
-                double dist = getPowRadius(listLocationGroup.get(i).getCenterLat(), listLocationGroup.get(i).getCenterLng(), listMarkerData.get(k).getLat(), listMarkerData.get(k).getLng());
-                if(thereIsInCricle == true){
-                    if(dist <= listMarkerData.get(k).getDInnerRadius()){
-                        listLocationGroup.get(i).getListInnerMarkerData().add(listMarkerData.get(k));   //inner markerData add
-                        if(minDist > dist){
-                            listLocationGroup.get(i).setTargetMarkerData(listMarkerData.get(k));    //set target markerData with min value
-                            minDist = dist;
+                // && listMarkerData.get(k).isInvisible() == false
+                if(listMarkerData.get(k).isCache() == true){
+                    if(listMarkerData.get(k).isInvisible() == false){
+                        double dist = getPowRadius(listLocationGroup.get(i).getCenterLat(), listLocationGroup.get(i).getCenterLng(), listMarkerData.get(k).getLat(), listMarkerData.get(k).getLng());
+                        if(visibleThereIsInCricle == true){
+                            if(dist <= listMarkerData.get(k).getDInnerRadius()){
+                                visibleInnerMarkerDataList.add(listMarkerData.get(k));   //inner markerData add
+                                if(visibleMinDist > dist){
+                                    visibleTargetMarkerData = listMarkerData.get(k);    //set target markerData with min value
+                                    visibleMinDist = dist;
+                                }
+                                //minDist = minDist
+                            }
                         }
-                        //minDist = minDist
+                        else{
+                            if(dist <= listMarkerData.get(k).getDInnerRadius()){
+                                visibleThereIsInCricle = true;
+                                visibleInnerMarkerDataList.add(listMarkerData.get(k));   //inner markerData add
+                                visibleTargetMarkerData = listMarkerData.get(k);        //set target markerData
+                                visibleMinDist = dist;
+                            }
+                            else{   //not inner radius
+                                if(visibleMinDist > dist - listMarkerData.get(k).getDInnerRadius()){
+                                    visibleTargetMarkerData = listMarkerData.get(k);        //set target markerData
+                                    //listLocationGroup.get(i).setTargetMarkerData(listMarkerData.get(k));        //set target markerData
+                                    visibleMinDist = dist - listMarkerData.get(k).getDInnerRadius();
+                                }
+                                //minDist = minDist;
+                            }
+                        }
+                    }
+                    else{
+                        double dist = getPowRadius(listLocationGroup.get(i).getCenterLat(), listLocationGroup.get(i).getCenterLng(), listMarkerData.get(k).getLat(), listMarkerData.get(k).getLng());
+                        if(invisibleThereIsInCricle == true){
+                            if(dist <= listMarkerData.get(k).getDInnerRadius()){
+                                invisibleInnerMarkerDataList.add(listMarkerData.get(k));   //inner markerData add
+                                if(invisibleMinDist > dist){
+                                    invisibleTargetMarkerData = listMarkerData.get(k);    //set target markerData with min value
+                                    invisibleMinDist = dist;
+                                }
+                                //minDist = minDist
+                            }
+                        }
+                        else{
+                            if(dist <= listMarkerData.get(k).getDInnerRadius()){
+                                invisibleThereIsInCricle = true;
+                                invisibleInnerMarkerDataList.add(listMarkerData.get(k));   //inner markerData add
+                                invisibleTargetMarkerData = listMarkerData.get(k);        //set target markerData
+                                invisibleMinDist = dist;
+                            }
+                            else{   //not inner radius
+                                if(invisibleMinDist > dist - listMarkerData.get(k).getDInnerRadius()){
+                                    invisibleTargetMarkerData = listMarkerData.get(k);        //set target markerData
+                                    //listLocationGroup.get(i).setTargetMarkerData(listMarkerData.get(k));        //set target markerData
+                                    invisibleMinDist = dist - listMarkerData.get(k).getDInnerRadius();
+                                }
+                                //minDist = minDist;
+                            }
+                        }
+                    }
+
+                }
+            }
+            /*
+            listLocationGroup.get(i).setMinDIst(minDist);
+            listLocationGroup.get(i).setTargetMarkerData(listMarkerData.get(k));        //set target markerData
+            listLocationGroup.get(i).getListInnerMarkerData().add(listMarkerData.get(k));   //inner markerData add
+            */
+            //mindist is too large & no inner circle marker, then  targetMarkerData => null;
+
+
+            if(visibleTargetMarkerData != null){
+                if(visibleInnerMarkerDataList.size() == 0){
+                    //no inner marker in visibleMarkerDataList
+                    double targetMarkerInnerRadius = visibleTargetMarkerData.getDInnerRadius();
+                    if(visibleMinDist- targetMarkerInnerRadius > MINDIST_TO_GROUP_TO_MAKRER) {
+                        //Too Long Distance between marker & locationGroup
+                        if(invisibleTargetMarkerData != null){
+                            if(invisibleInnerMarkerDataList.size() == 0){
+                                //no inner marker in invisibleMarkerDataList
+                                double innerTargetMarkerInnerRadius = invisibleTargetMarkerData.getDInnerRadius();
+                                if(invisibleMinDist- innerTargetMarkerInnerRadius > MINDIST_TO_GROUP_TO_MAKRER) {
+                                    //Too Long Distance between marker & locationGroup
+                                    listLocationGroup.get(i).setTargetMarkerData(null);
+                                    listLocationGroup.get(i).setMinDIst(invisibleMinDist);
+                                }
+                                else{
+                                    //register out marker
+                                    listLocationGroup.get(i).setTargetMarkerData(invisibleTargetMarkerData);
+                                    listLocationGroup.get(i).setMinDIst(invisibleMinDist);
+                                }
+                            }
+                            else{
+                                //has innerMarker
+                                listLocationGroup.get(i).setTargetMarkerData(invisibleTargetMarkerData);
+                                listLocationGroup.get(i).setMinDIst(invisibleMinDist);
+                                listLocationGroup.get(i).getListInnerMarkerData().addAll(invisibleInnerMarkerDataList);   //inner markerData add
+                            }
+                        }
+                        else{
+                            // invisibleTargetMarkerData null
+                            listLocationGroup.get(i).setTargetMarkerData(null);
+                        }
+                    }
+                    else{
+                        //register
+                        listLocationGroup.get(i).setTargetMarkerData(visibleTargetMarkerData);
+                        listLocationGroup.get(i).setMinDIst(visibleMinDist);
+                        //listLocationGroup.get(i).getListInnerMarkerData().addAll(invisibleInnerMarkerDataList);   //inner markerData add
                     }
                 }
                 else{
-                    if(dist <= listMarkerData.get(k).getDInnerRadius()){
-                        thereIsInCricle = true;
-                        listLocationGroup.get(i).getListInnerMarkerData().add(listMarkerData.get(k));   //inner markerData add
-                        listLocationGroup.get(i).setTargetMarkerData(listMarkerData.get(k));        //set target markerData
-                        minDist = dist;
-                    }
-                    else{   //not inner radius
-                        if(minDist > dist - listMarkerData.get(k).getDInnerRadius()){
-                            listLocationGroup.get(i).setTargetMarkerData(listMarkerData.get(k));        //set target markerData
-                            minDist = dist - listMarkerData.get(k).getDInnerRadius();
-                        }
-                        //minDist = minDist;
-                    }
+                    //has innerMarker
+                    listLocationGroup.get(i).setTargetMarkerData(visibleTargetMarkerData);
+                    listLocationGroup.get(i).setMinDIst(visibleMinDist);
+                    listLocationGroup.get(i).getListInnerMarkerData().addAll(visibleInnerMarkerDataList);   //inner markerData add
                 }
             }
-            listLocationGroup.get(i).setMinDIst(minDist);
-            //TODO : mindist is too large & no inner circle marker, then targetMarkerData => null;
-
+            else if(invisibleTargetMarkerData != null){
+                if(invisibleInnerMarkerDataList.size() == 0){
+                    //no inner marker in invisibleMarkerDataList
+                    double targetMarkerInnerRadius = invisibleTargetMarkerData.getDInnerRadius();
+                    if(invisibleMinDist- targetMarkerInnerRadius > MINDIST_TO_GROUP_TO_MAKRER) {
+                        //Too Long Distance between marker & locationGroup
+                        listLocationGroup.get(i).setTargetMarkerData(null);
+                        listLocationGroup.get(i).setMinDIst(invisibleMinDist);
+                    }
+                    else{
+                        //register out marker
+                        listLocationGroup.get(i).setTargetMarkerData(invisibleTargetMarkerData);
+                        listLocationGroup.get(i).setMinDIst(invisibleMinDist);
+                    }
+                }
+                else{
+                    //has innerMarker
+                    listLocationGroup.get(i).setTargetMarkerData(invisibleTargetMarkerData);
+                    listLocationGroup.get(i).setMinDIst(invisibleMinDist);
+                    listLocationGroup.get(i).getListInnerMarkerData().addAll(invisibleInnerMarkerDataList);   //inner markerData add
+                }
+            }
+            else{
+                //no match marker
+                listLocationGroup.get(i).setTargetMarkerData(null);
+            }
         }
 
         /*
@@ -528,11 +662,11 @@ public class CalenderWeekFragment extends Fragment implements DialogViewCalender
                 catch(SQLException e){
                     Log.d("calender", "getListLocationMemForInnerTimeQuery exception");
                 }
-                //targetMarker에 해당하는 timetable이 존재한다면,
+                //targetMarker에 해당하는 timetable이 존재한다면,.. null or is invisible or visible timetabla
                 if(listFixedTimeTableDataOfTargetMarker != null) {
                     for (int p = 0, pp = listFixedTimeTableDataOfTargetMarker.size(); p < pp; p++) {
                         FixedTimeTableData tempFTTD = listFixedTimeTableData.get(p);
-                        //TODO : 더 넓은 범위의 matching 필요.. 현재 : fixed timetable에 걸치는 경우
+                        //TODO : 더 넓은 범위의 matching 필요.. 현재 : fixed timetable에 걸치는 경우 or null
                         if ((tempFTTD.getlInnerBoundStartTime() <= firstTimeOfGroup && firstTimeOfGroup <= tempFTTD.getlInnerBoundEndTime()) || (tempFTTD.getlInnerBoundStartTime() <= lastTimeOfGroup && lastTimeOfGroup <= tempFTTD.getlInnerBoundEndTime())) {
                             targetFixedTimeTableData = tempFTTD;
                             break;
@@ -555,7 +689,7 @@ public class CalenderWeekFragment extends Fragment implements DialogViewCalender
                 }
                 else{
                     //같지 않으면 새로운 tempHistoryData 추가
-                    lastTempHistoryData = new TempHistoryData(targetFixedTimeTableData, targetMarkerData, curLocationGroup.getFirstTimeOfGroup(), curLocationGroup.getLastTimeOfGroup(), "");
+                    lastTempHistoryData = new TempHistoryData(targetFixedTimeTableData, targetMarkerData, curLocationGroup.getFirstTimeOfGroup(), curLocationGroup.getLastTimeOfGroup(), "", curLocationGroup.getCenterLat(), curLocationGroup.getCenterLng());
                     lastLocationMemoryDataList = new ArrayList<LocationMemoryData>();
                     lastMarkerDataSet = new HashSet<MarkerData>();
 
@@ -574,7 +708,7 @@ public class CalenderWeekFragment extends Fragment implements DialogViewCalender
             }
             else{
                 //이전 tempHistoryData가 없으면 새로운 tempHistoryData 추가
-                lastTempHistoryData = new TempHistoryData(targetFixedTimeTableData, targetMarkerData, curLocationGroup.getFirstTimeOfGroup(), curLocationGroup.getLastTimeOfGroup(), "");
+                lastTempHistoryData = new TempHistoryData(targetFixedTimeTableData, targetMarkerData, curLocationGroup.getFirstTimeOfGroup(), curLocationGroup.getLastTimeOfGroup(), "", curLocationGroup.getCenterLat(), curLocationGroup.getCenterLng());
                 lastLocationMemoryDataList = new ArrayList<LocationMemoryData>();
                 lastMarkerDataSet = new HashSet<MarkerData>();
 
@@ -628,7 +762,7 @@ public class CalenderWeekFragment extends Fragment implements DialogViewCalender
             for(int i=0, ii = delTargetTempHistoryDataList.size(); i<ii; i++){
                 TempHistoryData delTempHistoryData = delTargetTempHistoryDataList.get(i);
                 deleteLMDatasForTempHistoryLMData(delTempHistoryData);
-                deleteMarkerDatasForTempHistoryLMData(delTempHistoryData);
+                deleteMarkerDatasForTempHistoryMarkerData(delTempHistoryData);
                 daoTempHistoryDataInteger.delete(delTempHistoryData);
             }
         }
@@ -946,7 +1080,55 @@ public class CalenderWeekFragment extends Fragment implements DialogViewCalender
     public void doSlightDelete() {
         HistoryData delHD = listHistoryData.get(idxWithIsHistoryData.getIdx());
         try{
-            slightDeleteWithHistoryData(delHD);
+            //MarkerData 역보정
+            MarkerData selectedMD = delHD.getForeMarkerData();
+            List<MarkerData> innerMarkerDataList = getMarkerDataList_InHistoryDataInnerMarkerData_WithHistoryData(delHD);    //historyDataInnerMarkerData list
+            if(innerMarkerDataList.size() == 0){
+                //only out markers => selected out marker radius Inc.
+                selectedMD.setDInnerRadius(selectedMD.getDInnerRadius() - OUT_RADIUS_INCDEC);
+                daoMarkerDataInteger.update(selectedMD);
+            }
+            else{
+                Set<MarkerData> innerMarkerDataSet = new HashSet<MarkerData>();
+                if(innerMarkerDataSet.contains(selectedMD)){
+                    //선택한 marker가 inner marker인 경우 : 선택한 marker제외, 나머지 inner marker radius 감소
+                    for(MarkerData innerMD : innerMarkerDataList){
+                        if(!innerMD.equals(selectedMD)){
+                            innerMD.setDInnerRadius(innerMD.getDInnerRadius() + IN_RADIUS_INCDEC);
+                            daoMarkerDataInteger.update(innerMD);
+                        }
+                    }
+                }
+                else{
+                    //선택한 marker가 out marker인 경우 : 선택한 out marker radius 증가, inner marker radius 감소
+                    selectedMD.setDInnerRadius(selectedMD.getDInnerRadius() - OUT_RADIUS_INCDEC);
+                    daoMarkerDataInteger.update(selectedMD);
+                    for(MarkerData innerMD : innerMarkerDataList){
+                        innerMD.setDInnerRadius(innerMD.getDInnerRadius() + IN_RADIUS_INCDEC);
+                        daoMarkerDataInteger.update(innerMD);
+                    }
+                }
+            }
+
+            //FixedTimeTable 역보정
+            List<HistoryDataLocTimeRangeIncDecData> incDecDataList = getHistoryDataLocTimeRangeIncDecData_WithHistoryData(delHD);    //HistoryDataLocTimeRangeIncDecData
+            FixedTimeTableData selectedFTTD = delHD.getForeFixedTimeTable();
+            HistoryDataLocTimeRangeIncDecData incDecData = incDecDataList.get(0);
+            selectedFTTD.setlInnerBoundStartTime(selectedFTTD.getlInnerBoundStartTime() - incDecData.getStartInc());
+            selectedFTTD.setlInnerBoundEndTime(selectedFTTD.getlInnerBoundEndTime() - incDecData.getEndInc());
+            daoFixedTimeTableDataInteger.update(selectedFTTD);
+
+
+            //HistoryData 관련 db 제거 : historyDataInnerMarkerData, HistoryDataLocTimeRangeIncDecData
+            List<HistoryDataInnerMarkerData> delHDIMDList = getListOfHistoryDataInnerMarkerData_WithHistoryData(delHD);
+            for(HistoryDataInnerMarkerData delHDIMD : delHDIMDList){
+                daoHistoryDataInnerMarkerDataInteger.delete(delHDIMD);
+            }
+            for(HistoryDataLocTimeRangeIncDecData tempHDLTRIDD : incDecDataList){
+                daoHistoryDataLocTimeRangeIncDecDataInteger.delete(tempHDLTRIDD);
+            }
+
+            slightDeleteWithHistoryData(delHD); //lmData에서 historyData column => null
             listHistoryData.remove(delHD);
             daoHistoryDataInteger.delete(delHD);
         }
@@ -957,20 +1139,118 @@ public class CalenderWeekFragment extends Fragment implements DialogViewCalender
 
     //tempHistory
     @Override
-    public void doSave(FixedTimeTableData selectedFttd, long startTime, long endTime, MarkerData selectedMd, String memo) {
-        //TODO : no size, no bind case
+    public void doSave(FixedTimeTableData selectedFttd, long startTime, long endTime, MarkerData selectedMd, String memo, String markerTitle, String timetableTitle) {
         //originFixedTimeTableData originMarkerData -> selectedFttd, selectedMd
         TempHistoryData tempTHD = listTempHistoryData.get(idxWithIsHistoryData.getIdx());
         MarkerData minDistMarkerData = tempTHD.getForeMarkerData();
         FixedTimeTableData minDIstFixedTimeTableData = tempTHD.getForeFixedTimeTable();
         List<MarkerData> innerMarkerDataList = null;
 
+        // no bind case
+        if(selectedMd == null){
+            try{
+                selectedMd = new MarkerData(tempTHD.getTempLat(), tempTHD.getTempLng(), markerTitle, CUSTOM_DRADIUS, CUSTOM_DRADIUS, "", true, true);
+                daoMarkerDataInteger.create(selectedMd);
+            }
+            catch(SQLException e){
+                Log.d("calender", "doSave no bind case marker sql exception" + e.toString());
+            }
+        }
+
+        if(selectedFttd == null){
+            try{
+                selectedFttd = new FixedTimeTableData(selectedMd, timetableTitle, startTime, endTime, startTime, endTime, startTime, endTime, "", true, true);
+                daoFixedTimeTableDataInteger.create(selectedFttd);
+            }
+            catch(SQLException e){
+                Log.d("calender", "doSave no bind case timetable sql exception" + e.toString());
+            }
+        }
+
         //add historyData
-        HistoryData retHD = new HistoryData(selectedFttd, selectedMd, startTime, endTime, memo, minDistMarkerData);
+        HistoryData retHD = new HistoryData(selectedFttd, selectedMd, startTime, endTime, memo);
 
         try{
             daoHistoryDataInteger.create(retHD);
             listHistoryData.add(retHD);
+
+            //Register InnerMarkerDataList to HIstoryDataInnerMarkerData
+            innerMarkerDataList = queryMarkerDatasForTempHistoryMarkerData(tempTHD);
+            for(MarkerData innerMD : innerMarkerDataList){
+                daoHistoryDataInnerMarkerDataInteger.create(new HistoryDataInnerMarkerData(retHD, innerMD));
+            }
+
+            //보정 with minDistMarkerData, innerMarkerDataList, selectedMd /// 선택된 selectedFttd, 선택한 loc time range{originStartTime, originEndTime}, 가장 근접하여 예측한 minDIstFixedTimeTableData => startTimeInc, endTimeInc
+
+            if(innerMarkerDataList.size() == 0){
+                //only out markers => selected out marker radius Inc.
+                selectedMd.setDInnerRadius(selectedMd.getDInnerRadius() + OUT_RADIUS_INCDEC);
+                daoMarkerDataInteger.update(selectedMd);
+            }
+            else{
+                Set<MarkerData> innerMarkerDataSet = new HashSet<MarkerData>();
+                if(innerMarkerDataSet.contains(selectedMd)){
+                    //선택한 marker가 inner marker인 경우 : 선택한 marker제외, 나머지 inner marker radius 감소
+                    for(MarkerData innerMD : innerMarkerDataList){
+                        if(!innerMD.equals(selectedMd)){
+                            innerMD.setDInnerRadius(innerMD.getDInnerRadius() - IN_RADIUS_INCDEC);
+                            daoMarkerDataInteger.update(innerMD);
+                        }
+                    }
+                }
+                else{
+                    //선택한 marker가 out marker인 경우 : 선택한 out marker radius 증가, inner marker radius 감소
+                    selectedMd.setDInnerRadius(selectedMd.getDInnerRadius() + OUT_RADIUS_INCDEC);
+                    daoMarkerDataInteger.update(selectedMd);
+                    for(MarkerData innerMD : innerMarkerDataList){
+                        innerMD.setDInnerRadius(innerMD.getDInnerRadius() - IN_RADIUS_INCDEC);
+                        daoMarkerDataInteger.update(innerMD);
+                    }
+                }
+            }
+
+            //Register original LocationMem timeRange Inc Dec(보정값 저장)
+            //List<LocationMemoryData> targetLMList = queryLMDatasForTempHistoryLMData(tempTHD);
+            //실제
+            //long originStartTime = targetLMList.get(0).getlMillisTimeWritten();
+            //long originEndTime = targetLMList.get(targetLMList.size()-1).getlMillisTimeWritten();
+
+            //startTime, endTime : 사용자 지정 time
+            long startTimeInc = 0, endTimeInc = 0;
+            long originStartTime =  selectedFttd.getlStartTime(), originEndTime = selectedFttd.getlEndTime();   //originTime : 선택한 fixedTimeTable의 fixedTime
+            long innerStartTime =  selectedFttd.getlInnerBoundStartTime(), innerEndTime = selectedFttd.getlInnerBoundEndTime();   //originTime : 선택한 fixedTimeTable의 InnerBoundTime
+            long newInnerStartTime = innerStartTime, newInnerEndTime = innerEndTime;
+
+            if(startTime < innerStartTime){
+                //startTime exceed inner start time
+                startTimeInc = - minL(MAX_TIME_INCDEC, (innerStartTime - startTime)/DIV_TIME_INCDEC);
+                newInnerStartTime = innerStartTime + startTimeInc;
+            }
+            else{
+                startTimeInc = minL(MAX_TIME_INCDEC, (startTime - innerStartTime)/DIV_TIME_INCDEC);
+                if(innerStartTime + startTimeInc > originStartTime){
+                    //innerStartTime은 originStartTime을 넘어가지 않아야함.
+                    startTimeInc = originStartTime - innerStartTime;
+                }
+                newInnerStartTime = innerStartTime + startTimeInc;
+            }
+            if(endTime > innerEndTime){
+                endTimeInc = minL(MAX_TIME_INCDEC, (endTime - innerEndTime)/DIV_TIME_INCDEC);
+                newInnerEndTime = innerEndTime + endTimeInc;
+            }
+            else{
+                endTimeInc = - minL(MAX_TIME_INCDEC, (innerEndTime - endTime)/DIV_TIME_INCDEC);
+                if(innerEndTime + endTimeInc < originEndTime){
+                    //innerStartTime은 originStartTime을 넘어가지 않아야함.
+                    endTimeInc = originEndTime - innerEndTime;
+                }
+                newInnerEndTime = innerEndTime + endTimeInc;
+            }
+
+            daoHistoryDataLocTimeRangeIncDecDataInteger.create(new HistoryDataLocTimeRangeIncDecData(retHD, startTimeInc, endTimeInc));
+            selectedFttd.setlInnerBoundStartTime(newInnerStartTime);
+            selectedFttd.setlInnerBoundEndTime(newInnerEndTime);
+            daoFixedTimeTableDataInteger.update(selectedFttd);
 
             /*
             Set<LocationMemoryData> targetLocSet = new HashSet<LocationMemoryData>();
@@ -979,12 +1259,14 @@ public class CalenderWeekFragment extends Fragment implements DialogViewCalender
                 targetLocSet.add(lmd);
             }
             */
-
             //locationMemData : tempHistoryData->null,-1
             // time range : historyData->retHD, dummy->true/false
             //makeNullTempHistoryDataInLocationMem(tempTHD);  //locationMemData's tempHistoryData -> null, dummy to -1
             List<LocationMemoryData> locList = getListLocationMemForInnerTimeQuery(startTime, endTime); //단순히 시간 내의 LM을 모두 구한다.
             for(LocationMemoryData lmd : locList){
+                if(lmd.getbDummy() == -1){
+                    continue;   //deep delete
+                }
                 lmd.setBindedHistoryData(retHD);
                 lmd.setBindedTempHistoryData(null);
                 lmd.setbDummy(0);   //target
@@ -1011,34 +1293,11 @@ public class CalenderWeekFragment extends Fragment implements DialogViewCalender
                 */
             }
 
-            //Register InnerMarkerDataList
-            innerMarkerDataList = queryMarkerDatasForTempHistoryLMData(tempTHD);
-            for(MarkerData innerMD : innerMarkerDataList){
-                daoHistoryDataInnerMarkerDataInteger.create(new HistoryDataInnerMarkerData(tempTHD, innerMD));
-            }
-
-            //TODO : 보정 with minDistMarkerData, innerMarkerDataList, selectedMd /// 선택된 selectedFttd, 선택한 loc time range{originStartTime, originEndTime}, 가장 근접하여 예측한 minDIstFixedTimeTableData => startTimeInc, endTimeInc
-            if(){
-                //markerdatas inner range +-
-            }
-
-
-            //Register original LocationMem timeRange Inc Dec(보정값 저장)
-            List<LocationMemoryData> targetLMList = queryLMDatasForTempHistoryLMData(tempTHD);
-            long originStartTime = targetLMList.get(0).getlMillisTimeWritten();
-            long originEndTime = targetLMList.get(targetLMList.size()-1).getlMillisTimeWritten();
-            long startTimeInc, endTimeInc;
-
-
-            daoHistoryDataLocTimeRangeIncDecInteger.create(new HistoryDataLocTimeRangeIncDec(startTimeInc, endTimeInc));
-
-
-
             //delete with tempTHD
             deleteLMDatasForTempHistoryLMData(tempTHD);         // temphistory-lmData
-            deleteMarkerDatasForTempHistoryLMData(tempTHD);     // temphistory-inner marker
+            deleteMarkerDatasForTempHistoryMarkerData(tempTHD);     // temphistory-inner marker
             daoTempHistoryDataInteger.delete(tempTHD);      // temphistory
-
+            listTempHistoryData.remove(tempTHD);
         }
         catch(SQLException e){
             Log.d("calender", "SQLEXCEPTION in doSave");
@@ -1049,7 +1308,9 @@ public class CalenderWeekFragment extends Fragment implements DialogViewCalender
         //tempHistoryData -> null, dummy -> true
         TempHistoryData delTHD = listTempHistoryData.get(idxWithIsHistoryData.getIdx());
         try{
-            deepDeleteWithTempHistoryData(delTHD);
+            deepDeleteWithTempHistoryData(delTHD);  //dummy = -1
+            deleteLMDatasForTempHistoryLMData(delTHD);         // temphistory-lmData
+            deleteMarkerDatasForTempHistoryMarkerData(delTHD);     // temphistory-inner marker
             daoTempHistoryDataInteger.delete(delTHD);
             listTempHistoryData.remove(delTHD);
         }
@@ -1096,9 +1357,9 @@ public class CalenderWeekFragment extends Fragment implements DialogViewCalender
     }
 
     private PreparedUpdate<LocationMemoryData>locationMemForTempHistoryDataUpdateQuery = null;
-    private SelectArg boolSelectArg = new SelectArg();
+    //private SelectArg boolSelectArg = new SelectArg();
 
-    //TempHistoryData에 해당하는 locationMem의 TempHistoryDatabind = null로 만듬.
+    //TempHistoryData에 해당하는 locationMem의 TempHistoryDatabind = null로, deepDelete이므로 dummy = -1로 만듬.
     private PreparedUpdate<LocationMemoryData> makeLocationMemForTempHistoryDataUpdateQuery() throws SQLException {
         // build our inner query for UserPost objects
         UpdateBuilder<LocationMemoryData, Integer> locationMemQb = daoLocationMemoryDataInteger.updateBuilder();
@@ -1106,7 +1367,7 @@ public class CalenderWeekFragment extends Fragment implements DialogViewCalender
         SelectArg userSelectArg = new SelectArg();
         locationMemQb.where().eq(LOCATIONMEMORY_BINDEDHISTORYDATA_FIELD_NAME, userSelectArg);
         locationMemQb.updateColumnValue(LOCATIONMEMORY_BINDEDTEMPHISTORYDATA_FIELD_NAME, null);
-        locationMemQb.updateColumnValue(LOCATIONMEMORY_BDUMMY_FIELD_NAME, boolSelectArg);
+        locationMemQb.updateColumnValue(LOCATIONMEMORY_BDUMMY_FIELD_NAME, -1);
 
         return locationMemQb.prepare();
     }
@@ -1120,11 +1381,12 @@ public class CalenderWeekFragment extends Fragment implements DialogViewCalender
         }
 
         locationMemForTempHistoryDataUpdateQuery.setArgumentHolderValue(0, thd);
-        boolSelectArg.setValue(true);
+        //boolSelectArg.setValue(true);
         daoLocationMemoryDataInteger.update(locationMemForTempHistoryDataUpdateQuery);
 
     }
 
+    /*
     private void makeNullTempHistoryDataInLocationMem(TempHistoryData thd) throws SQLException{
         if(thd == null){
             return;
@@ -1138,14 +1400,14 @@ public class CalenderWeekFragment extends Fragment implements DialogViewCalender
         daoLocationMemoryDataInteger.update(locationMemForTempHistoryDataUpdateQuery);
 
     }
+    */
 
 
 
     private PreparedQuery<LocationMemoryData>locationMemForInnerTimeQuery = null;
     SelectArg argStartTimeWithLoc = new SelectArg();
     SelectArg argEndTimeWithLoc = new SelectArg();
-
-    //HistoryData에 해당하는 locationMem의 HistoryDatabind = null로 만듬.
+    //time range에 해당하는 locationMem의 HistoryDatabind = null로 만듬.
     private PreparedQuery<LocationMemoryData> makeLocationMemForInnerTimeQueryUpdateQuery() throws SQLException {
         // build our inner query for UserPost objects
         QueryBuilder<LocationMemoryData, Integer> locationMemQb = daoLocationMemoryDataInteger.queryBuilder();
@@ -1154,7 +1416,6 @@ public class CalenderWeekFragment extends Fragment implements DialogViewCalender
 
         return locationMemQb.prepare();
     }
-
     private List<LocationMemoryData> getListLocationMemForInnerTimeQuery(long sTime, long eTime) throws SQLException{
         if(locationMemForInnerTimeQuery == null){
             locationMemForInnerTimeQuery = makeLocationMemForInnerTimeQueryUpdateQuery();
@@ -1163,6 +1424,26 @@ public class CalenderWeekFragment extends Fragment implements DialogViewCalender
         argEndTimeWithLoc.setValue(eTime);
 
         return daoLocationMemoryDataInteger.query(locationMemForInnerTimeQuery);
+    }
+
+    private PreparedQuery<LocationMemoryData>locationMemForHistoryDataQuery = null;
+
+    //HistoryData에 해당하는 locationMem 획득.
+    private PreparedQuery<LocationMemoryData> makeLocationMemForHistoryDataToNullUpdateQuery() throws SQLException {
+        // build our inner query for UserPost objects
+        QueryBuilder<LocationMemoryData, Integer> locationMemQb = daoLocationMemoryDataInteger.queryBuilder();
+        SelectArg argHistoryData = new SelectArg();
+        locationMemQb.where().eq(LOCATIONMEMORY_BINDEDHISTORYDATA_FIELD_NAME, argHistoryData);
+
+        return locationMemQb.prepare();
+    }
+    private List<LocationMemoryData> getListLocationMemForHistoryDataQuery(HistoryData thd) throws SQLException{
+        if(locationMemForHistoryDataQuery == null){
+            locationMemForHistoryDataQuery = makeLocationMemForHistoryDataToNullUpdateQuery();
+        }
+        locationMemForHistoryDataQuery.setArgumentHolderValue(0, thd);    //아래의 selectArg에 markerData 해당됌.
+
+        return daoLocationMemoryDataInteger.query(locationMemForHistoryDataQuery);
     }
 
 
@@ -1218,7 +1499,7 @@ public class CalenderWeekFragment extends Fragment implements DialogViewCalender
     //tempHistoryMarkerData table에서 param tempHistoryData에 해당하는 markerData들을 모두 삭제하는 쿼리 실행문.
     private PreparedDelete<TempHistoryMarkerData> tempHistoryMarkerDataForMarkerDeleteQuery = null;
 
-    private void deleteMarkerDatasForTempHistoryLMData(TempHistoryData tempHistoryData) throws SQLException {
+    private void deleteMarkerDatasForTempHistoryMarkerData(TempHistoryData tempHistoryData) throws SQLException {
         if (tempHistoryMarkerDataForMarkerDeleteQuery == null) {
             tempHistoryMarkerDataForMarkerDeleteQuery = makeTempHistoryMarkerDataForMarkerDeleteQuery();
         }
@@ -1244,7 +1525,7 @@ public class CalenderWeekFragment extends Fragment implements DialogViewCalender
     //tempHistoryMarkerData table에서 param tempHistoryData에 해당하는 markerData들을 모두 가져오는 쿼리 실행문.
     private PreparedQuery<MarkerData> tempHistoryMarkerDataForMarkerSelectQuery = null;
 
-    private List<MarkerData> queryMarkerDatasForTempHistoryLMData(TempHistoryData tempHistoryData) throws SQLException {
+    private List<MarkerData> queryMarkerDatasForTempHistoryMarkerData(TempHistoryData tempHistoryData) throws SQLException {
         if (tempHistoryMarkerDataForMarkerSelectQuery == null) {
             tempHistoryMarkerDataForMarkerSelectQuery = makeTempHistoryMarkerDataForMarkerSelectQuery();
         }
@@ -1320,6 +1601,74 @@ public class CalenderWeekFragment extends Fragment implements DialogViewCalender
         // where the id matches in the post-id from the inner query
         lmDataQb.where().in(LocationMemoryData.LOCATIONMEMORY_ID_FIELD_NAME, tempHistoryLMDataQb);
         return lmDataQb.prepare();
+    }
+
+    //------------------------------------------------------------------------------------------------------------
+
+    //HistoryDataInnerMarkerData 테이블에서 param HistoryData 해당하는 MarkerData들을 모두 가져오는 쿼리 실행문.
+    private PreparedQuery<HistoryDataInnerMarkerData> queryListOfHistoryDataInnerMarkerData_WithHistoryData = null;
+
+    private List<HistoryDataInnerMarkerData> getListOfHistoryDataInnerMarkerData_WithHistoryData(HistoryData historyData) throws SQLException {
+        if (queryListOfHistoryDataInnerMarkerData_WithHistoryData == null) {
+            queryListOfHistoryDataInnerMarkerData_WithHistoryData = getListOfHistoryDataInnerMarkerData_WithHistoryData();
+        }
+        queryListOfHistoryDataInnerMarkerData_WithHistoryData.setArgumentHolderValue(0, historyData);    //아래의 selectArg에 markerData 해당됌.
+
+        return daoHistoryDataInnerMarkerDataInteger.query(queryListOfHistoryDataInnerMarkerData_WithHistoryData);
+    }
+
+    private PreparedQuery<HistoryDataInnerMarkerData> getListOfHistoryDataInnerMarkerData_WithHistoryData() throws SQLException {
+        QueryBuilder<HistoryDataInnerMarkerData, Integer> historyDataInnerMarkerDataQb = daoHistoryDataInnerMarkerDataInteger.queryBuilder();
+        SelectArg selectArg = new SelectArg();
+        historyDataInnerMarkerDataQb.where().eq(HistoryDataInnerMarkerData.HISTORYDATA_ID_FIELD_NAME, selectArg);
+        return historyDataInnerMarkerDataQb.prepare();
+    }
+
+    //HistoryDataInnerMarkerData 테이블에서 param HistoryData 해당하는 MarkerData들을 모두 가져오는 쿼리 실행문.
+    private PreparedQuery<MarkerData> queryMarkerDataList_InHistoryDataInnerMarkerData_WithHistoryData = null;
+
+    private List<MarkerData> getMarkerDataList_InHistoryDataInnerMarkerData_WithHistoryData(HistoryData historyData) throws SQLException {
+        if (queryMarkerDataList_InHistoryDataInnerMarkerData_WithHistoryData == null) {
+            queryMarkerDataList_InHistoryDataInnerMarkerData_WithHistoryData = makeQueryMarkerDataList_InHistoryDataInnerMarkerData_WithHistoryData();
+        }
+        queryMarkerDataList_InHistoryDataInnerMarkerData_WithHistoryData.setArgumentHolderValue(0, historyData);    //아래의 selectArg에 markerData 해당됌.
+
+        return daoMarkerDataInteger.query(queryMarkerDataList_InHistoryDataInnerMarkerData_WithHistoryData);
+    }
+
+    private PreparedQuery<MarkerData> makeQueryMarkerDataList_InHistoryDataInnerMarkerData_WithHistoryData() throws SQLException {
+        QueryBuilder<HistoryDataInnerMarkerData, Integer> historyDataInnerMarkerDataQb = daoHistoryDataInnerMarkerDataInteger.queryBuilder();
+
+        // marker에 해당하는 markerType.id를 선택한다.
+        historyDataInnerMarkerDataQb.selectColumns(HistoryDataInnerMarkerData.INNERMARKERDATA_ID_FIELD_NAME);
+        SelectArg selectArg = new SelectArg();
+        // 검색 조건으로 바로 marker를 setting 할 수 있다.
+        historyDataInnerMarkerDataQb.where().eq(HistoryDataInnerMarkerData.HISTORYDATA_ID_FIELD_NAME, selectArg);
+
+        // MarkerTypeData dao에서 해당되는 id의 markerTypeData를 모두 가져온다.
+        QueryBuilder<MarkerData, Integer> markerDataQb = daoMarkerDataInteger.queryBuilder();
+        // where the id matches in the post-id from the inner query
+        markerDataQb.where().in(MarkerData.ID_FIELD_NAME, historyDataInnerMarkerDataQb);
+        return markerDataQb.prepare();
+    }
+
+    //HistoryDataLocTimeRangeIncDecData 테이블에서 HistoryData 해당하는 obj를 가져오는 쿼리 실행문.
+    private PreparedQuery<HistoryDataLocTimeRangeIncDecData> queryHistoryDataLocTimeRangeIncDecData_WithHistoryData = null;
+
+    private List<HistoryDataLocTimeRangeIncDecData> getHistoryDataLocTimeRangeIncDecData_WithHistoryData(HistoryData historyData) throws SQLException {
+        if (queryHistoryDataLocTimeRangeIncDecData_WithHistoryData == null) {
+            queryHistoryDataLocTimeRangeIncDecData_WithHistoryData = makeQueryHistoryDataLocTimeRangeIncDecData_WithHistoryData();
+        }
+        queryHistoryDataLocTimeRangeIncDecData_WithHistoryData.setArgumentHolderValue(0, historyData);    //아래의 selectArg에 markerData 해당됌.
+
+        return daoHistoryDataLocTimeRangeIncDecDataInteger.query(queryHistoryDataLocTimeRangeIncDecData_WithHistoryData);
+    }
+
+    private PreparedQuery<HistoryDataLocTimeRangeIncDecData> makeQueryHistoryDataLocTimeRangeIncDecData_WithHistoryData() throws SQLException {
+        QueryBuilder<HistoryDataLocTimeRangeIncDecData, Integer> historyDataLocTimeRangeIncDecDataQb = daoHistoryDataLocTimeRangeIncDecDataInteger.queryBuilder();
+        SelectArg selectArg = new SelectArg();
+        historyDataLocTimeRangeIncDecDataQb.where().eq(HistoryDataLocTimeRangeIncDecData.HISTORYDATA_FIELD_NAME ,selectArg);
+        return historyDataLocTimeRangeIncDecDataQb.prepare();
     }
 }
 

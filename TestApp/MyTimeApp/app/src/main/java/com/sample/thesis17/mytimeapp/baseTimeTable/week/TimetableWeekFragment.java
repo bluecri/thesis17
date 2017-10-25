@@ -351,6 +351,11 @@ public class TimetableWeekFragment extends Fragment implements DialogWeekItemVie
         modifyData.setStrMemo(memo);
         modifyData.setlStartTime(startTime);
         modifyData.setlEndTime(endTime);
+        //TODO : inner bound fix
+        modifyData.setlInnerBoundStartTime(startTime);
+        modifyData.setlInnerBoundStartTime(endTime);
+        modifyData.setlBoundStartTime(startTime);
+        modifyData.setlBoundEndTime(endTime);
         modifyData.setForeMarkerData(listMarkerData.get(markerIdx));
 
         try{
@@ -372,7 +377,7 @@ public class TimetableWeekFragment extends Fragment implements DialogWeekItemVie
     //DialogWeekItemCreateFragment LIstener
     @Override
     public void doCreate(String title, long startTime, long endTime, int markerIdx, String memo) {
-        FixedTimeTableData createData = new FixedTimeTableData(listMarkerData.get(markerIdx), title, startTime, endTime, startTime, endTime, startTime, endTime, memo, true);
+        FixedTimeTableData createData = new FixedTimeTableData(listMarkerData.get(markerIdx), title, startTime, endTime, startTime, endTime, startTime, endTime, memo, true, false);
         listFixedTimeTableData.add(createData);
 
         try{

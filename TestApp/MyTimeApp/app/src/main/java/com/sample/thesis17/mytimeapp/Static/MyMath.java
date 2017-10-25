@@ -23,6 +23,18 @@ public class MyMath {
     public static String[] WEEK_STRING = {"일", "월", "화", "수", "목", "금", "토"};
     public static String[] WEEK_STRING_REAL = {"수", "목", "금", "토", "일", "월", "화"};
 
+    public static double OUT_RADIUS_INCDEC = 0.000000003;
+    public static double IN_RADIUS_INCDEC = 0.000000002;
+
+    public static long MAX_TIME_INCDEC = 60*1000 * 10;  //10 min
+    public static long DIV_TIME_INCDEC = 10;    // 1/10 반영
+
+    public static double CUSTOM_DRADIUS = 0.00000004;  // 0.0.0000000676// 0.000187 공학관 한동, 운동장크기;
+
+    public static double DOUBLE_GROUPING_2POW_RADIUS = 0.000000035;  // groupping 기준
+    public static double MINDIST_TO_GROUP_TO_MAKRER = 0.00000025;
+
+
 
     public static double doubleRound(double value, int places) {
         if (places < 0) throw new IllegalArgumentException();

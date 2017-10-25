@@ -34,6 +34,12 @@ public class TempHistoryData {
     private long lEndTime;
 
     @DatabaseField
+    private double tempLat;
+
+    @DatabaseField
+    private double tempLng;
+
+    @DatabaseField
     private String memo;
 
 
@@ -41,13 +47,15 @@ public class TempHistoryData {
         // empty constructor is needed
     }
 
-    public TempHistoryData(FixedTimeTableData foreFixedTimeTable, MarkerData foreMarkerData, long lStartTime, long lEndTime, String memo) {
+    public TempHistoryData(FixedTimeTableData foreFixedTimeTable, MarkerData foreMarkerData, long lStartTime, long lEndTime, String memo, double tempLat, double tempLng) {
         this.foreFixedTimeTable = foreFixedTimeTable;
         this.foreMarkerData = foreMarkerData;
         //this.minDistMarkerData = minDistMarkerData;
         this.lStartTime = lStartTime;
         this.lEndTime = lEndTime;
         this.memo = memo;
+        this.tempLat = tempLat;
+        this.tempLng = tempLng;
     }
 
     public int getId() {
@@ -96,6 +104,22 @@ public class TempHistoryData {
 
     public void setMemo(String memo) {
         this.memo = memo;
+    }
+
+    public double getTempLat() {
+        return tempLat;
+    }
+
+    public void setTempLat(double tempLat) {
+        this.tempLat = tempLat;
+    }
+
+    public double getTempLng() {
+        return tempLng;
+    }
+
+    public void setTempLng(double tempLng) {
+        this.tempLng = tempLng;
     }
 
     /*

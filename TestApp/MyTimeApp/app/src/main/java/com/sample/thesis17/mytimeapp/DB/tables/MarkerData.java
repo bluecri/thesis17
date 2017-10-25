@@ -9,9 +9,9 @@ import com.j256.ormlite.table.DatabaseTable;
 
 @DatabaseTable(tableName = "markerData")
 public class MarkerData {
-    public final static String ID_FIELD_NAME = "id";
+    public final static String ID_FIELD_NAME = "md_id";
 
-    public MarkerData(double lat, double lng, String strMarkerName, double dRadius, double dInnerRadius, /*int iMarkerTypeBit,*/ String strMemo, boolean isCache) {
+    public MarkerData(double lat, double lng, String strMarkerName, double dRadius, double dInnerRadius, /*int iMarkerTypeBit,*/ String strMemo, boolean isCache, boolean isInvisible ) {
         this.lat = lat;
         this.lng = lng;
         this.strMarkerName = strMarkerName;
@@ -20,6 +20,7 @@ public class MarkerData {
         //this.iMarkerTypeBit = iMarkerTypeBit;
         this.strMemo = strMemo;
         this.isCache = isCache;
+        this.isInvisible = isInvisible;
     }
 
     MarkerData(){
@@ -52,6 +53,9 @@ public class MarkerData {
 
     @DatabaseField
     private boolean isCache;
+
+    @DatabaseField
+    private boolean isInvisible;
 
 
 
@@ -107,11 +111,20 @@ public class MarkerData {
         return strMemo;
     }
 
-    public void setIsCache(boolean isCache){
-        this.isCache = isCache;
-    }
-    public boolean getIsCache(){
+    public boolean isCache() {
         return isCache;
+    }
+
+    public void setCache(boolean cache) {
+        isCache = cache;
+    }
+
+    public boolean isInvisible() {
+        return isInvisible;
+    }
+
+    public void setInvisible(boolean invisible) {
+        isInvisible = invisible;
     }
 
     @Override

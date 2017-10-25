@@ -15,6 +15,8 @@ import com.sample.thesis17.mytimeapp.DB.tables.ActiveListMarker;
 import com.sample.thesis17.mytimeapp.DB.tables.DateForTempHisoryData;
 import com.sample.thesis17.mytimeapp.DB.tables.FixedTimeTableData;
 import com.sample.thesis17.mytimeapp.DB.tables.HistoryData;
+import com.sample.thesis17.mytimeapp.DB.tables.HistoryDataInnerMarkerData;
+import com.sample.thesis17.mytimeapp.DB.tables.HistoryDataLocTimeRangeIncDecData;
 import com.sample.thesis17.mytimeapp.DB.tables.MarkerData;
 import com.sample.thesis17.mytimeapp.DB.tables.MarkerMarkerTypeData;
 import com.sample.thesis17.mytimeapp.DB.tables.MarkerTypeData;
@@ -52,6 +54,8 @@ public class DatabaseHelperMain extends OrmLiteSqliteOpenHelper
     private Dao<DateForTempHisoryData, Integer> daoDateForTempHisoryData;
     private Dao<TempHistoryLMData, Integer> daoTempHistoryLMData;
     private Dao<TempHistoryMarkerData, Integer> daoTempHistoryMarkerData;
+    private Dao<HistoryDataInnerMarkerData, Integer> daoHistoryDataInnerMarkerData;
+    private Dao<HistoryDataLocTimeRangeIncDecData, Integer> daoHistoryDataLocTimeRangeIncDecData;
 
 
     //Constructor
@@ -83,6 +87,8 @@ public class DatabaseHelperMain extends OrmLiteSqliteOpenHelper
             daoDateForTempHisoryData = null;
             daoTempHistoryLMData = null;
             daoTempHistoryMarkerData = null;
+            daoHistoryDataInnerMarkerData = null;
+            daoHistoryDataLocTimeRangeIncDecData = null;
             dbHelper = null;
         }
 
@@ -103,6 +109,8 @@ public class DatabaseHelperMain extends OrmLiteSqliteOpenHelper
             TableUtils.createTable(connectionSource, DateForTempHisoryData.class);
             TableUtils.createTable(connectionSource, TempHistoryLMData.class);
             TableUtils.createTable(connectionSource, TempHistoryMarkerData.class);
+            TableUtils.createTable(connectionSource, HistoryDataInnerMarkerData.class);
+            TableUtils.createTable(connectionSource, HistoryDataLocTimeRangeIncDecData.class);
         }
         catch(SQLException e){
             Log.e("db", "Unable to create datbases", e);
@@ -124,6 +132,8 @@ public class DatabaseHelperMain extends OrmLiteSqliteOpenHelper
             TableUtils.dropTable(connectionSource, DateForTempHisoryData.class, true);
             TableUtils.dropTable(connectionSource, TempHistoryLMData.class, true);
             TableUtils.dropTable(connectionSource, TempHistoryMarkerData.class, true);
+            TableUtils.dropTable(connectionSource, HistoryDataInnerMarkerData.class, true);
+            TableUtils.dropTable(connectionSource, HistoryDataLocTimeRangeIncDecData.class, true);
 
             onCreate(sqLiteDatabase, connectionSource);
         }
@@ -131,6 +141,7 @@ public class DatabaseHelperMain extends OrmLiteSqliteOpenHelper
             Log.e("db", "Unable to upgrade db " + i + " to " + i1, e);
         }
     }
+
 
     //getDao
     public Dao<ActiveListFixedTimeTableData, Integer> getDaoActiveListFixedTimeTableData() throws SQLException{
@@ -209,6 +220,21 @@ public class DatabaseHelperMain extends OrmLiteSqliteOpenHelper
         }
         return daoTempHistoryMarkerData;
     }
+
+    public Dao<HistoryDataInnerMarkerData, Integer> getDaoHistoryDataInnerMarkerData() throws SQLException{
+        if(daoHistoryDataInnerMarkerData == null){
+            daoHistoryDataInnerMarkerData = getDao(HistoryDataInnerMarkerData.class);
+        }
+        return daoHistoryDataInnerMarkerData;
+    }
+
+    public Dao<HistoryDataLocTimeRangeIncDecData, Integer> getDaoHistoryDataLocTimeRangeIncDecData() throws SQLException{
+        if(daoHistoryDataLocTimeRangeIncDecData == null){
+            daoHistoryDataLocTimeRangeIncDecData = getDao(HistoryDataLocTimeRangeIncDecData.class);
+        }
+        return daoHistoryDataLocTimeRangeIncDecData;
+    }
+
 /*
     public Dao<MarkerTypeData, Integer> getDao() throws SQLException{
         if(daoMarkerTypeData == null){

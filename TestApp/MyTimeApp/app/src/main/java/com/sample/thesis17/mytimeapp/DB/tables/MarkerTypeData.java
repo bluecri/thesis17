@@ -12,7 +12,7 @@ import com.j256.ormlite.table.DatabaseTable;
 @DatabaseTable(tableName = "markerTypeData")
 public class MarkerTypeData {
 
-    public final static String ID_FIELD_NAME = "id";
+    public final static String ID_FIELD_NAME = "mtd_id";
 
     public MarkerTypeData(String strTypeName, String strMemo) {
         this.strTypeName = strTypeName;

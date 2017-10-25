@@ -44,6 +44,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
 
+import static com.sample.thesis17.mytimeapp.Static.MyMath.CUSTOM_DRADIUS;
+
 public class MapsActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, OnMapReadyCallback, GoogleMap.OnMapClickListener, GoogleMap.OnInfoWindowClickListener, GoogleMap.OnMarkerClickListener, DialogMarkerModifyMarkerTypeFragment.DialogMarkerModifyMarkerTypeListener,
         DialogMarkerTypeSelectFragment.DialogMarkerTypeSelectListener, DialogNewmarkerFragment.DialogNewmarkerListener, DialogNewMarkerTypeFragment.DialogNewMarkerTypeFragmentListener, DialogMarkerFragment.DialogMarkerListener, DialogMarkerModifyFragment.DialogMarkerModifyListener{
@@ -68,8 +70,6 @@ public class MapsActivity extends AppCompatActivity
     private Marker newMarker = null;
     //선택된 (클릭된) 마커
     private Marker clickedMarker = null;
-
-    public double CUSTOM_DRADIUS = 30;
 
     //map 상에 올려진 marker들
     private List<Marker> listMarkerOnMap = new ArrayList<Marker>();
@@ -330,7 +330,7 @@ public class MapsActivity extends AppCompatActivity
                     newMarker = null;
                 }
                 //MarkerData(double lat, double lng, String strMarkerName, double dRadius, double dInnerRadius, int iMarkerTypeBit, String strMemo, boolean isCache)
-                MarkerData newMarkerData = new MarkerData(latLng.latitude, latLng.longitude, "name", CUSTOM_DRADIUS, CUSTOM_DRADIUS, "memo", true);
+                MarkerData newMarkerData = new MarkerData(latLng.latitude, latLng.longitude, "name", CUSTOM_DRADIUS, CUSTOM_DRADIUS, "memo", true, false);
                 newMarker = mMap.addMarker(new MarkerOptions()
                         .position(latLng)
                         //.title(newMarkerData.getStrMarkerName())

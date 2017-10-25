@@ -71,7 +71,7 @@ public class DialogNewmarkerFragment extends DialogFragment {
                     @Override
                     public void onClick(DialogInterface dialog, int id) {
                         //call MapsAtivity create marker method and close dialog
-                        MarkerData tempMarkerData = new MarkerData(0, 0, textViewMarkerName.getText().toString(), 0, 0, textViewMarkerMemo.getText().toString(), true);
+                        MarkerData tempMarkerData = new MarkerData(0, 0, textViewMarkerName.getText().toString(), 0, 0, textViewMarkerMemo.getText().toString(), true, false);
                         dialogNewmarkerListener.registerNewMarker(tempMarkerData);
                     }
                 })
