@@ -18,20 +18,27 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.FrameLayout;
 
+import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.j256.ormlite.dao.Dao;
+import com.j256.ormlite.dao.GenericRawResults;
 import com.j256.ormlite.stmt.DeleteBuilder;
 import com.j256.ormlite.stmt.PreparedDelete;
 import com.j256.ormlite.stmt.PreparedQuery;
 import com.j256.ormlite.stmt.QueryBuilder;
 import com.j256.ormlite.stmt.SelectArg;
+import com.sample.thesis17.mytimeapp.DB.baseClass.DatabaseHelperLocationMemory;
 import com.sample.thesis17.mytimeapp.DB.baseClass.DatabaseHelperMain;
+import com.sample.thesis17.mytimeapp.DB.tables.LocationMemoryData;
 import com.sample.thesis17.mytimeapp.DB.tables.MarkerData;
 import com.sample.thesis17.mytimeapp.DB.tables.MarkerMarkerTypeData;
 import com.sample.thesis17.mytimeapp.DB.tables.MarkerTypeData;
@@ -48,11 +55,14 @@ import static com.sample.thesis17.mytimeapp.Static.MyMath.CUSTOM_DRADIUS;
 
 public class MapsActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, OnMapReadyCallback, GoogleMap.OnMapClickListener, GoogleMap.OnInfoWindowClickListener, GoogleMap.OnMarkerClickListener, DialogMarkerModifyMarkerTypeFragment.DialogMarkerModifyMarkerTypeListener,
-        DialogMarkerTypeSelectFragment.DialogMarkerTypeSelectListener, DialogNewmarkerFragment.DialogNewmarkerListener, DialogNewMarkerTypeFragment.DialogNewMarkerTypeFragmentListener, DialogMarkerFragment.DialogMarkerListener, DialogMarkerModifyFragment.DialogMarkerModifyListener{
+        DialogMarkerTypeSelectFragment.DialogMarkerTypeSelectListener, DialogNewmarkerFragment.DialogNewmarkerListener, DialogNewMarkerTypeFragment.DialogNewMarkerTypeFragmentListener, DialogMarkerFragment.DialogMarkerListener, DialogMarkerModifyFragment.DialogMarkerModifyListener, GoogleMap.OnCameraIdleListener {
 
     private GoogleMap mMap; //mMap 객체
     SupportMapFragment mMapFragment = null;    //singleton mMapFragment instance
     MarkerTypeDataFragment markerTypeListFragment = null;   //교체할 markerType Fragment
+
+    final static double DEFAULT_LAT = 36.604228;
+    final static double DEFAULT_LNG = 127.897339;
 
     // side tab에 따른 mode
     final private String MARKER_MODE = "markermode";
@@ -62,9 +72,11 @@ public class MapsActivity extends AppCompatActivity
 
     //dbHelperMain
     private DatabaseHelperMain databaseHelperMain = null;
+    private DatabaseHelperLocationMemory databaseHelperLocationMemory = null;
     private Dao<MarkerData, Integer> daoMarkerDataInteger = null;
     private Dao<MarkerMarkerTypeData, Integer> daoMarkerMarkerTypeDataInteger = null;
     private Dao<MarkerTypeData, Integer> daoMarkerTypeDataInteger = null;
+    private Dao<LocationMemoryData, Integer> daoLocationMemoryDataInteger = null;
 
     //새로 생성된 Marker. null이 아닌경우 생성중인 상태.
     private Marker newMarker = null;
@@ -73,6 +85,9 @@ public class MapsActivity extends AppCompatActivity
 
     //map 상에 올려진 marker들
     private List<Marker> listMarkerOnMap = new ArrayList<Marker>();
+
+    double recentLat, recentLng;
+    CameraPosition recentCameraPosition;
 
     //state
     final String STATE_NONE = "state_none";
@@ -104,9 +119,25 @@ public class MapsActivity extends AppCompatActivity
             daoMarkerDataInteger = getDatabaseHelperMain().getDaoMarkerData();
             daoMarkerMarkerTypeDataInteger = getDatabaseHelperMain().getDaoMarkerMarkerTypeData();	//get
             daoMarkerTypeDataInteger = getDatabaseHelperMain().getDaoMarkerTypeData();	//get dao
+            daoLocationMemoryDataInteger = getDatabaseHelperLocationMemory().getDaoLocationMemoryData();
         }
         catch(SQLException e){
             Log.d("MapsActivity", "getDao error");
+        }
+
+        int lastId = getMaxIdOfLocationMemoryDataTable();
+        if(lastId != 0){
+            try{
+                LocationMemoryData lastLMData = daoLocationMemoryDataInteger.queryForId(lastId);
+                recentCameraPosition = new CameraPosition.Builder().target(new LatLng(lastLMData.getLat(), lastLMData.getLng())).zoom((float)10.0).bearing(0).tilt(0).build();
+
+            }
+            catch(SQLException e){
+                Log.d("MapsActivity", "getDao error");
+            }
+        }
+        else{
+            recentCameraPosition = new CameraPosition.Builder().target(new LatLng(DEFAULT_LAT, DEFAULT_LNG)).zoom((float)10.0).bearing(0).tilt(0).build();
         }
 
         setContentView(R.layout.activity_maps);
@@ -124,6 +155,7 @@ public class MapsActivity extends AppCompatActivity
 
         //list button
         fabList = (FloatingActionButton) findViewById(R.id.fabList);
+
         fabList.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -134,6 +166,7 @@ public class MapsActivity extends AppCompatActivity
 
         //add button
         fabAdd = (FloatingActionButton) findViewById(R.id.fabAdd);
+
         fabAdd.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -176,6 +209,7 @@ public class MapsActivity extends AppCompatActivity
 
         //cancel button
         fabCancel = (FloatingActionButton) findViewById(R.id.fabCancel);
+
         fabCancel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -254,9 +288,11 @@ public class MapsActivity extends AppCompatActivity
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
+        /*
         if (id == R.id.action_settings) {
             return true;
         }
+        */
 
         return super.onOptionsItemSelected(item);
     }
@@ -273,7 +309,7 @@ public class MapsActivity extends AppCompatActivity
             //movement
             changeMode(MOVEMENT_MODE);
 
-        } else if (id == R.id.nav_slideshow) {
+        } else if (id == R.id.nav_markerType) {
             changeMode(MARKERTYPE_MODE);
 
         } else if (id == R.id.nav_manage) {
@@ -294,23 +330,59 @@ public class MapsActivity extends AppCompatActivity
     public void onMapReady(GoogleMap map) {
         Log.d("MapActivity", "onmapready");
         mMap = map;
+
         mMap.setOnMapClickListener(this);
         mMap.setOnInfoWindowClickListener(this);
         mMap.setOnMarkerClickListener(this);
+        mMap.setOnCameraIdleListener(this);
+        try{
+            mMap.setMyLocationEnabled(true);
+        }
+        catch(SecurityException e){
+            Log.d("mapsActivity", "SecurityException setMyLocationEnabled()");
+        }
 
+        FrameLayout curFrameLayoutView = (FrameLayout)findViewById(R.id.content_map_framelayout);
+        curFrameLayoutView.measure(View.MeasureSpec.UNSPECIFIED , View.MeasureSpec.UNSPECIFIED);
+
+        Log.d("mmap", "height : " + curFrameLayoutView.getMeasuredHeight() + "/width : " +curFrameLayoutView.getMeasuredWidth() );
+        mMap.setPadding(0,0, curFrameLayoutView.getMeasuredHeight()  - 100, curFrameLayoutView.getMeasuredWidth());
+
+        mMap.getUiSettings().setZoomControlsEnabled(true);
+        mMap.getUiSettings().setMyLocationButtonEnabled(true);
+        mMap.getUiSettings().setCompassEnabled(true);
+        mMap.getUiSettings().setMapToolbarEnabled(true);
+        mMap.moveCamera(CameraUpdateFactory.newCameraPosition(recentCameraPosition));
         //load data from markers
         try{
             if(daoMarkerDataInteger != null){
                 List<MarkerData> listMarkerData = daoMarkerDataInteger.queryForAll();
                 //StringBuilder strbList- = new StringBuilder();
                 for (MarkerData data : listMarkerData) {
-                    Marker mark = map.addMarker(new MarkerOptions()
-                            .position(new LatLng(data.getLat(), data.getLng()))
-                            .title(data.getStrMarkerName())
-                            //.draggable(true)  //load markers cannot be draggable marker
-                    );
-                    mark.setTag(data);
-                    listMarkerOnMap.add(mark);  //register on listMarkerOnMap
+                    Marker mark = null;
+                    if(data.isCache() == true){
+                        if(data.isInvisible() == false){
+                            mark = map.addMarker(new MarkerOptions()
+                                            .position(new LatLng(data.getLat(), data.getLng()))
+                                            .title(data.getStrMarkerName())
+                                    //.draggable(true)  //load markers cannot be draggable marker
+                            );
+                        }
+                        else{
+                            mark = map.addMarker(new MarkerOptions()
+                                            .position(new LatLng(data.getLat(), data.getLng()))
+                                            .title(data.getStrMarkerName())
+                                            .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN))
+                                    //.draggable(true)  //load markers cannot be draggable marker
+                            );
+                        }
+
+                        mark.setTag(data);
+                        listMarkerOnMap.add(mark);  //register on listMarkerOnMap
+                    }
+                    else{
+                        //isCache == false => deleted marker
+                    }
                 }
             }
         }
@@ -645,13 +717,16 @@ public class MapsActivity extends AppCompatActivity
         }
     }
 
-
     @Override
     protected void onDestroy() {
         super.onDestroy();
         if(databaseHelperMain != null){
             databaseHelperMain.close();
             databaseHelperMain = null;
+        }
+        if(databaseHelperLocationMemory != null){
+            databaseHelperLocationMemory.close();
+            databaseHelperLocationMemory = null;
         }
     }
 
@@ -671,15 +746,18 @@ public class MapsActivity extends AppCompatActivity
         if(clickedMarker != null){
             MarkerData tagMarkerData = (MarkerData)clickedMarker.getTag();
             try{
-                deleteMarkerTypesForMarker(tagMarkerData);      //type delete
-                daoMarkerDataInteger.delete(tagMarkerData); //marker delete
+                //deleteMarkerTypesForMarker(tagMarkerData);      //type delete
+                if(tagMarkerData != null){
+                    tagMarkerData.setCache(false);
+                    daoMarkerDataInteger.update(tagMarkerData); //marker delete
+                }
             }
             catch(SQLException e){
                 Log.d("MapsActivity", "deleteMarker SQL Exception");
             }
+            listMarkerOnMap.remove(clickedMarker);
+            clickedMarker = null;
         }
-        listMarkerOnMap.remove(clickedMarker);
-        clickedMarker = null;
     }
     @Override
     public ArrayList<String> getSpinnerMarkerTypeDataStringList() {
@@ -736,6 +814,15 @@ public class MapsActivity extends AppCompatActivity
         }
         return databaseHelperMain;
     }
+
+
+    private DatabaseHelperLocationMemory getDatabaseHelperLocationMemory(){
+        if(databaseHelperLocationMemory == null){
+            databaseHelperLocationMemory = DatabaseHelperLocationMemory.getHelper(this);
+        }
+        return databaseHelperLocationMemory;
+    }
+
     //준비된 쿼리문 (singleton)
     private PreparedQuery<MarkerTypeData> markerTypesForMarkerQuery = null;
 
@@ -790,5 +877,30 @@ public class MapsActivity extends AppCompatActivity
         // 검색 조건으로 바로 marker를 setting 할 수 있다.
         markerMarkerTypeQb.where().eq(MarkerMarkerTypeData.MARKERDATA_ID_FIELD_NAME, selectArg);
         return markerMarkerTypeQb.prepare();
+    }
+
+    private int getMaxIdOfLocationMemoryDataTable(){
+        //referemce " https://stackoverflow.com/questions/15876408/query-for-last-id-in-table : how to get last record in ormlite
+        QueryBuilder<LocationMemoryData, Integer> qb = daoLocationMemoryDataInteger.queryBuilder().selectRaw("max("+LocationMemoryData.LOCATIONMEMORY_ID_FIELD_NAME+")");
+        String[] columns = new String[0];
+        try {
+            GenericRawResults<String[]> results = daoLocationMemoryDataInteger.queryRaw(qb.prepareStatementString());
+            columns = results.getFirstResult();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        if (columns.length == 0) {
+            // NOTE: there are not any rows in table
+            return 0;
+        }
+        return Integer.parseInt(columns[0]);
+    }
+
+    @Override
+    public void onCameraIdle() {
+        if(mMap != null){
+            CameraPosition tempCurCameraPosition = mMap.getCameraPosition();
+            recentCameraPosition = tempCurCameraPosition;
+        }
     }
 }

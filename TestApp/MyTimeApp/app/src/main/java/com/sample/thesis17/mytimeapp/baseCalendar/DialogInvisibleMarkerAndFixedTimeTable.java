@@ -113,7 +113,7 @@ public class DialogInvisibleMarkerAndFixedTimeTable extends DialogFragment {
                 .setPositiveButton("저장", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int id) {
-                        dialogInvisibleMarkerAndFixedTimeTableListener.doSaveWithInvisibleMarkerAndTimeTable(editTextMarkerName.getText().toString(), editTextFixedTimeTableName.getText().toString());
+                        //dialogInvisibleMarkerAndFixedTimeTableListener.doSaveWithInvisibleMarkerAndTimeTable(editTextMarkerName.getText().toString(), editTextFixedTimeTableName.getText().toString());
                     }
                 })
                 .setNegativeButton("취소", new DialogInterface.OnClickListener() {

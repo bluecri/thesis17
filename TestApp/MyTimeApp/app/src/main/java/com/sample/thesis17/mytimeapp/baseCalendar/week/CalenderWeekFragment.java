@@ -178,6 +178,9 @@ public class CalenderWeekFragment extends Fragment implements DialogViewCalender
             //DateForTempHisoryData -> 직접 query 사용
 
 
+            calenderWeekAdapter = new CalenderWeekAdapter(curContext, listHistoryData, listTempHistoryData);  //adapter create
+            calenderWeekAdapter.setLongStartDate(weekFirstTimeLong);
+
             // check if this week is already calculated
             if(!isAlreadyCalculated()){
                 Log.d("ddraw", "isAlreadyCalculated");
@@ -189,8 +192,6 @@ public class CalenderWeekFragment extends Fragment implements DialogViewCalender
 
             changeWeekWithFirstWeekLong();
 
-            calenderWeekAdapter = new CalenderWeekAdapter(curContext, listHistoryData, listTempHistoryData);  //adapter create
-            calenderWeekAdapter.setLongStartDate(weekFirstTimeLong);
 
         }
         catch(SQLException e){
@@ -214,6 +215,10 @@ public class CalenderWeekFragment extends Fragment implements DialogViewCalender
 
         weekGridview = (View)(retView.findViewById(R.id.calenderWeekView));
         customWeekView = (CalenderWeekView) weekGridview;
+
+        if(calenderWeekAdapter == null){
+            Log.d("block" ,"regi calenderWeekAdapter null");
+        }
 
         //adapter View에 등록
         customWeekView.setCustomWeekAdapter(calenderWeekAdapter);
@@ -641,12 +646,14 @@ public class CalenderWeekFragment extends Fragment implements DialogViewCalender
             LocationGroup curLocationGroup = listLocationGroup.get(i);
             long firstTimeOfGroup = curLocationGroup.getFirstTimeOfGroup();
             long lastTimeOfGroup = curLocationGroup.getLastTimeOfGroup();
-            // Use (times+LONG_DAY_MILLIS*3)%LONG_WEEK_MILLIS
-            firstTimeOfGroup = (firstTimeOfGroup+LONG_DAY_MILLIS*3)%LONG_WEEK_MILLIS;
-            lastTimeOfGroup = (lastTimeOfGroup+LONG_DAY_MILLIS*3)%LONG_WEEK_MILLIS;
+            // Use (times+LONG_DAY_MILLIS*4)%LONG_WEEK_MILLIS
+            firstTimeOfGroup = (firstTimeOfGroup+ 4 * LONG_DAY_MILLIS)%LONG_WEEK_MILLIS;
+            lastTimeOfGroup = (lastTimeOfGroup+ 4 * LONG_DAY_MILLIS)%LONG_WEEK_MILLIS;
+            /*
             if(lastTimeOfGroup < firstTimeOfGroup){
                 lastTimeOfGroup += LONG_DAY_MILLIS*7;
             }
+            */
 
             MarkerData targetMarkerData = curLocationGroup.getTargetMarkerData();
 
@@ -662,16 +669,17 @@ public class CalenderWeekFragment extends Fragment implements DialogViewCalender
                 catch(SQLException e){
                     Log.d("calender", "getListLocationMemForInnerTimeQuery exception");
                 }
-                //targetMarker에 해당하는 timetable이 존재한다면,.. null or is invisible or visible timetabla
-                if(listFixedTimeTableDataOfTargetMarker != null) {
-                    for (int p = 0, pp = listFixedTimeTableDataOfTargetMarker.size(); p < pp; p++) {
-                        FixedTimeTableData tempFTTD = listFixedTimeTableData.get(p);
-                        //TODO : 더 넓은 범위의 matching 필요.. 현재 : fixed timetable에 걸치는 경우 or null
-                        if ((tempFTTD.getlInnerBoundStartTime() <= firstTimeOfGroup && firstTimeOfGroup <= tempFTTD.getlInnerBoundEndTime()) || (tempFTTD.getlInnerBoundStartTime() <= lastTimeOfGroup && lastTimeOfGroup <= tempFTTD.getlInnerBoundEndTime())) {
-                            targetFixedTimeTableData = tempFTTD;
-                            break;
-                        }
+
+                if(targetMarkerData.isInvisible() == false){
+                    //check visible timetable. if none, check invisible timetable
+                    targetFixedTimeTableData = getTargetFixedTimeTableData(firstTimeOfGroup, lastTimeOfGroup, listFixedTimeTableData, false);
+                    if(targetFixedTimeTableData == null){
+                        targetFixedTimeTableData = getTargetFixedTimeTableData(firstTimeOfGroup, lastTimeOfGroup, listFixedTimeTableData, true);
                     }
+                }
+                else{
+                    //target marker is invisible. check only (invisible )timetable
+                    targetFixedTimeTableData = getTargetFixedTimeTableData(firstTimeOfGroup, lastTimeOfGroup, listFixedTimeTableData, true);
                 }
             }
             //이전 tempHistoryData가 존재하면
@@ -1319,6 +1327,77 @@ public class CalenderWeekFragment extends Fragment implements DialogViewCalender
         }
 
     }
+
+
+    public FixedTimeTableData getTargetFixedTimeTableData(long aTime, long bTime, List<FixedTimeTableData> listfttd, boolean invisible){
+        double maxRatio = 0.0;
+        double tempRatio;
+        FixedTimeTableData targetFTTD = null;
+        long startTime, endTime;
+        if(aTime < bTime){
+            for(FixedTimeTableData fttd : listfttd){
+                if(fttd.isInvisible() != invisible || fttd.isCache() == false){
+                    continue;
+                }
+                startTime = fttd.getlInnerBoundStartTime();
+                endTime = fttd.getlInnerBoundEndTime();
+                tempRatio = 0.0;
+                if(startTime < endTime){
+                    tempRatio = ((double)(minL(bTime, endTime) - maxL(aTime, startTime)))/(double)(endTime-startTime);
+                }
+                else{
+                    if(bTime - startTime > 0){
+                        tempRatio += bTime - startTime;
+                    }
+                    if(endTime - aTime > 0){
+                        tempRatio += endTime - aTime;
+                    }
+                    tempRatio = tempRatio / (endTime + 7 * LONG_DAY_MILLIS - startTime);
+                }
+                if(tempRatio < 0.01){
+                    continue;
+                }
+                if(maxRatio < tempRatio){
+                    maxRatio = tempRatio;
+                    targetFTTD = fttd;
+                }
+            }
+        }
+        else {
+            for (FixedTimeTableData fttd : listfttd) {
+                if(fttd.isInvisible() != invisible || fttd.isCache() == false){
+                    continue;
+                }
+                startTime = fttd.getlInnerBoundStartTime();
+                endTime = fttd.getlInnerBoundEndTime();
+                tempRatio = 0.0;
+                if (startTime < endTime) {
+                    if (endTime - aTime > 0) {
+                        tempRatio += endTime - aTime;
+                    }
+                    if (bTime - startTime > 0) {
+                        tempRatio += bTime - startTime;
+                    }
+                    tempRatio = tempRatio / (endTime - startTime);
+                } else {
+                    tempRatio = ((double) (7 * LONG_DAY_MILLIS - maxL(startTime, aTime) + minL(endTime, bTime))) / (double) (endTime + 7 * LONG_DAY_MILLIS - startTime);
+                }
+                if (tempRatio < 0.01) {
+                    continue;
+                }
+                if (maxRatio < tempRatio) {
+                    maxRatio = tempRatio;
+                    targetFTTD = fttd;
+                }
+            }
+        }
+        return targetFTTD;
+    }
+
+
+
+
+
     @Override
     public List<MarkerData> getListMarkerData() {
         return listMarkerData;

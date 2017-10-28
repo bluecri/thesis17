@@ -57,6 +57,7 @@ public class MainActivity extends AppCompatActivity
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        /*
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -65,6 +66,7 @@ public class MainActivity extends AppCompatActivity
                         .setAction("Action", null).show();
             }
         });
+        */
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -117,9 +119,11 @@ public class MainActivity extends AppCompatActivity
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
+        /*
         if (id == R.id.action_settings) {
             return true;
         }
+        */
 
         return super.onOptionsItemSelected(item);
     }
@@ -131,7 +135,7 @@ public class MainActivity extends AppCompatActivity
         int id = item.getItemId();
 
         //timetable
-        if (id == R.id.nav_camera) {
+        if (id == R.id.nav_main_calendar) {
             FragmentManager fragmentManager = getSupportFragmentManager();
 
             //현재 mainFragment의 Tag 정보 알아냄.
@@ -151,7 +155,7 @@ public class MainActivity extends AppCompatActivity
         }
 
         //calendar
-        else if (id == R.id.nav_gallery) {
+        else if (id == R.id.nav_main_timetable) {
             FragmentManager fragmentManager = getSupportFragmentManager();
             FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
             if(calenderMonthFragment == null && calenderWeekFragment == null){
@@ -172,14 +176,18 @@ public class MainActivity extends AppCompatActivity
             }
         }
         //map
-        else if (id == R.id.nav_slideshow) {
+        else if (id == R.id.nav_main_map) {
             Intent mapIntent = new Intent(this, MapsActivity.class);
             startActivity(mapIntent);
         }
         //Setting
         else if (id == R.id.nav_manage) {
-            Intent mapIntent = new Intent(this, SettingActivity.class);
-            startActivity(mapIntent);
+
+            FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
+            SettingFragment settingFragment = SettingFragment.newInstance("", "");
+            fragmentTransaction.replace(R.id.mainFragmentContainer, settingFragment, "setting");
+            fragmentTransaction.commit();
+
             /*
             FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
             SettingFragment settingFragment = SettingFragment.newInstance("", "");
@@ -190,10 +198,8 @@ public class MainActivity extends AppCompatActivity
 
         else if (id == R.id.nav_share)
         {
-            FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
-            SettingFragment settingFragment = SettingFragment.newInstance("", "");
-            fragmentTransaction.replace(R.id.mainFragmentContainer, settingFragment, "setting");
-            fragmentTransaction.commit();
+            Intent mapIntent = new Intent(this, SettingActivity.class);
+            startActivity(mapIntent);
         }
 
         else if (id == R.id.nav_send) {

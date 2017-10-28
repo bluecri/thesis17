@@ -332,7 +332,7 @@ public class locationService extends Service {
                             Log.d("locationService", "use Gps for writing!");
                             Dao<LocationMemoryData, Integer> daoLocationMemoryDataInteger = getDatabaseHelperLocationMemory().getDaoLocationMemoryData();
                             daoLocationMemoryDataInteger.create(dataLMForGpsThread);
-                            debugPrintLMData(dataLMForGpsThread);
+                            //debugPrintLMData(dataLMForGpsThread);     : in not Thread, cannot handle UI
                             debugPrintDAOInfo(daoLocationMemoryDataInteger);
                         }
                         else{
@@ -397,7 +397,7 @@ public class locationService extends Service {
                                 Log.d("locationService", "use Gps for writing!");
                                 Dao<LocationMemoryData, Integer> daoLocationMemoryDataInteger = getDatabaseHelperLocationMemory().getDaoLocationMemoryData();
                                 daoLocationMemoryDataInteger.create(dataLMForGpsThread);
-                                debugPrintLMData(dataLMForGpsThread);
+                                //debugPrintLMData(dataLMForGpsThread);
                                 debugPrintDAOInfo(daoLocationMemoryDataInteger);
                             }
                         }

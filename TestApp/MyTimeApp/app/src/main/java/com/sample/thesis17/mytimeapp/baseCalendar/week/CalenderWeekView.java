@@ -105,6 +105,9 @@ public class CalenderWeekView extends View {
         fScrollBottomEnd = ROW_NUM * pCurBlock.fRow - fCustomViewHeightExceptSpace;
         Log.d("block", customViewHeight  +" "+ customViewWidth);
         Log.d("block", fLeftSideSpace  +" "+ fUpSideSpace  +" "+ fCustomViewHeightExceptSpace  +" "+ fCustomViewWidthExceptSpace  +" "+ pCurScrollLeftUp.fCol  +" "+ pCurScrollLeftUp.fRow);
+        if(curCustomWeekAdapter == null){
+            Log.d("block", "curCustomWeekAdapter null");
+        }
         curCustomWeekAdapter.setConfig(fUpSideSpace, fLeftSideSpace, fCustomViewWidthExceptSpace, fCustomViewHeightExceptSpace);
         //adapt.setFlexibleConfig(pCurScrollLeftUp.fCol, pCurScrollLeftUp.fRow, pCurBlock.fCol, pCurBlock.fRow);
     }
