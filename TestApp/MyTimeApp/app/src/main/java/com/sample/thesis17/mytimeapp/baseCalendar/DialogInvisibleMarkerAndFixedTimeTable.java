@@ -70,7 +70,7 @@ public class DialogInvisibleMarkerAndFixedTimeTable extends DialogFragment {
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         Log.d("DialogWeekItemViewFra", "DialogWeekItemViewFragment onCreateDialog");
-        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity(), R.style.alertDialogStyle);
         // Get the layout inflater
         LayoutInflater inflater = getActivity().getLayoutInflater();
 

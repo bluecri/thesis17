@@ -186,7 +186,8 @@ public class DialogViewCalenderTempItemFragment extends DialogFragment implement
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         Log.d("DialogWeekItemMo", "DialogViewCalenderTempItemFragment onCreateDialog");
-        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity(), R.style.alertDialogStyle);
+        builder.setTitle("예상되는 일정 Dialog");
         // Get the layout inflater
         LayoutInflater inflater = getActivity().getLayoutInflater();
 

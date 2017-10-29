@@ -19,6 +19,7 @@ import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TimePicker;
+import android.widget.Toast;
 
 import com.sample.thesis17.mytimeapp.R;
 
@@ -116,7 +117,8 @@ public class DialogWeekItemCreateFragment extends DialogFragment{
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         Log.d("DialogWeekItemCrea", "DialogWeekItemCreateFragment onCreateDialog");
-        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity(), R.style.alertDialogStyle);
+        builder.setTitle("새로운 시간표 생성 Dialog");
         // Get the layout inflater
         LayoutInflater inflater = getActivity().getLayoutInflater();
 
@@ -249,8 +251,13 @@ public class DialogWeekItemCreateFragment extends DialogFragment{
                         //calc starttime, endtime
                         long retLStartTimeMillis = (long)startTimeHour*LONG_HOUR_MILLIS + (long)startTimeMin*LONG_MIN_MILLIS + iStartWeek*LONG_DAY_MILLIS;  //hour + min + day(WEEK)
                         long retLEndTimeMillis = (long)endTimeHour*LONG_HOUR_MILLIS + (long)endTimeMin*LONG_MIN_MILLIS + iEndWeek*LONG_DAY_MILLIS;
-
-                        dialogWeekItemCreateFragmentListener.doCreate(textViewTitle.getText().toString(), retLStartTimeMillis, retLEndTimeMillis, markerDataListIdx, textViewMemo.getText().toString());
+                        if(markerDataListIdx < 0){
+                            //not selected
+                            Toast.makeText(curContext, "마커를 반드시 선택해야 합니다.", Toast.LENGTH_LONG).show();
+                        }
+                        else{
+                            dialogWeekItemCreateFragmentListener.doCreate(textViewTitle.getText().toString(), retLStartTimeMillis, retLEndTimeMillis, markerDataListIdx, textViewMemo.getText().toString());
+                        }
                     }
                 })
                 .setNegativeButton("취소", new DialogInterface.OnClickListener() {

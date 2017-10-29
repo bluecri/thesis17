@@ -2,6 +2,7 @@ package com.sample.thesis17.mytimeapp.baseTimeTable.week;
 
 import android.content.Context;
 import android.content.DialogInterface;
+import android.media.Image;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -14,6 +15,7 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.GridView;
+import android.widget.ImageButton;
 import android.widget.TextView;
 
 import com.j256.ormlite.dao.Dao;
@@ -54,7 +56,8 @@ public class TimetableWeekFragment extends Fragment implements DialogWeekItemVie
     View weekGridview;
     CustomWeekView customWeekView;
     TextView centerText;
-    Button leftButton, addButton;
+    ImageButton leftButton;
+    Button addButton;
     Context curContext;
 
     //DB
@@ -107,7 +110,13 @@ public class TimetableWeekFragment extends Fragment implements DialogWeekItemVie
             daoFixedTimeTableDataInteger = getDatabaseHelperMain().getDaoFixedTimeTableData();
             daoMarkerDataInteger = getDatabaseHelperMain().getDaoMarkerData();
             if(daoFixedTimeTableDataInteger != null) {
-                listFixedTimeTableData = daoFixedTimeTableDataInteger.queryForAll();
+                List<FixedTimeTableData> tempList = daoFixedTimeTableDataInteger.queryForAll();
+                listFixedTimeTableData = new ArrayList<>();
+                for(FixedTimeTableData fttd : tempList){
+                    if(fttd.isCache()){
+                        listFixedTimeTableData.add(fttd);
+                    }
+                }
                 customWeekAdapter = new CustomWeekAdapter(curContext, listFixedTimeTableData);  //adapter create
             }
             //fixedTimeTableData와 연결된 markerData를 정하기 위한 list
@@ -134,7 +143,7 @@ public class TimetableWeekFragment extends Fragment implements DialogWeekItemVie
         View retView = inflater.inflate(R.layout.fragment_timetable_week, container, false);        //fragment에 해당하는 retView
 
         //button, text
-        leftButton = (Button)retView.findViewById(R.id.fragment_timetable_week_buttonPrev);
+        leftButton = (ImageButton)retView.findViewById(R.id.fragment_timetable_week_buttonRefresh);
         addButton = (Button)retView.findViewById(R.id.fragment_timetable_week_buttonAdd);
         centerText = (TextView)retView.findViewById(R.id.fragment_timetable_week_textMonth);
 
@@ -184,6 +193,7 @@ public class TimetableWeekFragment extends Fragment implements DialogWeekItemVie
         leftButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                customWeekView.invalidate();
                 /*timetableWeekAdapter.setPreviousMonth();;
                 timetableWeekAdapter.notifyDataSetChanged();;
                 setCenterText();*/
@@ -321,11 +331,13 @@ public class TimetableWeekFragment extends Fragment implements DialogWeekItemVie
     public void doDelete() {
         //listFixedTimeTableData, selectedIndex
         FixedTimeTableData delData = listFixedTimeTableData.get(selectedIdx);
+        delData.setCache(false);
         listFixedTimeTableData.remove(selectedIdx);
 
         try{
             daoFixedTimeTableDataInteger = getDatabaseHelperMain().getDaoFixedTimeTableData();
-            daoFixedTimeTableDataInteger.delete(delData);
+            daoFixedTimeTableDataInteger.update(delData);
+            //  daoFixedTimeTableDataInteger.delete(delData);   : delete 대신 cache -> false
         }
         catch(SQLException e){
             Log.d("timetableweek", "doDelete sql");

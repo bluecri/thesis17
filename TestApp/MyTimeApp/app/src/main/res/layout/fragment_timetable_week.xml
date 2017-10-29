@@ -1,4 +1,5 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -15,28 +16,45 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:background="@drawable/border_fixedtimetable_menu"
             android:orientation="horizontal">
-
-            <Button
-                android:id="@+id/fragment_timetable_week_buttonPrev"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Button" />
 
             <TextView
                 android:id="@+id/fragment_timetable_week_textMonth"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="TextView" />
+                android:layout_height="match_parent"
+                android:layout_weight="2"
+                android:textStyle="bold"
+                android:textSize="20dp"
+                android:layout_gravity="center|right"
+                android:gravity="center|right"
+                android:textAlignment="center"
+                android:text="My Fixed Timetable" />
 
-            <Button
-                android:id="@+id/fragment_timetable_week_buttonAdd"
+            <LinearLayout
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_height="match_parent"
                 android:layout_weight="1"
-                android:text="Add" />
+                android:orientation="horizontal">
+
+                <Button
+                    android:id="@+id/fragment_timetable_week_buttonAdd"
+                    android:layout_width="wrap_content"
+                    android:layout_height="40dp"
+                    android:layout_margin="4dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/button_fixedtimetable_add"
+                    android:text="Add"
+                    android:textColor="#FFFFFF"
+                    android:textSize="16sp" />
+
+                <ImageButton
+                    android:id="@+id/fragment_timetable_week_buttonRefresh"
+                    android:layout_width="40dp"
+                    android:layout_height="48dp"
+                    android:layout_weight="1"
+                    app:srcCompat="@mipmap/ic_launcher_refreash" />
+            </LinearLayout>
 
         </LinearLayout>
 

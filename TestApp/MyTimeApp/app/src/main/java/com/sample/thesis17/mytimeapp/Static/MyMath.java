@@ -1,6 +1,8 @@
 package com.sample.thesis17.mytimeapp.Static;
 
 
+import android.graphics.Color;
+
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.ArrayList;
@@ -35,6 +37,11 @@ public class MyMath {
     public static double MINDIST_TO_GROUP_TO_MAKRER = 0.00000025;
 
 
+
+    public static int getContrastColor(int color) {
+        double y = (299 * Color.red(color) + 587 * Color.green(color) + 114 * Color.blue(color)) / 1000;
+        return y >= 128 ? Color.BLACK : Color.WHITE;
+    }
 
     public static double doubleRound(double value, int places) {
         if (places < 0) throw new IllegalArgumentException();

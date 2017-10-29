@@ -9,13 +9,24 @@
         android:layout_height="wrap_content"
         android:ems="10"
         android:inputType="textPersonName"
-        android:text="Name" />
+        android:hint="시간표 제목 수정"
+        android:text="-" />
 
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/textView6"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="18sp"
+            android:textAlignment="center"
+            android:textStyle="bold"
+            android:layout_weight="2"
+            android:text="시작시각" />
 
         <Spinner
             android:id="@+id/fragment_dialog_timetable_item_modify_startweek"
@@ -27,7 +38,7 @@
             android:id="@+id/fragment_dialog_timetable_item_modify_starttime"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
+            android:layout_weight="2"
             android:text="Button" />
 
     </LinearLayout>
@@ -36,6 +47,16 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/textView8"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="2"
+            android:textSize="18sp"
+            android:textAlignment="center"
+            android:textStyle="bold"
+            android:text="종료시각" />
 
         <Spinner
             android:id="@+id/fragment_dialog_timetable_item_modify_endweek"
@@ -47,7 +68,7 @@
             android:id="@+id/fragment_dialog_timetable_item_modify_endtime"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
+            android:layout_weight="2"
             android:text="Button" />
 
     </LinearLayout>
@@ -61,9 +82,10 @@
         android:id="@+id/fragment_dialog_timetable_item_modify_memo"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:background="@null"
         android:ems="10"
         android:inputType="textPersonName"
-        android:background="@null"
-        android:text="memo" />
+        android:text="-"
+        android:hint="시간표 메모 수정" />
 
 </LinearLayout>

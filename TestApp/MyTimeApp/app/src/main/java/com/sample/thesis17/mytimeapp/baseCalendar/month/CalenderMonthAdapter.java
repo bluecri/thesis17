@@ -2,6 +2,8 @@ package com.sample.thesis17.mytimeapp.baseCalendar.month;
 
 import android.content.Context;
 import android.graphics.Color;
+import android.os.Build;
+import android.support.v4.content.ContextCompat;
 import android.text.format.Time;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -10,6 +12,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.GridView;
+
+import com.sample.thesis17.mytimeapp.R;
 
 import java.util.Calendar;
 
@@ -224,6 +228,7 @@ public class CalenderMonthAdapter extends BaseAdapter{
     //position에 해당하는 MonthItemView 반환. 화면에서 view가 사라지면 convertView에 넣어두었다가 다시 사용
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
+
         MonthItemView itemView;
         if(convertView == null){
             itemView = new MonthItemView(mContext);
@@ -232,18 +237,17 @@ public class CalenderMonthAdapter extends BaseAdapter{
             itemView = (MonthItemView)convertView;
         }
 
-        GridView.LayoutParams params = new GridView.LayoutParams(GridView.LayoutParams.MATCH_PARENT, 50);
+        GridView.LayoutParams params = new GridView.LayoutParams(GridView.LayoutParams.MATCH_PARENT, 90);
 
         int rowIndex = position/(numDayofWeek+1);
         int columnIndex = position%(numDayofWeek+1);
 
         //text가 0인 경우 text 변경
 
-
+        //TODO : item style
         itemView.setMonthItem(monthItems[position]);
         itemView.setLayoutParams(params);
-        itemView.setPadding(2, 2, 2, 2);
-        itemView.setGravity(Gravity.LEFT);
+
 
         //Sunday == red
         if (columnIndex == 1) {
@@ -251,7 +255,7 @@ public class CalenderMonthAdapter extends BaseAdapter{
         }else if (columnIndex == 7) {
             itemView.setTextColor(Color.BLUE);
         }else if(columnIndex == 0){
-            itemView.setTextColor(Color.GREEN);
+            itemView.setTextColor(Color.MAGENTA);
         }
         else {
             itemView.setTextColor(Color.BLACK);
@@ -260,9 +264,19 @@ public class CalenderMonthAdapter extends BaseAdapter{
 
         //선택한 background 배경 변경
         if (position == getSelectedPosition()) {
-            itemView.setBackgroundColor(Color.YELLOW);
+            //itemView.setBackgroundColor(Color.YELLOW);
+            if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+                itemView.setBackground(ContextCompat.getDrawable(mContext, R.drawable.textview_round_selected_item));
+            } else {
+                itemView.setBackgroundDrawable(ContextCompat.getDrawable(mContext, R.drawable.textview_round_selected_item));
+            }
         } else {
-            itemView.setBackgroundColor(Color.WHITE);
+            //itemView.setBackgroundColor(Color.WHITE);
+            if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+                itemView.setBackground(ContextCompat.getDrawable(mContext, R.drawable.textview_round_item));
+            } else {
+                itemView.setBackgroundDrawable(ContextCompat.getDrawable(mContext, R.drawable.textview_round_item));
+            }
         }
 
         return itemView;

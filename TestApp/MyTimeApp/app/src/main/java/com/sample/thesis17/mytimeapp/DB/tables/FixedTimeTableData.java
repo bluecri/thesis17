@@ -1,7 +1,11 @@
 package com.sample.thesis17.mytimeapp.DB.tables;
 
+import android.graphics.Color;
+
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
+
+import java.util.Random;
 
 /**
  * Created by kimz on 2017-07-26.
@@ -157,6 +161,12 @@ public class FixedTimeTableData {
     public void setInvisible(boolean invisible) {
         isInvisible = invisible;
     }
+
+    public int getColor(){
+        Random rnd = new Random(lStartTime);
+        return Color.argb(255, rnd.nextInt(256), rnd.nextInt(256), rnd.nextInt(256));
+    }
+
 
     /*
     public void setForeMarkerData(MarkerData markerData){

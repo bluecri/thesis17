@@ -8,8 +8,12 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:ems="10"
-        android:inputType="textPersonName"
-        android:text="Name" />
+        android:layout_marginBottom="4dp"
+        android:layout_marginLeft="4dp"
+        android:layout_marginRight="4dp"
+        android:layout_marginTop="16dp"
+        android:hint="새로운 시간표 제목 입력란"
+        android:inputType="textPersonName" />
 
 
     <LinearLayout
@@ -17,17 +21,34 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal">
 
+        <TextView
+            android:id="@+id/textView18"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="4dp"
+            android:layout_marginLeft="4dp"
+            android:layout_marginRight="4dp"
+            android:layout_marginTop="4dp"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:text="시작시간" />
+
         <Spinner
             android:id="@+id/fragment_dialog_timetable_item_create_startweek"
+            android:layout_marginBottom="4dp"
+            android:layout_marginLeft="4dp"
+            android:layout_marginRight="4dp"
+            android:layout_marginTop="4dp"
             android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:layout_weight="1" />
+            android:layout_height="match_parent" />
 
         <Button
             android:id="@+id/fragment_dialog_timetable_item_create_starttime"
-            android:layout_width="wrap_content"
+            android:layout_marginBottom="4dp"
+            android:layout_marginLeft="4dp"
+            android:layout_marginRight="4dp"
+            android:layout_marginTop="4dp"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
             android:text="Button" />
 
     </LinearLayout>
@@ -36,34 +57,95 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/textView19"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="4dp"
+            android:layout_marginLeft="4dp"
+            android:layout_marginRight="4dp"
+            android:layout_marginTop="4dp"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:text="종료시간" />
 
         <Spinner
             android:id="@+id/fragment_dialog_timetable_item_create_endweek"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="1" />
+            android:layout_marginBottom="4dp"
+            android:layout_marginLeft="4dp"
+            android:layout_marginRight="4dp"
+            android:layout_marginTop="4dp" />
 
         <Button
             android:id="@+id/fragment_dialog_timetable_item_create_endtime"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
+            android:layout_marginBottom="4dp"
+            android:layout_marginLeft="4dp"
+            android:layout_marginRight="4dp"
+            android:layout_marginTop="4dp"
             android:text="Button" />
 
     </LinearLayout>
 
-    <Spinner
-        android:id="@+id/fragment_dialog_timetable_item_create_marker"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
-
-    <EditText
-        android:id="@+id/fragment_dialog_timetable_item_create_memo"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:ems="10"
-        android:inputType="textPersonName"
-        android:background="@null"
-        android:text="memo" />
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/textView20"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="4dp"
+            android:layout_marginLeft="4dp"
+            android:layout_marginRight="4dp"
+            android:layout_marginTop="4dp"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:text="[마커선택]" />
+
+        <Spinner
+            android:id="@+id/fragment_dialog_timetable_item_create_marker"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="4dp"
+            android:layout_marginLeft="4dp"
+            android:layout_marginRight="4dp"
+            android:layout_marginTop="4dp" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/textView21"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="4dp"
+            android:layout_marginLeft="4dp"
+            android:layout_marginRight="4dp"
+            android:layout_marginTop="4dp"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:text="[Memo]" />
+
+        <EditText
+            android:id="@+id/fragment_dialog_timetable_item_create_memo"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="4dp"
+            android:layout_marginLeft="4dp"
+            android:layout_marginRight="4dp"
+            android:layout_marginTop="4dp"
+            android:background="@null"
+            android:ems="10"
+            android:hint="메모 입력란"
+            android:inputType="textPersonName"
+            android:text="" />
+    </LinearLayout>
 
 </LinearLayout>

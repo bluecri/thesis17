@@ -49,7 +49,8 @@ public class DialogMarkerTypeModifyFragment extends DialogFragment {
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
 
-        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity(), R.style.alertDialogStyle);
+        builder.setTitle("마커 타입 수정 Dialog");
         // Get the layout inflater
         LayoutInflater inflater = getActivity().getLayoutInflater();
 

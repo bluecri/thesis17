@@ -44,6 +44,7 @@ public class MainActivity extends AppCompatActivity
 
     CalenderWeekFragment calenderWeekFragment = null;
     CalenderMonthFragment calenderMonthFragment = null;
+    MainBlankFragment blankFragment = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -79,8 +80,8 @@ public class MainActivity extends AppCompatActivity
 
         FragmentManager fragmentManager = getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-        MainBlankFragment blankFragment = MainBlankFragment.newInstance("", "");
-        fragmentTransaction.replace(R.id.mainFragmentContainer, blankFragment, "wtimetable");
+        blankFragment = MainBlankFragment.newInstance("", "");
+        fragmentTransaction.replace(R.id.mainFragmentContainer, blankFragment, "blankMainFragment");
         fragmentTransaction.commit();
 
 
@@ -177,6 +178,12 @@ public class MainActivity extends AppCompatActivity
         }
         //map
         else if (id == R.id.nav_main_map) {
+            if(blankFragment == null){
+                blankFragment = MainBlankFragment.newInstance("", "");
+            }
+            FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
+            fragmentTransaction.replace(R.id.mainFragmentContainer, blankFragment, "blankMainFragment");
+            fragmentTransaction.commit();
             Intent mapIntent = new Intent(this, MapsActivity.class);
             startActivity(mapIntent);
         }
@@ -198,8 +205,16 @@ public class MainActivity extends AppCompatActivity
 
         else if (id == R.id.nav_share)
         {
+            /*
+            if(blankFragment == null){
+                blankFragment = MainBlankFragment.newInstance("", "");
+            }
+            FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
+            fragmentTransaction.replace(R.id.mainFragmentContainer, blankFragment, "blankMainFragment");
+            fragmentTransaction.commit();
             Intent mapIntent = new Intent(this, SettingActivity.class);
             startActivity(mapIntent);
+            */
         }
 
         else if (id == R.id.nav_send) {

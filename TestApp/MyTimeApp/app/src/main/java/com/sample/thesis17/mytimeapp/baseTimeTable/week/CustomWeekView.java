@@ -538,11 +538,19 @@ public class CustomWeekView extends View {
         Log.d("draws", "drawContentBlocks()");
         //rect Paint
         Paint tempRectPaint= new Paint();
-        tempRectPaint.setColor(Color.GREEN);
+        tempRectPaint.setColor(Color.GREEN);    //default
+
+        //stroke paint
+        Paint strokePaint = new Paint();
+        strokePaint.setStyle(Paint.Style.STROKE);
+        strokePaint.setColor(Color.BLACK);
+        strokePaint.setStrokeWidth(1);
+        int cornerRadius = 20;
+
 
         //text Paint
         Paint tempTextPaint= new Paint();
-        tempTextPaint.setColor(Color.BLACK);
+        tempTextPaint.setColor(Color.BLACK);    ////default
         tempTextPaint.setAntiAlias(true);
         tempTextPaint.setTextAlign(Paint.Align.LEFT);
         tempTextPaint.setTextSize((float)20.0);
@@ -559,9 +567,12 @@ public class CustomWeekView extends View {
                 Log.d("draws", "customWeekItemList leng: "+ curCustomWeekAdapter.customWeekItemList.size());
                 for(CustomWeekItem item : curCustomWeekAdapter.customWeekItemList){
                     RectF tempRectF = new RectF(item.left, item.top, item.right,item.bottom);
-                    Log.d("draws", "draw rect / " + item.left + "/" + item.top + "/" + item.right + "/" +item.bottom);
-
-                    canvas.drawRect(tempRectF, tempRectPaint);
+                    //Log.d("draws", "draw rect / " + item.left + "/" + item.top + "/" + item.right + "/" +item.bottom);
+                    tempRectPaint.setColor(item.getBlockColor());
+                    tempTextPaint.setColor(item.getTextColor());
+                    //Log.d("draws", "textColor : " + item.getTextColor());
+                    canvas.drawRoundRect(tempRectF, cornerRadius, cornerRadius, tempRectPaint);
+                    canvas.drawRoundRect(tempRectF, cornerRadius, cornerRadius, strokePaint);
                     String tempString = item.getText();
                     int startIdx = 0, endIdx = tempString.length();
                     float curHeight = (float)0.0;
@@ -573,7 +584,7 @@ public class CustomWeekView extends View {
                     }
                     //multiple line text
                     while(true){
-                        int breakedCharLen = tempTextPaint.breakText(tempString.substring(startIdx), true, tempRectF.width(), null);
+                        int breakedCharLen = tempTextPaint.breakText(tempString.substring(startIdx), true, tempRectF.width() - 12, null);
                         if(breakedCharLen == 0){
                             break;  //더 이상 인쇄 할 문장이 없음.
                         }
@@ -586,11 +597,11 @@ public class CustomWeekView extends View {
                             for(int loop = 0; loop < summLen; loop++){
                                 finalString = finalString + ".";
                             }
-                            canvas.drawText(finalString, 0, breakedCharLen, tempRectF.left, tempRectF.top + curHeight + textHeight*2/3, tempTextPaint);
+                            canvas.drawText(finalString, 0, breakedCharLen, tempRectF.left + 6, tempRectF.top + curHeight + textHeight*2/3, tempTextPaint);
                             break;
                         }
                         else {
-                            canvas.drawText(tempString, startIdx, startIdx + breakedCharLen, tempRectF.left, tempRectF.top + curHeight + textHeight*2/3, tempTextPaint);
+                            canvas.drawText(tempString, startIdx, startIdx + breakedCharLen, tempRectF.left + 6, tempRectF.top + curHeight + textHeight*2/3, tempTextPaint);
                             startIdx = startIdx + breakedCharLen;
                             curHeight += textHeight;
                         }

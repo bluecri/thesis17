@@ -11,6 +11,8 @@ public class CalenderWeekItem {
 
     public float left, top, right, bottom;
     private String text;
+    private int blockColor;
+    private int textColor;
 
     public int getIdx() {
         return idx;
@@ -66,6 +68,22 @@ public class CalenderWeekItem {
 
     public void setText(String text) {
         this.text = text;
+    }
+
+    public int getBlockColor() {
+        return blockColor;
+    }
+
+    public void setBlockColor(int blockColor) {
+        this.blockColor = blockColor;
+    }
+
+    public int getTextColor() {
+        return textColor;
+    }
+
+    public void setTextColor(int textColor) {
+        this.textColor = textColor;
     }
 
     public void setCoords(float left, float top, float right, float bottom) {

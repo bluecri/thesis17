@@ -28,6 +28,12 @@
         <item name="android:gravity">center_vertical</item>
     </style>
 
+    <style name="alertDialogStyle" parent="Theme.AppCompat.Light.Dialog.Alert">
+        <item name="colorAccent">#e443d1</item>
+        <item name="android:textColorPrimary">#363884</item>
+        <item name="android:background">#b4469c49</item>
+    </style>
+
 
 
     <!-- reference : http://hanburn.tistory.com/124 [hanburn : a line of code] -->

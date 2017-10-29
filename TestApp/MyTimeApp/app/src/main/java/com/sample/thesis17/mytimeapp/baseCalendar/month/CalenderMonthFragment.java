@@ -1,21 +1,28 @@
 package com.sample.thesis17.mytimeapp.baseCalendar.month;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.GridView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.sample.thesis17.mytimeapp.R;
 
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.List;
 
 import static com.sample.thesis17.mytimeapp.Static.MyMath.LONG_HOUR_MILLIS;
 import static com.sample.thesis17.mytimeapp.Static.MyMath.LONG_WEEK_MILLIS;
@@ -34,10 +41,15 @@ public class CalenderMonthFragment extends Fragment {
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
+    String[] weekTopString = {"주", "일", "월", "화", "수", "목", "금", "토"};
     GridView monthGridview;
+    //GridView weekGridViewTop;
+    LinearLayout topLinearLayout;
     CalenderMonthAdapter calenderMonthAdapter;
+    ArrayAdapter weekTopAdapter = null;
     TextView centerText;
     Button leftButton, rightButton;
+    List<View> weekTopViewList = null;
 
     int curYear;        //현재 달력의 년, 월.
     int curMonth;
@@ -82,7 +94,34 @@ public class CalenderMonthFragment extends Fragment {
 
         //monthGridview = (GridView)getView().findViewById(R.id.fragment_calender_month_GridView);
 
+        weekTopViewList = new ArrayList<View>();
+        MonthWeekTopView tempMonthWeekTopView = new MonthWeekTopView(curContext);
+        tempMonthWeekTopView.setTextAndColor("주", Color.MAGENTA);
+        weekTopViewList.add(tempMonthWeekTopView);
+        tempMonthWeekTopView = new MonthWeekTopView(curContext);
+        tempMonthWeekTopView.setTextAndColor("일", Color.RED);
+        weekTopViewList.add(tempMonthWeekTopView);
+        tempMonthWeekTopView = new MonthWeekTopView(curContext);
+        tempMonthWeekTopView.setTextAndColor("월", Color.BLACK);
+        weekTopViewList.add(tempMonthWeekTopView);
+        tempMonthWeekTopView = new MonthWeekTopView(curContext);
+        tempMonthWeekTopView.setTextAndColor("화", Color.BLACK);
+        weekTopViewList.add(tempMonthWeekTopView);
+        tempMonthWeekTopView = new MonthWeekTopView(curContext);
+        tempMonthWeekTopView.setTextAndColor("수", Color.BLACK);
+        weekTopViewList.add(tempMonthWeekTopView);
+        tempMonthWeekTopView = new MonthWeekTopView(curContext);
+        tempMonthWeekTopView.setTextAndColor("목", Color.BLACK);
+        weekTopViewList.add(tempMonthWeekTopView);
+        tempMonthWeekTopView = new MonthWeekTopView(curContext);
+        tempMonthWeekTopView.setTextAndColor("금", Color.BLACK);
+        weekTopViewList.add(tempMonthWeekTopView);
+        tempMonthWeekTopView = new MonthWeekTopView(curContext);
+        tempMonthWeekTopView.setTextAndColor("토", Color.BLUE);
+        weekTopViewList.add(tempMonthWeekTopView);
+
     }
+
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -94,8 +133,23 @@ public class CalenderMonthFragment extends Fragment {
         leftButton = (Button)retView.findViewById(R.id.fragment_calender_month_buttonPrev);
         rightButton = (Button)retView.findViewById(R.id.fragment_calender_month_buttonNext);
         centerText = (TextView)retView.findViewById(R.id.fragment_calender_month_textMonth);
-
+        //weekGridViewTop = (GridView) (retView.findViewById(R.id.fragment_calender_month_top_GridView));
+        topLinearLayout = (LinearLayout)retView.findViewById(R.id.fragment_calender_month_top_linearLayout);
         monthGridview = (GridView)(retView.findViewById(R.id.fragment_calender_month_GridView));    //retView에서 gridview 찾아 할당
+
+        topLinearLayout.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+            @Override
+            public void onGlobalLayout() {
+                topLinearLayout.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+                //topLinearLayout.getHeight(); //height is ready
+                for(View topView : weekTopViewList){
+                    LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(topLinearLayout.getWidth()/8, 90);
+                    topView.setLayoutParams(params);
+                    topLinearLayout.addView(topView);
+                }
+            }
+        });
+
 
         if(savedInstanceState != null && savedInstanceState.getLong("savedTimeLong") != 0L){
             inParamTimeLong = savedInstanceState.getLong("savedTimeLong");
@@ -104,6 +158,12 @@ public class CalenderMonthFragment extends Fragment {
 
         calenderMonthAdapter = new CalenderMonthAdapter(getActivity(), inParamTimeLong);
         monthGridview.setAdapter(calenderMonthAdapter); //adpater 설정
+
+        //weekTopAdapter = new ArrayAdapter<String>(curContext, android.R.layout.simple_list_item_1, weekTopString);
+        //weekGridViewTop.setAdapter(weekTopAdapter);
+
+        //TODO : monthGridView style
+
 
         setCenterText();
 
@@ -169,6 +229,7 @@ public class CalenderMonthFragment extends Fragment {
         return retView;
     }
 
+
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
@@ -178,7 +239,7 @@ public class CalenderMonthFragment extends Fragment {
     private void setCenterText(){
         curMonth = calenderMonthAdapter.getCurMonth();
         curYear = calenderMonthAdapter.getCurYear();
-        centerText.setText(curYear + " " + (curMonth+1));
+        centerText.setText(curYear + "년 " + (curMonth+1) +"월");
     }
 
     public void onButtonPressed(Uri uri) {

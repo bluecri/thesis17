@@ -10,7 +10,10 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.GridView;
+import android.widget.ImageButton;
 import android.widget.TextView;
 
 import com.google.android.gms.maps.model.Marker;
@@ -43,7 +46,9 @@ import com.sample.thesis17.mytimeapp.baseTimeTable.week.CustomWeekView;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collections;
+import java.util.GregorianCalendar;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -78,8 +83,9 @@ public class CalenderWeekFragment extends Fragment implements DialogViewCalender
 
     View weekGridview;
     CalenderWeekView customWeekView;
-    TextView centerText;
-    Button prevButton, nextButton, refreshButton;
+    TextView startText, endText;
+    Button prevButton, nextButton;
+    ImageButton refreshButton;
     Context curContext;
 
     long weekFirstTimeLong = 0;
@@ -107,6 +113,7 @@ public class CalenderWeekFragment extends Fragment implements DialogViewCalender
 
     CalenderWeekAdapter calenderWeekAdapter = null;
 
+
     CalenderWeekFragmentListener calenderWeekFragmentListener = null;
 
 
@@ -120,6 +127,7 @@ public class CalenderWeekFragment extends Fragment implements DialogViewCalender
     //origin value
     FixedTimeTableData originFixedTimeTableData = null;
     MarkerData originMarkerData = null;
+
 
     //int curYear;        //현재 달력의 년, 월.
     //int curMonth;
@@ -197,7 +205,6 @@ public class CalenderWeekFragment extends Fragment implements DialogViewCalender
         catch(SQLException e){
             Log.d("TimetableWeekF", "getDaoFixedTimeTableData SQL Exception");
         }
-
     }
 
     @Override
@@ -210,11 +217,13 @@ public class CalenderWeekFragment extends Fragment implements DialogViewCalender
         //button, text
         prevButton = (Button)retView.findViewById(R.id.fragment_calender_week_prev_button);
         nextButton = (Button)retView.findViewById(R.id.fragment_calender_week_next_button);
-        refreshButton = (Button)retView.findViewById(R.id.fragment_calender_week_refresh_button);
-        centerText = (TextView)retView.findViewById(R.id.fragment_timetable_week_textMonth);
+        refreshButton = (ImageButton)retView.findViewById(R.id.fragment_calender_week_refresh_button);
+        startText = (TextView)retView.findViewById(R.id.fragment_calender_week_start_text);
+        endText = (TextView)retView.findViewById(R.id.fragment_calender_week_end_text);
 
         weekGridview = (View)(retView.findViewById(R.id.calenderWeekView));
         customWeekView = (CalenderWeekView) weekGridview;
+
 
         if(calenderWeekAdapter == null){
             Log.d("block" ,"regi calenderWeekAdapter null");
@@ -243,6 +252,7 @@ public class CalenderWeekFragment extends Fragment implements DialogViewCalender
                 changeWeekWithFirstWeekLong();
                 calenderWeekAdapter.setLongStartDate(weekFirstTimeLong);
                 customWeekView.invalidate();
+                setCenterText();
             }
         });
 
@@ -254,18 +264,21 @@ public class CalenderWeekFragment extends Fragment implements DialogViewCalender
                 changeWeekWithFirstWeekLong();
                 calenderWeekAdapter.setLongStartDate(weekFirstTimeLong);
                 customWeekView.invalidate();
+                setCenterText();
             }
         });
 
-
+        setCenterText();
 
         return retView;
     }
 
     private void setCenterText(){
-        /*curMonth = timetableWeekAdapter.getCurMonth();
-        curYear = timetableWeekAdapter.getCurYear();
-        centerText.setText(curYear + " " + (curMonth+1));*/
+        GregorianCalendar tempCalender = new GregorianCalendar();      //calendar 시작지점.
+        tempCalender.setTimeInMillis(weekFirstTimeLong);
+        startText.setText(""+(tempCalender.get(Calendar.MONTH) + 1 )+ "월 " + tempCalender.get(Calendar.DAY_OF_MONTH) + "일");
+        tempCalender.add(Calendar.DAY_OF_MONTH, 6);
+        endText.setText("~ "+(tempCalender.get(Calendar.MONTH) + 1 )+ "월 " + tempCalender.get(Calendar.DAY_OF_MONTH) + "일");
     }
 
     public void onButtonPressed(Uri uri) {

@@ -11,27 +11,22 @@ import android.view.Gravity;
 import com.sample.thesis17.mytimeapp.R;
 
 /**
- * Created by kimz on 2017-05-01.
+ * Created by kimz on 2017-10-29.
  */
 
-public class MonthItemView extends AppCompatTextView{
-    //TODO : AppCompatTextView Style
+public class MonthWeekTopView extends AppCompatTextView {
 
-    //MonthItemView가 가지고 있는 monthItem
-    private MonthItem monthItem;
-
-    //기본 생성자들
-    public MonthItemView(Context context) {
+    public MonthWeekTopView(Context context) {
         super(context);
         init(context);
     }
 
-    public MonthItemView(Context context, AttributeSet attrs) {
+    public MonthWeekTopView(Context context, AttributeSet attrs) {
         super(context, attrs);
         init(context);
     }
 
-    public MonthItemView(Context context, AttributeSet attrs, int defStyleAttr) {
+    public MonthWeekTopView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         init(context);
     }
@@ -49,19 +44,8 @@ public class MonthItemView extends AppCompatTextView{
 
         //setBackgroundColor(Color.WHITE);
     }
-
-    public void setMonthItem(MonthItem monthItem){
-        this.monthItem = monthItem;
-        //monthItem의 day를 가져와 text를 설정한다.
-        if(monthItem.getiDayValue() == 0){
-            setText("");
-        }
-        else{
-            setText(String.valueOf(monthItem.getiDayValue()));
-        }
-
-    }
-    public MonthItem getMonthItem(){
-        return this.monthItem;
+    public void setTextAndColor(String inText, int inColor){
+        this.setText(inText);
+        this.setTextColor(inColor);
     }
 }

@@ -13,6 +13,7 @@ import java.util.List;
 import static com.sample.thesis17.mytimeapp.Static.MyMath.LONG_DAY_MILLIS;
 import static com.sample.thesis17.mytimeapp.Static.MyMath.LONG_HOUR_MILLIS;
 import static com.sample.thesis17.mytimeapp.Static.MyMath.LONG_WEEK_MILLIS;
+import static com.sample.thesis17.mytimeapp.Static.MyMath.getContrastColor;
 import static java.lang.Math.max;
 import static java.lang.Math.min;
 
@@ -156,6 +157,8 @@ public class CustomWeekAdapter {
                 tempCustomWeekItem.setIdx(countIdx);
                 tempCustomWeekItem.setText(inData.getStrFixedTimeTableName());
                 tempCustomWeekItem.setCoords(left, up, right, bottom);
+                tempCustomWeekItem.setBlockColor(inData.getColor());
+                tempCustomWeekItem.setTextColor(getContrastColor(inData.getColor()));
 
                 customWeekItemList.add(tempCustomWeekItem);
                 break;
@@ -172,6 +175,8 @@ public class CustomWeekAdapter {
                 tempCustomWeekItem.setIdx(countIdx);
                 tempCustomWeekItem.setText(inData.getStrFixedTimeTableName());
                 tempCustomWeekItem.setCoords(left, up, right, bottom);
+                tempCustomWeekItem.setBlockColor(inData.getColor());
+                tempCustomWeekItem.setTextColor(getContrastColor(inData.getColor()));
 
                 customWeekItemList.add(tempCustomWeekItem);
                 Log.d("draws", "block info : " + tempCustomWeekItem.toString());
@@ -189,6 +194,8 @@ public class CustomWeekAdapter {
                     tempCustomWeekItem.setIdx(countIdx);
                     tempCustomWeekItem.setText(inData.getStrFixedTimeTableName());
                     tempCustomWeekItem.setCoords(left, up, right, bottom);
+                    tempCustomWeekItem.setBlockColor(inData.getColor());
+                    tempCustomWeekItem.setTextColor(getContrastColor(inData.getColor()));
 
                     customWeekItemList.add(tempCustomWeekItem);
                     Log.d("draws", "block info : " + tempCustomWeekItem.toString());
@@ -205,6 +212,8 @@ public class CustomWeekAdapter {
                 tempCustomWeekItem.setIdx(countIdx);
                 tempCustomWeekItem.setText(inData.getStrFixedTimeTableName());
                 tempCustomWeekItem.setCoords(left, up, right, bottom);
+                tempCustomWeekItem.setBlockColor(inData.getColor());
+                tempCustomWeekItem.setTextColor(getContrastColor(inData.getColor()));
 
                 customWeekItemList.add(tempCustomWeekItem);
                 Log.d("draws", "block info : " + tempCustomWeekItem.toString());

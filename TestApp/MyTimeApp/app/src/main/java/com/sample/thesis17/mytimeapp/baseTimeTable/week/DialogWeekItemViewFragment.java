@@ -79,7 +79,8 @@ public class DialogWeekItemViewFragment extends DialogFragment {
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         Log.d("DialogWeekItemViewFra", "DialogWeekItemViewFragment onCreateDialog");
-        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity(), R.style.alertDialogStyle);
+        builder.setTitle("시간표 정보 Dialog");
         // Get the layout inflater
         LayoutInflater inflater = getActivity().getLayoutInflater();
 
