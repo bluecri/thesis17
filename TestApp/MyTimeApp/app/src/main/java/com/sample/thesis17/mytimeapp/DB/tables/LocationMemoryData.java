@@ -121,4 +121,17 @@ public class LocationMemoryData {
     public void setbDummy(int bDummy) {
         this.bDummy = bDummy;
     }
+
+    @Override
+    public String toString() {
+        return "LMD{" +
+                "lat=" + lat +
+                ", lng=" + lng +
+                ", lMillis=" + lMillisTimeWritten +
+                ", fAcc=" + fAccur +
+                ", bindedHD=" + bindedHistoryData +
+                ", bindedTHD=" + bindedTempHistoryData +
+                ", bDum=" + bDummy +
+                '}';
+    }
 }

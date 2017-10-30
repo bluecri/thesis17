@@ -31,6 +31,7 @@ import com.sample.thesis17.mytimeapp.baseTimeTable.week.TimetableWeekFragment;
 import com.sample.thesis17.mytimeapp.locationS.SettingFragment;
 import com.sample.thesis17.mytimeapp.map.MapsActivity;
 import com.sample.thesis17.mytimeapp.setting.SettingActivity;
+import com.sample.thesis17.mytimeapp.statistic.StatisticItemFragment;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -44,6 +45,7 @@ public class MainActivity extends AppCompatActivity
 
     CalenderWeekFragment calenderWeekFragment = null;
     CalenderMonthFragment calenderMonthFragment = null;
+    StatisticItemFragment statisticFragment = null;
     MainBlankFragment blankFragment = null;
 
     @Override
@@ -90,6 +92,8 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onBackPressed() {
+        FragmentManager fragmentManager = getSupportFragmentManager();
+
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
@@ -97,12 +101,20 @@ public class MainActivity extends AppCompatActivity
         else if(calenderWeekFragment != null){
             // move to Month of Week
             long tempStartTimeLong = calenderWeekFragment.getStartLongTimeOfFragmentArgument();
-            Log.d("debbugged", "tempStarttimeLong : " + tempStartTimeLong);
+            //Log.d("debbugged", "tempStarttimeLong : " + tempStartTimeLong);
             fragmentChangeToMonthView(tempStartTimeLong);
         }
-        else {
+        else if(!(fragmentManager.findFragmentById(R.id.mainFragmentContainer) instanceof MainBlankFragment)){
+            FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+            blankFragment = MainBlankFragment.newInstance("", "");
+            fragmentTransaction.replace(R.id.mainFragmentContainer, blankFragment, "blankMainFragment");
+            fragmentTransaction.commit();
+        }
+        else{
             super.onBackPressed();
         }
+
+
     }
 
     @Override
@@ -205,16 +217,14 @@ public class MainActivity extends AppCompatActivity
 
         else if (id == R.id.nav_share)
         {
-            /*
-            if(blankFragment == null){
-                blankFragment = MainBlankFragment.newInstance("", "");
-            }
             FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
-            fragmentTransaction.replace(R.id.mainFragmentContainer, blankFragment, "blankMainFragment");
+            if(statisticFragment == null){
+                statisticFragment = new StatisticItemFragment();
+            }
+
+            fragmentTransaction.replace(R.id.mainFragmentContainer, statisticFragment, "statisticFragment");
             fragmentTransaction.commit();
-            Intent mapIntent = new Intent(this, SettingActivity.class);
-            startActivity(mapIntent);
-            */
+
         }
 
         else if (id == R.id.nav_send) {
@@ -272,18 +282,21 @@ public class MainActivity extends AppCompatActivity
                 fttd.setBindedTempHistoryData(null);
                 fttd.setBindedHistoryData(null);
                 locationMemoryDataIntegerDao.update(fttd);
+                Log.d("mainactivity", "LM : " + fttd.toString());
             }
 
-            Log.d("exception", "getDaoTempHistoryData" );
+            //Log.d("exception", "getDaoTempHistoryData" );
             deleteAllWithDao(databaseHelperMain.getDaoTempHistoryData());
-            Log.d("exception", "getDaoTempHistoryData" );
+            //Log.d("exception", "getDaoTempHistoryData" );
             deleteAllWithDao(databaseHelperMain.getDaoTempHistoryLMData());
-            Log.d("exception", "getDaoTempHistoryData" );
+            //Log.d("exception", "getDaoTempHistoryData" );
             deleteAllWithDao(databaseHelperMain.getDaoDateForTempHisoryData());
-            Log.d("exception", "getDaoTempHistoryData" );
+            //Log.d("exception", "getDaoTempHistoryData" );
             deleteAllWithDao(databaseHelperMain.getDaoHistoryData());
-            Log.d("exception", "getDaoTempHistoryData" );
+            //Log.d("exception", "getDaoTempHistoryData" );
             deleteAllWithDao(databaseHelperMain.getDaoTempHistoryMarkerData());
+            deleteAllWithDao(databaseHelperMain.getDaoHistoryDataInnerMarkerData());
+            deleteAllWithDao(databaseHelperMain.getDaoHistoryDataLocTimeRangeIncDecData());
 
         }
         catch(SQLException e){

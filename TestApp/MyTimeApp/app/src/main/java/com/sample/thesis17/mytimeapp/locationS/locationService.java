@@ -22,6 +22,7 @@ import com.sample.thesis17.mytimeapp.DB.baseClass.DatabaseHelperLocationMemory;
 import com.sample.thesis17.mytimeapp.DB.tables.LocationMemoryData;
 import com.sample.thesis17.mytimeapp.broadcaseRecv.WifiInfoBroadcastReceiver;
 
+import java.lang.ref.WeakReference;
 import java.sql.SQLException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -86,7 +87,7 @@ public class locationService extends Service {
             Log.d("test", "서비스의 onStartCommand");
 
 
-            hMainHandler = new HandlerGpsLocationRequest();
+            hMainHandler = new HandlerGpsLocationRequest(this);
 
 
             startLocationService();
@@ -479,6 +480,7 @@ public class locationService extends Service {
             return true;
     }
 
+    /*
     //handler
     private class HandlerGpsLocationRequest extends Handler{
 
@@ -500,6 +502,37 @@ public class locationService extends Service {
                 Log.d("locationService", "security exception in Handler");
             }
 
+        }
+    }
+    */
+    private static class HandlerGpsLocationRequest extends Handler{
+        private final WeakReference<locationService> locService;
+
+        HandlerGpsLocationRequest(locationService service){
+            locService = new WeakReference<locationService>(service);
+        }
+
+
+        @Override
+        public void handleMessage(Message msg) {
+            locationService service = locService.get();
+            if(service != null){
+                //super.handleMessage(msg);
+                try {
+                    Log.d("locationService", "handleMessage start");
+                    if (service.locationManagerGps != null) {
+                        Log.d("locationService", "handleMessage requestLocationUpdates");
+                        service.locationManagerGps.requestLocationUpdates(
+                                LocationManager.GPS_PROVIDER,
+                                service.iInterval,
+                                0,
+                                service.getLocationListenerCustomGps);
+                    }
+                }
+                catch(SecurityException e){
+                    Log.d("locationService", "security exception in Handler");
+                }
+            }
         }
     }
 

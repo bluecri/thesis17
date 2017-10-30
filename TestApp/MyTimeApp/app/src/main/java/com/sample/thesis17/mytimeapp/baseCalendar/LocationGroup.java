@@ -116,4 +116,16 @@ public class LocationGroup {
             return -1;
         }
     }
+
+    @Override
+    public String toString() {
+        return "LocationGroup{" +
+                "centerLat=" + centerLat +
+                ", centerLng=" + centerLng +
+                ", targetFTTD=" + targetFixedTimeTableData +
+                ", targetMD=" + targetMarkerData +
+                ", listInnerMD=" + listInnerMarkerData +
+                ", minDIst=" + minDIst +
+                '}';
+    }
 }

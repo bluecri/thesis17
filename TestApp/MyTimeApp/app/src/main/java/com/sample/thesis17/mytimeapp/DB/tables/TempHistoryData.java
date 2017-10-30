@@ -12,14 +12,16 @@ import com.j256.ormlite.table.DatabaseTable;
 public class TempHistoryData {
     public final static String TH_TEMPHISTORYDATA_STARTTIME_FIELD_NAME = "temphistorydata_starttime";
     public final static String TH_TEMPHISTORYDATA_ENDTIME_FIELD_NAME = "temphistorydata_endtime";
+    public final static String TH_TEMPHISTORYDATA_FTT_FIELD_NAME = "temphistorydata_fft";
+    public final static String TH_TEMPHISTORYDATA_MD_FIELD_NAME = "temphistorydata_md";
 
     @DatabaseField(generatedId = true)
     private int id;
 
-    @DatabaseField(canBeNull = false, foreign = true)
+    @DatabaseField(canBeNull = true, foreign = true, columnName = TH_TEMPHISTORYDATA_FTT_FIELD_NAME)
     private FixedTimeTableData foreFixedTimeTable;
 
-    @DatabaseField(canBeNull = false, foreign = true)
+    @DatabaseField(canBeNull = true, foreign = true, columnName = TH_TEMPHISTORYDATA_MD_FIELD_NAME)
     private MarkerData foreMarkerData;
 
     /*
@@ -46,7 +48,7 @@ public class TempHistoryData {
     TempHistoryData() {
         // empty constructor is needed
     }
-
+/*
     public TempHistoryData(FixedTimeTableData foreFixedTimeTable, MarkerData foreMarkerData, long lStartTime, long lEndTime, String memo, double tempLat, double tempLng) {
         this.foreFixedTimeTable = foreFixedTimeTable;
         this.foreMarkerData = foreMarkerData;
@@ -56,6 +58,16 @@ public class TempHistoryData {
         this.memo = memo;
         this.tempLat = tempLat;
         this.tempLng = tempLng;
+    }*/
+
+    public TempHistoryData(FixedTimeTableData foreFixedTimeTable, MarkerData foreMarkerData, long lStartTime, long lEndTime, double tempLat, double tempLng, String memo) {
+        this.foreFixedTimeTable = foreFixedTimeTable;
+        this.foreMarkerData = foreMarkerData;
+        this.lStartTime = lStartTime;
+        this.lEndTime = lEndTime;
+        this.tempLat = tempLat;
+        this.tempLng = tempLng;
+        this.memo = memo;
     }
 
     public int getId() {
@@ -132,13 +144,18 @@ public class TempHistoryData {
     }
     */
 
+
     @Override
     public String toString() {
         return "TempHistoryData{" +
-                "foreFixedTimeTable=" + foreFixedTimeTable +
+                "id=" + id +
+                ", foreFixedTimeTable=" + foreFixedTimeTable +
                 ", foreMarkerData=" + foreMarkerData +
                 ", lStartTime=" + lStartTime +
                 ", lEndTime=" + lEndTime +
+                ", tempLat=" + tempLat +
+                ", tempLng=" + tempLng +
+                ", memo='" + memo + '\'' +
                 '}';
     }
 }

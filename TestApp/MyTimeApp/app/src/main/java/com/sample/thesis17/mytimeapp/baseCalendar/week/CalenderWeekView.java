@@ -568,7 +568,7 @@ public class CalenderWeekView extends View {
             if(curCustomWeekAdapter.listCalenderWeekItem != null){
                 for(CalenderWeekItem item : curCustomWeekAdapter.listCalenderWeekItem){
                     RectF tempRectF = new RectF(item.left, item.top, item.right,item.bottom);
-                    //Log.d("draws", "draw rect / " + item.left + "/" + item.top + "/" + item.right + "/" +item.bottom);
+                    Log.d("draws", "draw rect / " + item.left + "/" + item.top + "/" + item.right + "/" +item.bottom);
                     //Log.d("draws", "customWeekItemList leng: "+ curCustomWeekAdapter.customWeekItemList.size());
                     tempRectPaint.setColor(item.getBlockColor());
                     tempTextPaint.setColor(item.getTextColor());
