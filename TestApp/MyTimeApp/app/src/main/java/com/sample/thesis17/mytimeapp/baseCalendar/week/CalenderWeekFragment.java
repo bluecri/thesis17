@@ -72,7 +72,9 @@ import static com.sample.thesis17.mytimeapp.Static.MyMath.LONG_GROUP_INTERVAL;
 import static com.sample.thesis17.mytimeapp.Static.MyMath.LONG_WEEK_MILLIS;
 import static com.sample.thesis17.mytimeapp.Static.MyMath.MAX_TIME_INCDEC;
 import static com.sample.thesis17.mytimeapp.Static.MyMath.MINDIST_TO_GROUP_TO_MAKRER;
+import static com.sample.thesis17.mytimeapp.Static.MyMath.MINTIME_TO_GROUPING;
 import static com.sample.thesis17.mytimeapp.Static.MyMath.OUT_RADIUS_INCDEC;
+import static java.lang.Math.abs;
 
 
 public class CalenderWeekFragment extends Fragment implements DialogViewCalenderItemFragment.DialogViewCalenderItemFragmentListener, DialogViewCalenderTempItemFragment.DialogViewCalenderTempItemFragmentListener{
@@ -522,6 +524,8 @@ public class CalenderWeekFragment extends Fragment implements DialogViewCalender
             MarkerData invisibleTargetMarkerData = null;
             List<MarkerData> visibleInnerMarkerDataList = new ArrayList<>();
             List<MarkerData> invisibleInnerMarkerDataList = new ArrayList<>();
+
+            //get inner markerdata, mindist markerData
             for(int k=0; k<listMarkerData.size(); k++){
                 // && listMarkerData.get(k).isInvisible() == false
                 if(listMarkerData.get(k).isCache() == true){
@@ -591,9 +595,10 @@ public class CalenderWeekFragment extends Fragment implements DialogViewCalender
             listLocationGroup.get(i).setTargetMarkerData(listMarkerData.get(k));        //set target markerData
             listLocationGroup.get(i).getListInnerMarkerData().add(listMarkerData.get(k));   //inner markerData add
             */
+
+
+
             //mindist is too large & no inner circle marker, then  targetMarkerData => null;
-
-
             if(visibleTargetMarkerData != null){
                 if(visibleInnerMarkerDataList.size() == 0){
                     //no inner marker in visibleMarkerDataList
@@ -706,6 +711,7 @@ public class CalenderWeekFragment extends Fragment implements DialogViewCalender
 
         //listLocationGroup(with targetMarker) -> fixedTimeTable 판단(timetable 판단 후 target marker,timetable이 존재하며 같은 경우 결합) 및 tempHistoryData 생성
         //중간에 다른 noise가 있다면 무시, 중간에 다른 tempHistoryData가 있는 경우 서로 묶이지 않음(A-A-B-B-A-A), noise가 긴 경우 서로 묶음(A-A-B-C-A-A => A-A-A-A)
+        //묶기 전 시간이 너무 멀다면 묶지 않음. A-A---A-A인 경우 A-A / A-A : 아래의 경우 fixedTimeTable이 존재할때만 묶으므로 여기 해당 x
 
         List<TempHistoryData> listNewTempHistoryData = new ArrayList<TempHistoryData>();
         TempHistoryData lastTempHistoryData = null;
@@ -939,13 +945,19 @@ public class CalenderWeekFragment extends Fragment implements DialogViewCalender
                 double testGroupCenterLat = groupCenterLat*(i - startGroupIdx)/((i - startGroupIdx)+1) + listLocationMemWithTime.get(i).getLat()/((i - startGroupIdx)+1);
                 double testGroupCenterLng = groupCenterLng*(i - startGroupIdx)/((i - startGroupIdx)+1) + listLocationMemWithTime.get(i).getLng()/((i - startGroupIdx)+1);
                 Log.d("calcGroupLatlng", "lat:"+groupCenterLat + "lng:" + groupCenterLng);
-                for(int k = startGroupIdx; k <= i; k++){
-                    if(!isInnerRangeDot(groupCenterLat, groupCenterLng, listLocationMemWithTime.get(k).getLat(),listLocationMemWithTime.get(k).getLng(), DOUBLE_GROUPING_2POW_RADIUS)){
-                        //do Grouping
-                        doGrouping = true;
-                        break;
+                //묶기 전 시간이 너무 멀다면 묶지 않음. A-A---A-A인 경우 A-A / A-A
+                if(abs(listLocationMemWithTime.get(i).getlMillisTimeWritten() - listLocationMemWithTime.get(i-1).getlMillisTimeWritten()) > MINTIME_TO_GROUPING){
+                    doGrouping = true;
+                }
+                if(!doGrouping){
+                    for(int k = startGroupIdx; k <= i; k++){
+                        if(!isInnerRangeDot(groupCenterLat, groupCenterLng, listLocationMemWithTime.get(k).getLat(),listLocationMemWithTime.get(k).getLng(), DOUBLE_GROUPING_2POW_RADIUS)){
+                            //do Grouping
+                            doGrouping = true;
+                            break;
+                        }
+                        //check isInnerRangeDot continue
                     }
-                    //check isInnerRangeDot continue
                 }
                 if(!doGrouping){
                     groupCenterLat = testGroupCenterLat;
@@ -1071,12 +1083,18 @@ public class CalenderWeekFragment extends Fragment implements DialogViewCalender
                 double testGroupCenterLat = groupCenterLat*(i - startGroupIdx)/((i - startGroupIdx)+1) + listLocationMemWithTime.get(i).getLat()/((i - startGroupIdx)+1);
                 double testGroupCenterLng = groupCenterLng*(i - startGroupIdx)/((i - startGroupIdx)+1) + listLocationMemWithTime.get(i).getLng()/((i - startGroupIdx)+1);
                 Log.d("downcalcGroupLatlng", "lat:"+groupCenterLat + "lng:" + groupCenterLng);
-                for(int k = startGroupIdx; k <= i; k++){
-                    if(!isInnerRangeDot(testGroupCenterLat, testGroupCenterLng, listLocationMemWithTime.get(k).getLat(),listLocationMemWithTime.get(k).getLng(), DOUBLE_GROUPING_2POW_RADIUS)){
-                        doGrouping = true;
-                        break;
+                //묶기 전 시간이 너무 멀다면 묶지 않음. A-A---A-A인 경우 A-A / A-A
+                if(abs(listLocationMemWithTime.get(i).getlMillisTimeWritten() - listLocationMemWithTime.get(i-1).getlMillisTimeWritten()) > MINTIME_TO_GROUPING){
+                    doGrouping = true;
+                }
+                if(!doGrouping){
+                    for(int k = startGroupIdx; k <= i; k++){
+                        if(!isInnerRangeDot(testGroupCenterLat, testGroupCenterLng, listLocationMemWithTime.get(k).getLat(),listLocationMemWithTime.get(k).getLng(), DOUBLE_GROUPING_2POW_RADIUS)){
+                            doGrouping = true;
+                            break;
+                        }
+                        //check isInnerRangeDot continue
                     }
-                    //check isInnerRangeDot continue
                 }
                 if(!doGrouping){
                     groupCenterLat = testGroupCenterLat;

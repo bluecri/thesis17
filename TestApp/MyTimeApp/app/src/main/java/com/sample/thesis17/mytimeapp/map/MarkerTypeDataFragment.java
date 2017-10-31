@@ -31,6 +31,8 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.sample.thesis17.mytimeapp.statistic.StatisticItemFragment.IMAGE_NAME_INT_ITEM_LIST;
+
 
 public class MarkerTypeDataFragment extends Fragment implements MyMarkerTypeDataRecyclerViewAdapter.OnListFragmentInteractionClickListener, DialogMarkerTypeFragment.DialogMarkerTypeFragmentListener, DialogMarkerTypeModifyFragment.DialogMarkerTypeModifyFragmentListener
 {
@@ -148,6 +150,7 @@ public class MarkerTypeDataFragment extends Fragment implements MyMarkerTypeData
         Bundle bundleArg = new Bundle();
         bundleArg.putString("title", item.getStrTypeName());
         bundleArg.putString("memo", item.getStrMemo());
+        bundleArg.putString("imgStr", IMAGE_NAME_INT_ITEM_LIST.get(item.getImageIdx()).getImageStr());
         dig.setArguments(bundleArg);
         dig.setTargetFragment(this, 0);
         selectedMarkerTypeData = item;      //set selected data for delete, modify
@@ -165,6 +168,7 @@ public class MarkerTypeDataFragment extends Fragment implements MyMarkerTypeData
             Bundle bundleArg = new Bundle();
             bundleArg.putString("title", selectedMarkerTypeData.getStrTypeName());
             bundleArg.putString("memo", selectedMarkerTypeData.getStrMemo());
+            bundleArg.putInt("imageIdx", selectedMarkerTypeData.getImageIdx());
             dig.setArguments(bundleArg);
             dig.setTargetFragment(this, 0);
             dig.show(((FragmentActivity)curContext).getSupportFragmentManager(), "DialogMarkerTypeModifyFragment");
@@ -205,6 +209,7 @@ public class MarkerTypeDataFragment extends Fragment implements MyMarkerTypeData
                 //dialog에 전달된 정보는 markerTypeData id가 없음. 현재 선택된 data에 id가 존재하므로 그대로 selectedMarkerTypeData를 갱신하여 Dao에 update.
                 selectedMarkerTypeData.setStrTypeName(mtd.getStrTypeName());
                 selectedMarkerTypeData.setStrMemo(mtd.getStrMemo());
+                selectedMarkerTypeData.setImageIdx(mtd.getImageIdx());
                 daoMarkerTypeDataInteger.update(selectedMarkerTypeData);
                 markerTypeDataFragmentAdapter.notifyDataSetChanged();
             }

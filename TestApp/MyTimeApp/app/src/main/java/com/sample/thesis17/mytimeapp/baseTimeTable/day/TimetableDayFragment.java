@@ -1,4 +1,5 @@
-package com.sample.thesis17.mytimeapp.baseTimeTable.week;
+package com.sample.thesis17.mytimeapp.baseTimeTable.day;
+
 
 import android.content.Context;
 import android.net.Uri;
@@ -28,16 +29,7 @@ import java.util.List;
 
 import static android.util.Log.d;
 
-
-/**
- * A simple {@link Fragment} subclass.
- * Activities that contain this fragment must implement the
- * {@link TimetableWeekFragment.OnFragmentInteractionListener} interface
- * to handle interaction events.
- * Use the {@link TimetableWeekFragment#newInstance} factory method to
- * create an instance of this fragment.
- */
-public class TimetableWeekFragment extends Fragment implements DialogWeekItemViewFragment.DialogWeekItemViewFragmentListener, DialogWeekItemModifyViewFragment.DialogWeekItemModifyViewFragmentListener, DialogWeekItemCreateFragment.DialogWeekItemCreateFragmentListener{
+public class TimetableDayFragment extends Fragment implements DialogWeekItemViewFragment.DialogWeekItemViewFragmentListener, DialogWeekItemModifyViewFragment.DialogWeekItemModifyViewFragmentListener, DialogWeekItemCreateFragment.DialogWeekItemCreateFragmentListener{
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
@@ -49,8 +41,8 @@ public class TimetableWeekFragment extends Fragment implements DialogWeekItemVie
 
     private OnFragmentInteractionListener mListener;
 
-    View weekGridview;
-    CustomWeekView customWeekView;
+    View dayGridview;
+    CustomDayView customDayView;
     TextView centerText;
     ImageButton leftButton;
     Button addButton;
@@ -61,7 +53,7 @@ public class TimetableWeekFragment extends Fragment implements DialogWeekItemVie
     List<MarkerData> listMarkerData = null;
     Dao<FixedTimeTableData, Integer> daoFixedTimeTableDataInteger = null;
     Dao<MarkerData, Integer> daoMarkerDataInteger = null;
-    CustomWeekAdapter customWeekAdapter = null;
+    CustomDayAdapter customDayAdapter = null;
 
 
     //dialog
@@ -76,7 +68,7 @@ public class TimetableWeekFragment extends Fragment implements DialogWeekItemVie
     //int curYear;        //현재 달력의 년, 월.
     //int curMonth;
 
-    public TimetableWeekFragment() {
+    public TimetableDayFragment() {
         // Required empty public constructor
     }
 
@@ -89,8 +81,8 @@ public class TimetableWeekFragment extends Fragment implements DialogWeekItemVie
      * @return A new instance of fragment TimetableWeekFragment.
      */
     // TODO: Rename and change types and number of parameters
-    public static TimetableWeekFragment newInstance(String param1, String param2) {
-        TimetableWeekFragment fragment = new TimetableWeekFragment();
+    public static TimetableDayFragment newInstance(String param1, String param2) {
+        TimetableDayFragment fragment = new TimetableDayFragment();
         Bundle args = new Bundle();
         args.putString(ARG_PARAM1, param1);
         args.putString(ARG_PARAM2, param2);
@@ -113,7 +105,7 @@ public class TimetableWeekFragment extends Fragment implements DialogWeekItemVie
                         listFixedTimeTableData.add(fttd);
                     }
                 }
-                customWeekAdapter = new CustomWeekAdapter(curContext, listFixedTimeTableData);  //adapter create
+                customDayAdapter = new CustomDayAdapter(curContext, listFixedTimeTableData);  //adapter create
             }
             //fixedTimeTableData와 연결된 markerData를 정하기 위한 list
             if(daoMarkerDataInteger != null) {
@@ -121,7 +113,7 @@ public class TimetableWeekFragment extends Fragment implements DialogWeekItemVie
             }
         }
         catch(SQLException e){
-            Log.d("TimetableWeekF", "getDaoFixedTimeTableData SQL Exception");
+            Log.d("TimetableDayF", "getDaoFixedTimeTableData SQL Exception");
         }
         /*if (getArguments() != null) {
             mParam1 = getArguments().getString(ARG_PARAM1);
@@ -136,18 +128,18 @@ public class TimetableWeekFragment extends Fragment implements DialogWeekItemVie
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         // Inflate the layout for this fragment
-        View retView = inflater.inflate(R.layout.fragment_timetable_week, container, false);        //fragment에 해당하는 retView
+        View retView = inflater.inflate(R.layout.fragment_timetable_day, container, false);        //fragment에 해당하는 retView
 
         //button, text
-        leftButton = (ImageButton)retView.findViewById(R.id.fragment_timetable_week_buttonRefresh);
-        addButton = (Button)retView.findViewById(R.id.fragment_timetable_week_buttonAdd);
-        centerText = (TextView)retView.findViewById(R.id.fragment_timetable_week_textMonth);
+        leftButton = (ImageButton)retView.findViewById(R.id.fragment_timetable_day_buttonRefresh);
+        addButton = (Button)retView.findViewById(R.id.fragment_timetable_day_buttonAdd);
+        centerText = (TextView)retView.findViewById(R.id.fragment_timetable_day_textMonth);
 
-        weekGridview = (View)(retView.findViewById(R.id.customWeekView));
-        customWeekView = (CustomWeekView) weekGridview;
+        dayGridview = (View)(retView.findViewById(R.id.customDayView));
+        customDayView = (CustomDayView) dayGridview;
 
         //adapter View에 등록
-        customWeekView.setCustomWeekAdapter(customWeekAdapter);
+        customDayView.setCustomDayAdapter(customDayAdapter);
 
 
 
@@ -189,7 +181,7 @@ public class TimetableWeekFragment extends Fragment implements DialogWeekItemVie
         leftButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                customWeekView.invalidate();
+                customDayView.invalidate();
                 /*timetableWeekAdapter.setPreviousMonth();;
                 timetableWeekAdapter.notifyDataSetChanged();;
                 setCenterText();*/
@@ -201,9 +193,9 @@ public class TimetableWeekFragment extends Fragment implements DialogWeekItemVie
             @Override
             public void onClick(View v) {
                 dialogWeekItemCreateFragment = new DialogWeekItemCreateFragment();
-                dialogWeekItemCreateFragment.setTargetFragment(((FragmentActivity)curContext).getSupportFragmentManager().findFragmentByTag("timetable_week_fragment"), 0);
-                Log.d("timetableweekF", "onClickAdd()");
-                dialogWeekItemCreateFragment.show(((FragmentActivity)curContext).getSupportFragmentManager(), "DialogWeekItemViewFragment");
+                dialogWeekItemCreateFragment.setTargetFragment(((FragmentActivity)curContext).getSupportFragmentManager().findFragmentByTag("timetable_day_fragment"), 0);
+                Log.d("timetabledayF", "onClickAdd()");
+                dialogWeekItemCreateFragment.show(((FragmentActivity)curContext).getSupportFragmentManager(), "DialogDayItemViewFragment");
             }
         });
 
@@ -291,8 +283,8 @@ public class TimetableWeekFragment extends Fragment implements DialogWeekItemVie
         dialogWeekItemViewFragment.setTargetFragment(this, 0);
         //dialogWeekItemViewFragment.dismiss();
 
-        Log.d("timetableweekF", "opendialogwithidx()");
-        dialogWeekItemViewFragment.show(((FragmentActivity)curContext).getSupportFragmentManager(), "DialogWeekItemViewFragment");
+        Log.d("timetabledayF", "opendialogwithidx()");
+        dialogWeekItemViewFragment.show(((FragmentActivity)curContext).getSupportFragmentManager(), "DialogDayItemViewFragment");
     }
 
 
@@ -300,13 +292,13 @@ public class TimetableWeekFragment extends Fragment implements DialogWeekItemVie
     @Override
     public void openModifyDialogWithIdx(){
         //open dialogWeekItemModifyViewFragment using selectedIdx
-            bundleArg = new Bundle();
-            bundleArg.putString("title", listFixedTimeTableData.get(selectedIdx).getStrFixedTimeTableName());
-            bundleArg.putLong("starttime", listFixedTimeTableData.get(selectedIdx).getlStartTime());
-            bundleArg.putLong("endtime", listFixedTimeTableData.get(selectedIdx).getlEndTime());
-            //가져온 listFixedTimeTableData에서 selectedIdx에 해당되는 MarkerData를 사용하여, listMarkerData의 어느 index에 존재하는지 확인.
-            bundleArg.putInt("markerIdx", listMarkerData.indexOf(listFixedTimeTableData.get(selectedIdx).getForeMarkerData()));
-            bundleArg.putString("memo", listFixedTimeTableData.get(selectedIdx).getStrMemo());
+        bundleArg = new Bundle();
+        bundleArg.putString("title", listFixedTimeTableData.get(selectedIdx).getStrFixedTimeTableName());
+        bundleArg.putLong("starttime", listFixedTimeTableData.get(selectedIdx).getlStartTime());
+        bundleArg.putLong("endtime", listFixedTimeTableData.get(selectedIdx).getlEndTime());
+        //가져온 listFixedTimeTableData에서 selectedIdx에 해당되는 MarkerData를 사용하여, listMarkerData의 어느 index에 존재하는지 확인.
+        bundleArg.putInt("markerIdx", listMarkerData.indexOf(listFixedTimeTableData.get(selectedIdx).getForeMarkerData()));
+        bundleArg.putString("memo", listFixedTimeTableData.get(selectedIdx).getStrMemo());
 
 
         dialogWeekItemModifyViewFragment = new DialogWeekItemModifyViewFragment();
@@ -314,14 +306,14 @@ public class TimetableWeekFragment extends Fragment implements DialogWeekItemVie
         dialogWeekItemModifyViewFragment.setArguments(bundleArg);
         dialogWeekItemModifyViewFragment.setTargetFragment(this, 0);
 
-        Log.d("timetableweekF", "openModifyDialogWithIdx()");
+        Log.d("timetabledayF", "openModifyDialogWithIdx()");
         //close dialogWeekItemViewFragment
         if(dialogWeekItemViewFragment != null){
             dialogWeekItemViewFragment.dismiss();
             dialogWeekItemViewFragment = null;
         }
 
-        dialogWeekItemModifyViewFragment.show(((FragmentActivity)curContext).getSupportFragmentManager(), "DialogWeekItemModifyViewFragment");
+        dialogWeekItemModifyViewFragment.show(((FragmentActivity)curContext).getSupportFragmentManager(), "DialogDayItemModifyViewFragment");
     }
     @Override
     public void doDelete() {
@@ -336,10 +328,10 @@ public class TimetableWeekFragment extends Fragment implements DialogWeekItemVie
             //  daoFixedTimeTableDataInteger.delete(delData);   : delete 대신 cache -> false
         }
         catch(SQLException e){
-            Log.d("timetableweek", "doDelete sql");
+            Log.d("timetableday", "doDelete sql");
         }
 
-        customWeekView.invalidate();
+        customDayView.invalidate();
 
 
         //finally close dialogWeekItemViewFragment
@@ -371,10 +363,10 @@ public class TimetableWeekFragment extends Fragment implements DialogWeekItemVie
             daoFixedTimeTableDataInteger.update(modifyData);
         }
         catch(SQLException e){
-            Log.d("timetableweek", "doDelete sql");
+            Log.d("timetableDay", "doDelete sql");
         }
 
-        customWeekView.invalidate();
+        customDayView.invalidate();
 
         //finally close dialogWeekItemModifyViewFragment
         if(dialogWeekItemModifyViewFragment != null){
@@ -393,10 +385,10 @@ public class TimetableWeekFragment extends Fragment implements DialogWeekItemVie
             daoFixedTimeTableDataInteger.create(createData);
         }
         catch(SQLException e){
-            Log.d("timetableweek", "doDelete sql");
+            Log.d("timetableDay", "doDelete sql");
         }
 
-        customWeekView.invalidate();
+        customDayView.invalidate();
         //finally close DialogWeekItemCreateFragment
         if(dialogWeekItemCreateFragment != null){
             dialogWeekItemCreateFragment.dismiss();

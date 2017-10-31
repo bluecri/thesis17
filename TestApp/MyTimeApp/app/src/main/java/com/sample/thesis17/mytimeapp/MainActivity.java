@@ -150,26 +150,6 @@ public class MainActivity extends AppCompatActivity
         //timetable
         if (id == R.id.nav_main_calendar) {
             FragmentManager fragmentManager = getSupportFragmentManager();
-
-            //현재 mainFragment의 Tag 정보 알아냄.
-            //Fragment mainFragment = fragmentManager.findFragmentById(R.id.mainFragment);
-            /*if(mainFragment.getTag() != "timetable"){
-                FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-                fragmentTransaction.replace
-            }*/
-            //fragment Transaction
-            FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-            //create Calender fragment with parameter
-            TimetableWeekFragment timetableFragment = TimetableWeekFragment.newInstance("", "");
-            //replace mainFragment's fragment -> calender(TAG : timetable)
-            //fragmentTransaction.replace(R.id.mainFragmentContainer, timetableFragment, "timetable");
-            fragmentTransaction.replace(R.id.mainFragmentContainer, timetableFragment, "timetable_week_fragment");
-            fragmentTransaction.commit();
-        }
-
-        //calendar
-        else if (id == R.id.nav_main_timetable) {
-            FragmentManager fragmentManager = getSupportFragmentManager();
             FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
             if(calenderMonthFragment == null && calenderWeekFragment == null){
                 calenderMonthFragment = CalenderMonthFragment.newInstance(System.currentTimeMillis());
@@ -187,6 +167,25 @@ public class MainActivity extends AppCompatActivity
                 fragmentTransaction.commit();
                 Log.d("mainActivity", "month frag not null");
             }
+        }
+        //calendar
+        else if (id == R.id.nav_main_timetable) {
+            FragmentManager fragmentManager = getSupportFragmentManager();
+
+            //현재 mainFragment의 Tag 정보 알아냄.
+            //Fragment mainFragment = fragmentManager.findFragmentById(R.id.mainFragment);
+            /*if(mainFragment.getTag() != "timetable"){
+                FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+                fragmentTransaction.replace
+            }*/
+            //fragment Transaction
+            FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+            //create Calender fragment with parameter
+            TimetableWeekFragment timetableFragment = TimetableWeekFragment.newInstance("", "");
+            //replace mainFragment's fragment -> calender(TAG : timetable)
+            //fragmentTransaction.replace(R.id.mainFragmentContainer, timetableFragment, "timetable");
+            fragmentTransaction.replace(R.id.mainFragmentContainer, timetableFragment, "timetable_week_fragment");
+            fragmentTransaction.commit();
         }
         //map
         else if (id == R.id.nav_main_map) {

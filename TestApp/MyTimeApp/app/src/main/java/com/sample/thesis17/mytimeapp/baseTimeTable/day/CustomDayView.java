@@ -1,4 +1,5 @@
-package com.sample.thesis17.mytimeapp.baseCalendar.week;
+package com.sample.thesis17.mytimeapp.baseTimeTable.day;
+
 
 import android.content.Context;
 import android.graphics.Canvas;
@@ -13,6 +14,7 @@ import android.view.View;
 import android.view.ViewConfiguration;
 import android.widget.Toast;
 
+import com.sample.thesis17.mytimeapp.baseTimeTable.CustomWeekItem;
 import com.sample.thesis17.mytimeapp.baseTimeTable.Points;
 
 import java.util.List;
@@ -20,15 +22,14 @@ import java.util.List;
 import static java.lang.Math.min;
 
 /**
- * Created by kimz on 2017-09-21.
+ * Created by kimz on 2017-05-07.
  */
 
-//Equal to CustomWeekView
-public class CalenderWeekView extends View {
+public class CustomDayView extends View {
     public Context curContext;
 
-    private static int COL_NUM = 7;
-    private static int ROW_NUM = 24;
+    public static int COL_NUM = 7;
+    public static int ROW_NUM = 24;
 
     static int MODE_NONE = 0, MODE_DRAG_INIT = 1, MODE_DRAG_HOR = 2, MODE_DRAG_VER = 3, MODE_PAN = 4;
 
@@ -52,11 +53,12 @@ public class CalenderWeekView extends View {
 
     //db
 
-    CalenderWeekAdapter curCustomWeekAdapter = null;
-    List<CalenderWeekItem> customItemList = null;
+    CustomDayAdapter curCustomDayAdapter = null;
+    List<CustomWeekItem> customItemList = null;
 
 
-    public CalenderWeekView(Context context) {
+
+    public CustomDayView(Context context) {
         super(context);
         curContext = context;
 
@@ -64,7 +66,7 @@ public class CalenderWeekView extends View {
         //init();
     }
 
-    public CalenderWeekView(Context context, @Nullable AttributeSet attrs) {
+    public CustomDayView(Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
         curContext = context;
 
@@ -79,7 +81,7 @@ public class CalenderWeekView extends View {
 
         refreshInit();  //curBlock 변경에 따른 scroll의 제한 위치 갱신
         drawAllBaseBlock(canvas);
-        drawTimeAndWeek(canvas);
+        drawTimeAndDay(canvas);
         //canvas.drawRect(0,0,200,200, paint);
         drawContentBlocks(canvas);
         Log.d("draw", "draw");
@@ -88,13 +90,12 @@ public class CalenderWeekView extends View {
 
 
     public void init(){
-        //Log.d("debbugged", "init()");
         //setCustomViewWidthHeight(); //setting CustomView size
         fLeftSideSpace = 30f;//(float)customViewWidth/10;		//setting left side empty space
         fUpSideSpace = 40f;//(float)customViewHeight/20;
         fCustomViewHeightExceptSpace = (float)customViewHeight - fUpSideSpace;
         fCustomViewWidthExceptSpace = (float)customViewWidth - fLeftSideSpace;
-        setCanvasBlock(7, 24, 2);   //setting week block
+        setCanvasBlock(7, 24, 2);   //setting Day block
         //초기 블럭의 size setting(min)
         pCurBlock = new Points(fMinBlockCol, fMinBlockRow);
         pCurScrollLeftUp = new Points(0, 0);
@@ -105,15 +106,11 @@ public class CalenderWeekView extends View {
         fScrollBottomEnd = ROW_NUM * pCurBlock.fRow - fCustomViewHeightExceptSpace;
         Log.d("block", customViewHeight  +" "+ customViewWidth);
         Log.d("block", fLeftSideSpace  +" "+ fUpSideSpace  +" "+ fCustomViewHeightExceptSpace  +" "+ fCustomViewWidthExceptSpace  +" "+ pCurScrollLeftUp.fCol  +" "+ pCurScrollLeftUp.fRow);
-        if(curCustomWeekAdapter == null){
-            Log.d("block", "curCustomWeekAdapter null");
-        }
-        curCustomWeekAdapter.setConfig(fUpSideSpace, fLeftSideSpace, fCustomViewWidthExceptSpace, fCustomViewHeightExceptSpace);
+        curCustomDayAdapter.setConfig(0, fUpSideSpace, fLeftSideSpace, fCustomViewWidthExceptSpace, fCustomViewHeightExceptSpace);
         //adapt.setFlexibleConfig(pCurScrollLeftUp.fCol, pCurScrollLeftUp.fRow, pCurBlock.fCol, pCurBlock.fRow);
     }
 
     public void refreshInit(){
-        //Log.d("debbugged", "refreshInit()");
         fScrollRightEnd = COL_NUM * pCurBlock.fCol - fCustomViewWidthExceptSpace;
         fScrollBottomEnd = ROW_NUM * pCurBlock.fRow - fCustomViewHeightExceptSpace;
     }
@@ -137,7 +134,7 @@ public class CalenderWeekView extends View {
         fMinBlockCol = (float) fCustomViewWidthExceptSpace / 7;
     }
 
-    public void drawTimeAndWeek(Canvas canvas){
+    public void drawTimeAndDay(Canvas canvas){
         Paint fontPaint = new Paint();
         fontPaint.setAntiAlias(true);   //aliasing
 
@@ -145,24 +142,24 @@ public class CalenderWeekView extends View {
 
         fontPaint.setColor(Color.RED);
         fontPaint.setTextSize(20);
-        String[] strArrWeek = {"일", "월", "화", "수", "목", "금", "토"};
-        float alignOfWeek = pCurBlock.fCol;   //간격
+        String[] strArrDay = {"col1", "col2", "col3", "col4", "col5", "col6", "col7"};
+        float alignOfDay = pCurBlock.fCol;   //간격
         float startPos = -pCurScrollLeftUp.fCol + pCurBlock.fCol/2 + fLeftSideSpace;
 
         if(startPos >= fLeftSideSpace)  //왼쪽 빈 공간을 침범하지 않는 경우에만.
-            canvas.drawText(strArrWeek[0], startPos, 20, fontPaint);        //draw "일"
+            canvas.drawText(strArrDay[0], startPos, 20, fontPaint);        //draw "일"
         startPos += pCurBlock.fCol;
 
         fontPaint.setColor(Color.BLACK);
         for(int i=1; i<6 ; i++){
             if(startPos >= fLeftSideSpace)
-                canvas.drawText(strArrWeek[i], startPos, 20, fontPaint);
+                canvas.drawText(strArrDay[i], startPos, 20, fontPaint);
             startPos += pCurBlock.fCol;
         }
 
         fontPaint.setColor(Color.BLUE);
         if(startPos >= fLeftSideSpace)
-            canvas.drawText(strArrWeek[6], startPos, 20, fontPaint);        //draw "일"
+            canvas.drawText(strArrDay[6], startPos, 20, fontPaint);        //draw "일"
 
         //draw time
 
@@ -451,7 +448,7 @@ public class CalenderWeekView extends View {
                 // Touch was a simple tap. Do whatever.	Click
                 Toast.makeText(super.getContext(), "click : " + event.getX() + ", " + event.getY() + ", " + getWidth() + ", " + getHeight(), Toast.LENGTH_LONG).show();
                 //Click
-                int retIdx = curCustomWeekAdapter.getIdxWithClicked(event.getX(), event.getY());
+                int retIdx = curCustomDayAdapter.getIdxWithClicked(event.getX(), event.getY());
                 if(retIdx == -1){
                     Log.d("block", "click box find error");
                 }
@@ -505,7 +502,6 @@ public class CalenderWeekView extends View {
     //custom View를 생성하고 XML에 정의된 View의 fixed size를 가져오거나 match_parent, fill_parent와 같이 외부상황으로 인해 정해진 size를 얻어내어 view의 크기를 정한다.
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-        //Log.d("debbugged", "onMesure");
         int widthMode = MeasureSpec.getMode(widthMeasureSpec);
         int heightMode = MeasureSpec.getMode(heightMeasureSpec);
 
@@ -525,9 +521,9 @@ public class CalenderWeekView extends View {
     }*/
 
     //adapter를 등록한다.
-    public void setCustomWeekAdapter(CalenderWeekAdapter adapt){
+    public void setCustomDayAdapter(CustomDayAdapter adapt){
         //adapt.updateCustomWeekItemList();
-        curCustomWeekAdapter = adapt;
+        curCustomDayAdapter = adapt;
     }
 
     //customItemList로 block과 text를 draw 한다.
@@ -535,7 +531,7 @@ public class CalenderWeekView extends View {
         Log.d("draws", "drawContentBlocks()");
         //rect Paint
         Paint tempRectPaint= new Paint();
-        tempRectPaint.setColor(Color.GREEN);
+        tempRectPaint.setColor(Color.GREEN);    //default
 
         //stroke paint
         Paint strokePaint = new Paint();
@@ -544,15 +540,10 @@ public class CalenderWeekView extends View {
         strokePaint.setStrokeWidth(1);
         int cornerRadius = 20;
 
-        //stroke paint
-        Paint strokeTempPaint = new Paint();
-        strokeTempPaint.setStyle(Paint.Style.STROKE);
-        strokeTempPaint.setColor(Color.YELLOW);
-        strokeTempPaint.setStrokeWidth(2);
 
         //text Paint
         Paint tempTextPaint= new Paint();
-        tempTextPaint.setColor(Color.BLACK);
+        tempTextPaint.setColor(Color.BLACK);    ////default
         tempTextPaint.setAntiAlias(true);
         tempTextPaint.setTextAlign(Paint.Align.LEFT);
         tempTextPaint.setTextSize((float)20.0);
@@ -561,26 +552,20 @@ public class CalenderWeekView extends View {
         Log.d("draws", "textHeight:"+textHeight);
         //float lineHeight = fm.bottom - fm.top + fm.leading;
 
-        if(curCustomWeekAdapter != null){
-            curCustomWeekAdapter.setFlexibleConfig(pCurScrollLeftUp.fCol, pCurScrollLeftUp.fRow, pCurBlock.fCol, pCurBlock.fRow);
-            curCustomWeekAdapter.updateCustomWeekItemList();
+        if(curCustomDayAdapter != null){
+            curCustomDayAdapter.setFlexibleConfig(pCurScrollLeftUp.fCol, pCurScrollLeftUp.fRow, pCurBlock.fCol, pCurBlock.fRow);
+            curCustomDayAdapter.updateCustomWeekItemList();
             //curCustomWeekAdapter.customWeekItemList
-            if(curCustomWeekAdapter.listCalenderWeekItem != null){
-                for(CalenderWeekItem item : curCustomWeekAdapter.listCalenderWeekItem){
+            if(curCustomDayAdapter.customWeekItemList != null){
+                Log.d("draws", "customWeekItemList leng: "+ curCustomDayAdapter.customWeekItemList.size());
+                for(CustomWeekItem item : curCustomDayAdapter.customWeekItemList){
                     RectF tempRectF = new RectF(item.left, item.top, item.right,item.bottom);
-                    Log.d("draws", "draw rect / " + item.left + "/" + item.top + "/" + item.right + "/" +item.bottom);
-                    //Log.d("draws", "customWeekItemList leng: "+ curCustomWeekAdapter.customWeekItemList.size());
+                    //Log.d("draws", "draw rect / " + item.left + "/" + item.top + "/" + item.right + "/" +item.bottom);
                     tempRectPaint.setColor(item.getBlockColor());
                     tempTextPaint.setColor(item.getTextColor());
-
+                    //Log.d("draws", "textColor : " + item.getTextColor());
                     canvas.drawRoundRect(tempRectF, cornerRadius, cornerRadius, tempRectPaint);
-                    if(item.isHistoryData()){
-                        canvas.drawRoundRect(tempRectF, cornerRadius, cornerRadius, strokePaint);
-                    }
-                    else{
-                        canvas.drawRoundRect(tempRectF, cornerRadius, cornerRadius, strokeTempPaint);
-                    }
-
+                    canvas.drawRoundRect(tempRectF, cornerRadius, cornerRadius, strokePaint);
                     String tempString = item.getText();
                     int startIdx = 0, endIdx = tempString.length();
                     float curHeight = (float)0.0;

@@ -34,4 +34,9 @@
         android:hint="마커 타입 메모를 하세요."
         android:text="" />
 
+    <Spinner
+        android:id="@+id/fragment_dialog_new_marker_type_spinner"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
 </LinearLayout>

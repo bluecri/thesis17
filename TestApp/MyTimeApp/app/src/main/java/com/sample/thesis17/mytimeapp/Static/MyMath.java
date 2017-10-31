@@ -36,6 +36,8 @@ public class MyMath {
     public static double DOUBLE_GROUPING_2POW_RADIUS = 0.000000035;  // groupping 기준
     public static double MINDIST_TO_GROUP_TO_MAKRER = 0.00000005; //0.00000025;
 
+    public static long MINTIME_TO_GROUPING = LONG_MIN_MILLIS * 11;  //중간에 noise없이 가까운 거리인 경우 grouping 하는 최대 시간 차 조건
+
 
 
     public static int getContrastColor(int color) {

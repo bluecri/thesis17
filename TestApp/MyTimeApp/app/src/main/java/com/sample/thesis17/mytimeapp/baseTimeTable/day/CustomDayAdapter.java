@@ -1,4 +1,8 @@
-package com.sample.thesis17.mytimeapp.baseTimeTable.week;
+package com.sample.thesis17.mytimeapp.baseTimeTable.day;
+
+/**
+ * Created by kimz on 2017-10-31.
+ */
 
 import android.content.Context;
 import android.support.v4.app.FragmentActivity;
@@ -21,7 +25,7 @@ import static java.lang.Math.min;
  * Created by kimz on 2017-09-18.
  */
 
-public class CustomWeekAdapter {
+public class CustomDayAdapter {
     List<FixedTimeTableData> arrLIstFixedTimeTableData = null;
     List<CustomWeekItem> customWeekItemList = null;
 
@@ -43,7 +47,7 @@ public class CustomWeekAdapter {
     private float fCoordHeight, fCoordLeft, fCoordRight;
 
 
-    CustomWeekAdapter(Context context, List<FixedTimeTableData> inListFixedTimeTableData){
+    CustomDayAdapter(Context context, List<FixedTimeTableData> inListFixedTimeTableData){
         curContext = context;
         arrLIstFixedTimeTableData = inListFixedTimeTableData;
         customWeekItemList = new ArrayList<CustomWeekItem>();
@@ -76,22 +80,22 @@ public class CustomWeekAdapter {
         //현재 arrLIstFixedTimeTableData를 순회하며 customWeekItemList를 만든다.
         for(FixedTimeTableData tempFTTData : arrLIstFixedTimeTableData){
             //if(isFixedTimeTableInTimeTable(tempFTTData)){
-                //내부에 있는 경우에만 그림.
-                long blockStartTime = tempFTTData.getlStartTime(), blockEndTime = tempFTTData.getlEndTime();    //left right
-                long blockStartTimeModWithDay = blockStartTime % LONG_DAY_MILLIS, blockEndTimeModWithDay = blockEndTime % LONG_DAY_MILLIS;  //top, bottom
-                //Log.d("draws", "three:"+three+"/four:"+four+"/one:"+one+"/two:"+two);
-                //Log.d("draws", "blockStartTime : " + blockStartTime + "blockEndTime : " + blockEndTime + "blocktimemodday : " + blockStartTimeModWithDay + "blockendtimemodday" + blockEndTimeModWithDay);
-                //starttime이나 endtime 둘중 하나가 범위내에 있는 경우, 해당 box가 window 내부에 존재함.
+            //내부에 있는 경우에만 그림.
+            long blockStartTime = tempFTTData.getlStartTime(), blockEndTime = tempFTTData.getlEndTime();    //left right
+            long blockStartTimeModWithDay = blockStartTime % LONG_DAY_MILLIS, blockEndTimeModWithDay = blockEndTime % LONG_DAY_MILLIS;  //top, bottom
+            //Log.d("draws", "three:"+three+"/four:"+four+"/one:"+one+"/two:"+two);
+            //Log.d("draws", "blockStartTime : " + blockStartTime + "blockEndTime : " + blockEndTime + "blocktimemodday : " + blockStartTimeModWithDay + "blockendtimemodday" + blockEndTimeModWithDay);
+            //starttime이나 endtime 둘중 하나가 범위내에 있는 경우, 해당 box가 window 내부에 존재함.
                 /*if(((blockStartTime<=four&&three<=blockStartTime)||(blockEndTime<=four&&three<=blockEndTime))&&
                         ((blockStartTimeModWithDay<=two&&one<=blockStartTimeModWithDay)||(blockEndTimeModWithDay<=two&&one<=blockEndTimeModWithDay))){  시간으로 자르지 않고 사각형 좌표로 자르기로*/
-                    //Log.d("draws", "updateCustomWeekItemList(), is in Window");
-                    makeItemsWithFixedTimeTableData(tempFTTData);
+            //Log.d("draws", "updateCustomWeekItemList(), is in Window");
+            makeItemsWithFixedTimeTableData(tempFTTData);
                     /*CustomWeekItem tempCustomWeekItem = new CustomWeekItem();
                     tempCustomWeekItem.setText(tempFTTData.getStrFixedTimeTableName());
                     tempCustomWeekItem.setIdx(countIdx);
 
                     countIdx++;*/
-                //}
+            //}
             //}
             countIdx++;
         }
@@ -278,7 +282,7 @@ public class CustomWeekAdapter {
     public int getIdxWithClicked(float x, float y){
         for(CustomWeekItem item : customWeekItemList){
             if(item.getLeft() <= x && x < item.getRight() && item.getTop() <= y && y < item.getBottom()){
-                ((TimetableWeekFragment)(((FragmentActivity)curContext).getSupportFragmentManager().findFragmentByTag("timetable_week_fragment"))).openDialogWithIdx(item.getIdx());
+                ((TimetableDayFragment)(((FragmentActivity)curContext).getSupportFragmentManager().findFragmentByTag("timetable_day_fragment"))).openDialogWithIdx(item.getIdx());
                 return item.getIdx();
             }
         }

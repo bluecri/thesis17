@@ -1,29 +1,21 @@
 package com.sample.thesis17.mytimeapp.baseTimeTable.week;
 
-import android.app.Activity;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.RectF;
-import android.os.Build;
 import android.support.annotation.Nullable;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.app.FragmentActivity;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewConfiguration;
-import android.view.ViewTreeObserver;
 import android.widget.Toast;
 
-import com.j256.ormlite.dao.Dao;
-import com.sample.thesis17.mytimeapp.DB.baseClass.DatabaseHelperMain;
-import com.sample.thesis17.mytimeapp.DB.tables.FixedTimeTableData;
+import com.sample.thesis17.mytimeapp.baseTimeTable.CustomWeekItem;
+import com.sample.thesis17.mytimeapp.baseTimeTable.Points;
 
-import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.List;
 
 import static java.lang.Math.min;
