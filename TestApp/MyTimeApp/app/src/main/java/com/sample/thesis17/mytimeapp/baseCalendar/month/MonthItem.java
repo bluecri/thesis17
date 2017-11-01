@@ -6,7 +6,7 @@ package com.sample.thesis17.mytimeapp.baseCalendar.month;
 
 public class MonthItem {
     private int iDayValue;
-    private int iWeekValue;
+    private long lWeekValue;
     private boolean bWeek;
     public MonthItem(){
 
@@ -32,5 +32,13 @@ public class MonthItem {
     }
     public boolean isWeek(){
         return this.bWeek;
+    }
+
+    public long getlWeekValue() {
+        return lWeekValue;
+    }
+
+    public void setlWeekValue(long lWeekValue) {
+        this.lWeekValue = lWeekValue;
     }
 }

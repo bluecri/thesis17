@@ -2,6 +2,8 @@ package com.sample.thesis17.mytimeapp.baseCalendar.month;
 
 import android.content.Context;
 import android.graphics.Color;
+import android.os.Build;
+import android.support.v4.content.ContextCompat;
 import android.text.format.Time;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -10,6 +12,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.GridView;
+
+import com.sample.thesis17.mytimeapp.R;
 
 import java.util.Calendar;
 
@@ -33,11 +37,15 @@ public class CalenderMonthAdapter extends BaseAdapter{
 
     int mStartDay, startDay;    //달력의 시작 일수(1일부터 시작) , 나라별 시작 요일
 
+    long inParamTimeLong = 0;
+
     private int selectedPosition = -1;  //초기 selected position
 
-    public CalenderMonthAdapter(Context context){
+
+    public CalenderMonthAdapter(Context context, long inTime){
         super();
         mContext = context;
+        inParamTimeLong = inTime;
         init();
     }
 
@@ -50,22 +58,27 @@ public class CalenderMonthAdapter extends BaseAdapter{
         monthItems = new MonthItem[8 * 6];
 
         calender = Calendar.getInstance();      //calendar 시작지점.
+        calender.setTimeInMillis(inParamTimeLong);
         recalculate();
         resetDayNumbers();
     }
 
-    public void setPreviousMonth() {
+    public long setPreviousMonth() {
         calender.add(Calendar.MONTH, -1);       //calendar의 month 계산
         recalculate();
         resetDayNumbers();
         selectedPosition = -1;      //position 초기화
+        inParamTimeLong = calender.getTimeInMillis();
+        return calender.getTimeInMillis();
     }
 
-    public void setNextMonth() {
+    public long setNextMonth() {
         calender.add(Calendar.MONTH, 1);
         recalculate();
         resetDayNumbers();
         selectedPosition = -1;
+        inParamTimeLong = calender.getTimeInMillis();
+        return calender.getTimeInMillis();
     }
 
     //selectedPosition Get/Set function
@@ -123,8 +136,24 @@ public class CalenderMonthAdapter extends BaseAdapter{
                   }
                   else{
                       //int weekNum = calender.get(Calendar.WEEK_OF_YEAR);
-                      int weekNum = getCurWeekWithYewrMonthDay(currentYear, currentMonth, iday);       //1'st week of year.month + week acc
+                      Long getMillis = 0L;
+
+
+                      Calendar tempCal = Calendar.getInstance();
+                      tempCal.set(currentYear, currentMonth, 1, 0, 0, 0);
+                      tempCal.add(Calendar.DAY_OF_MONTH, dayNumber-1);
+                      getMillis = tempCal.getTimeInMillis();
+                      Log.d("calendCalc", "getCurWeekWithYewrMonthDay " + tempCal.getTime() + tempCal.getTimeInMillis());
+
+                      //getCurMillisWithYearAndWeek(year, tempCal.get(Calendar.WEEK_OF_YEAR));
+
+                      int weekNum = tempCal.get(Calendar.WEEK_OF_YEAR);     //getCurWeekWithYewrMonthDay(currentYear, currentMonth, dayNumber, getMillis);       //1'st week of year.month + week acc
+
+                      Log.d("calendCalc", "week : " + weekNum + " / Y:M:D : " + currentYear + ":" + (currentMonth+1) + ":" + dayNumber);
+                      Log.d("calendCalc", "inLong : " + getMillis);
                       monthItems[i] = new MonthItem(weekNum, true);
+                      monthItems[i].setlWeekValue(getMillis);
+
                       //monthItems[i] = new MonthItem(weekNum+weekNumAcc, true);
                       //++weekNumAcc;
                   }
@@ -199,6 +228,7 @@ public class CalenderMonthAdapter extends BaseAdapter{
     //position에 해당하는 MonthItemView 반환. 화면에서 view가 사라지면 convertView에 넣어두었다가 다시 사용
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
+
         MonthItemView itemView;
         if(convertView == null){
             itemView = new MonthItemView(mContext);
@@ -207,18 +237,17 @@ public class CalenderMonthAdapter extends BaseAdapter{
             itemView = (MonthItemView)convertView;
         }
 
-        GridView.LayoutParams params = new GridView.LayoutParams(GridView.LayoutParams.MATCH_PARENT, 50);
+        GridView.LayoutParams params = new GridView.LayoutParams(GridView.LayoutParams.MATCH_PARENT, 90);
 
         int rowIndex = position/(numDayofWeek+1);
         int columnIndex = position%(numDayofWeek+1);
 
         //text가 0인 경우 text 변경
 
-
+        //TODO : item style
         itemView.setMonthItem(monthItems[position]);
         itemView.setLayoutParams(params);
-        itemView.setPadding(2, 2, 2, 2);
-        itemView.setGravity(Gravity.LEFT);
+
 
         //Sunday == red
         if (columnIndex == 1) {
@@ -226,7 +255,7 @@ public class CalenderMonthAdapter extends BaseAdapter{
         }else if (columnIndex == 7) {
             itemView.setTextColor(Color.BLUE);
         }else if(columnIndex == 0){
-            itemView.setTextColor(Color.GREEN);
+            itemView.setTextColor(Color.MAGENTA);
         }
         else {
             itemView.setTextColor(Color.BLACK);
@@ -235,9 +264,19 @@ public class CalenderMonthAdapter extends BaseAdapter{
 
         //선택한 background 배경 변경
         if (position == getSelectedPosition()) {
-            itemView.setBackgroundColor(Color.YELLOW);
+            //itemView.setBackgroundColor(Color.YELLOW);
+            if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+                itemView.setBackground(ContextCompat.getDrawable(mContext, R.drawable.textview_round_selected_item));
+            } else {
+                itemView.setBackgroundDrawable(ContextCompat.getDrawable(mContext, R.drawable.textview_round_selected_item));
+            }
         } else {
-            itemView.setBackgroundColor(Color.WHITE);
+            //itemView.setBackgroundColor(Color.WHITE);
+            if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+                itemView.setBackground(ContextCompat.getDrawable(mContext, R.drawable.textview_round_item));
+            } else {
+                itemView.setBackgroundDrawable(ContextCompat.getDrawable(mContext, R.drawable.textview_round_item));
+            }
         }
 
         return itemView;
@@ -270,11 +309,17 @@ public class CalenderMonthAdapter extends BaseAdapter{
         }
     }
 
-    public int getCurWeekWithYewrMonthDay(int year, int month, int day){
+/*
+    public long getCurMillisWithYearAndWeek(int year, int week){
         Calendar tempCal = Calendar.getInstance();
-        tempCal.set(year, month, day);
-        return tempCal.get(Calendar.WEEK_OF_YEAR);
+        tempCal.set(year, 0, 1);
+
+        tempCal.set(Calendar.WEEK_OF_YEAR, week);
+        //Log.d("calendCalc", "tttt " + tempCal.getTime());
+        //Log.d("calendCalc", "Y:M:D : " + year + ":" + (tempCal.get(Calendar.MONTH)+1) + ":" + (tempCal.get(Calendar.DATE)-1) + ":" + tempCal.getTime() + ":"+ tempCal.getTimeInMillis());
+        return tempCal.getTimeInMillis();
     }
+    */
 
     public int getCurYear() {
         return currentYear;

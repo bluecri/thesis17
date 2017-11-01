@@ -3,11 +3,33 @@
     android:orientation="vertical" android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <TextView
-        android:id="@+id/fragment_dialog_view_calender_item_title"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="title" />
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/textView11"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="4dp"
+            android:layout_marginLeft="4dp"
+            android:layout_marginRight="4dp"
+            android:layout_marginTop="16dp"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:text="[시간표 이름] " />
+
+        <TextView
+            android:id="@+id/fragment_dialog_view_calender_item_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="4dp"
+            android:layout_marginLeft="4dp"
+            android:layout_marginRight="4dp"
+            android:layout_marginTop="16dp"
+            android:text="title"
+            android:textAppearance="?android:attr/textAppearance"/>
+    </LinearLayout>
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -15,17 +37,39 @@
         android:orientation="horizontal">
 
         <TextView
+            android:id="@+id/textView12"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_marginBottom="4dp"
+            android:layout_marginLeft="4dp"
+            android:layout_marginRight="4dp"
+            android:layout_marginTop="4dp"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:layout_weight="2"
+            android:text="시작기간" />
+
+        <TextView
             android:id="@+id/fragment_dialog_view_calender_item_startweek"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginBottom="4dp"
+            android:layout_marginLeft="4dp"
+            android:layout_marginRight="4dp"
+            android:layout_marginTop="4dp"
             android:layout_weight="1"
+            android:textAppearance="?android:attr/textAppearance"
             android:text="week" />
 
         <TextView
             android:id="@+id/fragment_dialog_view_calender_item_starttime"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
+            android:layout_height="match_parent"
+            android:layout_marginBottom="4dp"
+            android:layout_marginLeft="4dp"
+            android:layout_marginRight="4dp"
+            android:layout_marginTop="4dp"
+            android:layout_weight="2"
+            android:textAppearance="?android:attr/textAppearance"
             android:text="TextView" />
     </LinearLayout>
 
@@ -35,32 +79,97 @@
         android:orientation="horizontal">
 
         <TextView
+            android:id="@+id/textView13"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_marginBottom="4dp"
+            android:layout_marginLeft="4dp"
+            android:layout_marginRight="4dp"
+            android:layout_marginTop="4dp"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:layout_weight="2"
+            android:text="종료기간" />
+
+        <TextView
             android:id="@+id/fragment_dialog_view_calender_item_endweek"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginBottom="4dp"
+            android:layout_marginLeft="4dp"
+            android:layout_marginRight="4dp"
+            android:layout_marginTop="4dp"
             android:layout_weight="1"
+            android:textAppearance="?android:attr/textAppearance"
             android:text="week" />
 
         <TextView
             android:id="@+id/fragment_dialog_view_calender_item_endtime"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
+            android:layout_marginBottom="4dp"
+            android:layout_marginLeft="4dp"
+            android:layout_marginRight="4dp"
+            android:layout_marginTop="4dp"
+            android:layout_weight="2"
+            android:textAppearance="?android:attr/textAppearance"
             android:text="TextView" />
 
     </LinearLayout>
 
-    <TextView
-        android:id="@+id/fragment_dialog_view_calender_item_marker"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="marker" />
+        android:orientation="horizontal">
 
-    <TextView
-        android:id="@+id/fragment_dialog_view_calender_item_memo"
+        <TextView
+            android:id="@+id/textView14"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="4dp"
+            android:layout_marginLeft="4dp"
+            android:layout_marginRight="4dp"
+            android:layout_marginTop="4dp"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:text="[마커 이름]" />
+
+        <TextView
+            android:id="@+id/fragment_dialog_view_calender_item_marker"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="4dp"
+            android:layout_marginLeft="4dp"
+            android:layout_marginRight="4dp"
+            android:layout_marginTop="4dp"
+            android:textAppearance="?android:attr/textAppearance"
+            android:text="marker" />
+    </LinearLayout>
+
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:text="memo" />
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/textView15"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="4dp"
+            android:layout_marginLeft="4dp"
+            android:layout_marginRight="4dp"
+            android:layout_marginTop="4dp"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:text="[메모]" />
+
+        <TextView
+            android:id="@+id/fragment_dialog_view_calender_item_memo"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="4dp"
+            android:layout_marginLeft="4dp"
+            android:layout_marginRight="4dp"
+            android:layout_marginTop="4dp"
+            android:textAppearance="?android:attr/textAppearance"
+            android:text="memo" />
+    </LinearLayout>
 
 </LinearLayout>

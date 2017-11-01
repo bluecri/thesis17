@@ -79,7 +79,8 @@ public class DialogWeekItemViewFragment extends DialogFragment {
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         Log.d("DialogWeekItemViewFra", "DialogWeekItemViewFragment onCreateDialog");
-        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity(), R.style.alertDialogStyle);
+        builder.setTitle("시간표 정보 Dialog");
         // Get the layout inflater
         LayoutInflater inflater = getActivity().getLayoutInflater();
 
@@ -108,14 +109,14 @@ public class DialogWeekItemViewFragment extends DialogFragment {
         textViewEndWeek.setText(WEEK_STRING[endWeek]);
 
         /*
-        SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss", Locale.US);
+        SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss", Locale.KOREA);
         Date startDate = new Date();
         Date endDate = new Date();
         startDate.setTime(startTimeArg);
         endDate.setTime(endTimeArg);
         */
-        textViewStartTime.setText(String.format(Locale.US, "%02d:%02d", (int)(startTimeArg%LONG_DAY_MILLIS/LONG_HOUR_MILLIS), (int)(startTimeArg%LONG_HOUR_MILLIS/LONG_DAY_MILLIS)));
-        textViewEndTime.setText(String.format(Locale.US, "%02d:%02d", (int)(endTimeArg%LONG_DAY_MILLIS/LONG_HOUR_MILLIS), (int)(endTimeArg%LONG_HOUR_MILLIS/LONG_DAY_MILLIS)));
+        textViewStartTime.setText(String.format(Locale.KOREA, "%02d:%02d", (int)(startTimeArg%LONG_DAY_MILLIS/LONG_HOUR_MILLIS), (int)(startTimeArg%LONG_HOUR_MILLIS/LONG_DAY_MILLIS)));
+        textViewEndTime.setText(String.format(Locale.KOREA, "%02d:%02d", (int)(endTimeArg%LONG_DAY_MILLIS/LONG_HOUR_MILLIS), (int)(endTimeArg%LONG_HOUR_MILLIS/LONG_DAY_MILLIS)));
         //textViewStartTime.setText(sdf.format(startDate));
         //textViewEndTime.setText(sdf.format(endDate));
 

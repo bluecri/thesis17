@@ -22,8 +22,6 @@ public class WifiInfoBroadcastReceiver extends BroadcastReceiver {
     Intent intentLocationService = null;
     @Override
     public void onReceive(Context context, Intent intent) {
-        // TODO: This method is called when the BroadcastReceiver is receiving
-        // an Intent broadcast.
         /*if(intent.getAction().equals("android.net.wifi.WIFI_STATE_CHANGED")){
             NetworkInfo nInfo = intent.getParcelableExtra(WifiManager.EXTRA_NETWORK_INFO);
             if(nInfo != null && nInfo.isConnected()){
@@ -35,42 +33,44 @@ public class WifiInfoBroadcastReceiver extends BroadcastReceiver {
             //throw new UnsupportedOperationException("Not yet implemented");
         }*/
         if(intent.getAction().equals("android.net.conn.CONNECTIVITY_CHANGE")){
-            ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
-            NetworkInfo nInfo = connectivityManager.getActiveNetworkInfo();
-            if(nInfo != null){
-                if((nInfo.getType() == ConnectivityManager.TYPE_WIFI) && nInfo.isConnectedOrConnecting()){
-                    Log.d("WifiInfoBroad", "wifi");
-                    intentLocationService = new Intent(context, locationService.class);
-                    intentLocationService.putExtra("strNetworkStatus", "WIFI");
-                    intentLocationService.setAction(AllConstants.NETWORK_STATUS_CHANGED_ACTION);
-                    context.startService(intentLocationService);
-                }
-                else if((nInfo.getType() == ConnectivityManager.TYPE_MOBILE) && nInfo.isConnectedOrConnecting()){
-                    Log.d("WifiInfoBroad", "mobile");
-                    intentLocationService = new Intent(context, locationService.class);
-                    intentLocationService.putExtra("strNetworkStatus", "MOBILE");
-                    intentLocationService.setAction(AllConstants.NETWORK_STATUS_CHANGED_ACTION);
-                    context.startService(intentLocationService);
-                }
-                else{
-                    Log.d("WifiInfoBroad", "???");
+            ActivityManager activityManager = (ActivityManager)(context.getSystemService(Context.ACTIVITY_SERVICE));  //fragment이므로 getActivity()
+            for(ActivityManager.RunningServiceInfo serviceInfo : activityManager.getRunningServices(Integer.MAX_VALUE)) {
+                //if ("locationService".equals(serviceInfo.service.getClassName())) {
+                if(locationService.class.getName().equals(serviceInfo.service.getClassName())){
+                    ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+                    NetworkInfo nInfo = connectivityManager.getActiveNetworkInfo();
+                    if(nInfo != null){
+                        if((nInfo.getType() == ConnectivityManager.TYPE_WIFI) && nInfo.isConnectedOrConnecting()){
+                            Log.d("WifiInfoBroad", "wifi");
+                            intentLocationService = new Intent(context, locationService.class);
+                            intentLocationService.putExtra("strNetworkStatus", "WIFI");
+                            intentLocationService.setAction(AllConstants.NETWORK_STATUS_CHANGED_ACTION);
+                            context.startService(intentLocationService);
+                        }
+                        else if((nInfo.getType() == ConnectivityManager.TYPE_MOBILE) && nInfo.isConnectedOrConnecting()){
+                            Log.d("WifiInfoBroad", "mobile");
+                            intentLocationService = new Intent(context, locationService.class);
+                            intentLocationService.putExtra("strNetworkStatus", "MOBILE");
+                            intentLocationService.setAction(AllConstants.NETWORK_STATUS_CHANGED_ACTION);
+                            context.startService(intentLocationService);
+                        }
+                        else{
+                            Log.d("WifiInfoBroad", "???");
+                        }
+                    }
+                    else{
+                        //no connection
+                        Log.d("WifiInfoBroad", "no conn");
+                        intentLocationService = new Intent(context, locationService.class);
+                        intentLocationService.putExtra("strNetworkStatus", "NOCONN");
+                        intentLocationService.setAction(AllConstants.NETWORK_STATUS_CHANGED_ACTION);
+                        context.startService(intentLocationService);
+                    }
+                    //NetworkInfo dataInfo = connectivityManager.getActiveNetworkInfo()
+                    break;
                 }
             }
-            else{
-                //no connection
-                Log.d("WifiInfoBroad", "no conn");
-                intentLocationService = new Intent(context, locationService.class);
-                intentLocationService.putExtra("strNetworkStatus", "NOCONN");
-                intentLocationService.setAction(AllConstants.NETWORK_STATUS_CHANGED_ACTION);
-                context.startService(intentLocationService);
-            }
-            //NetworkInfo dataInfo = connectivityManager.getActiveNetworkInfo()
-
-
-
         }
 
     }
-
-
 }

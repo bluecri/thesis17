@@ -46,7 +46,8 @@ public class DialogNewmarkerFragment extends DialogFragment {
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
 
-        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity(), R.style.alertDialogStyle);
+        builder.setTitle("새로운 지역(마커) 생성 Dialog");
         // Get the layout inflater
         LayoutInflater inflater = getActivity().getLayoutInflater();
 
@@ -71,7 +72,7 @@ public class DialogNewmarkerFragment extends DialogFragment {
                     @Override
                     public void onClick(DialogInterface dialog, int id) {
                         //call MapsAtivity create marker method and close dialog
-                        MarkerData tempMarkerData = new MarkerData(0, 0, textViewMarkerName.getText().toString(), 0, 0, textViewMarkerMemo.getText().toString(), true);
+                        MarkerData tempMarkerData = new MarkerData(0, 0, textViewMarkerName.getText().toString(), 0, 0, textViewMarkerMemo.getText().toString(), true, false);
                         dialogNewmarkerListener.registerNewMarker(tempMarkerData);
                     }
                 })

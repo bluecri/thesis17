@@ -19,6 +19,7 @@ import java.util.Locale;
 
 import static com.sample.thesis17.mytimeapp.Static.MyMath.LONG_DAY_MILLIS;
 import static com.sample.thesis17.mytimeapp.Static.MyMath.LONG_HOUR_MILLIS;
+import static com.sample.thesis17.mytimeapp.Static.MyMath.LONG_MIN_MILLIS;
 import static com.sample.thesis17.mytimeapp.Static.MyMath.LONG_WEEK_MILLIS;
 import static com.sample.thesis17.mytimeapp.Static.MyMath.WEEK_STRING;
 import static com.sample.thesis17.mytimeapp.Static.MyMath.WEEK_STRING_REAL;
@@ -79,7 +80,8 @@ public class DialogViewCalenderItemFragment extends DialogFragment {
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         Log.d("DialogWeekItemViewFra", "DialogWeekItemViewFragment onCreateDialog");
-        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity(), R.style.alertDialogStyle);
+        builder.setTitle("확인된 일정 Dialog");
         // Get the layout inflater
         LayoutInflater inflater = getActivity().getLayoutInflater();
 
@@ -108,14 +110,14 @@ public class DialogViewCalenderItemFragment extends DialogFragment {
         textViewEndWeek.setText(WEEK_STRING_REAL[endWeek]);
 
         /*
-        SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss", Locale.US);
+        SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss", Locale.KOREA);
         Date startDate = new Date();
         Date endDate = new Date();
         startDate.setTime(startTimeArg);
         endDate.setTime(endTimeArg);
         */
-        textViewStartTime.setText(String.format(Locale.US, "%02d:%02d", (int)(startTimeArg%LONG_DAY_MILLIS/LONG_HOUR_MILLIS), (int)(startTimeArg%LONG_HOUR_MILLIS/LONG_DAY_MILLIS)));
-        textViewEndTime.setText(String.format(Locale.US, "%02d:%02d", (int)(endTimeArg%LONG_DAY_MILLIS/LONG_HOUR_MILLIS), (int)(endTimeArg%LONG_HOUR_MILLIS/LONG_DAY_MILLIS)));
+        textViewStartTime.setText(String.format(Locale.KOREA, "%02d:%02d", (int)(startTimeArg%LONG_DAY_MILLIS/LONG_HOUR_MILLIS), (int)(startTimeArg%LONG_HOUR_MILLIS/LONG_MIN_MILLIS)));
+        textViewEndTime.setText(String.format(Locale.KOREA, "%02d:%02d", (int)(endTimeArg%LONG_DAY_MILLIS/LONG_HOUR_MILLIS), (int)(endTimeArg%LONG_HOUR_MILLIS/LONG_MIN_MILLIS)));
         //textViewStartTime.setText(sdf.format(startDate));
         //textViewEndTime.setText(sdf.format(endDate));
 

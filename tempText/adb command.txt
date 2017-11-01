@@ -1,0 +1,12 @@
+adb -s b5bce062 pull /storage/sdcard0/timetable_location_memory.db dataz.db
+adb -s b5bce062 push dataz.db /storage/sdcard0/timetable_location_memory.db
+
+
+adb pull /storage/sdcard0/timetable_location_memory.sqlite newy.sqlite
+
+
+adb -s b5bce062 pull /storage/sdcard0/timetable_location_memory.db newy.db
+
+
+
+frameLayout id

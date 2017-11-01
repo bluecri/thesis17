@@ -22,12 +22,14 @@ import com.sample.thesis17.mytimeapp.DB.baseClass.DatabaseHelperLocationMemory;
 import com.sample.thesis17.mytimeapp.DB.tables.LocationMemoryData;
 import com.sample.thesis17.mytimeapp.broadcaseRecv.WifiInfoBroadcastReceiver;
 
+import java.lang.ref.WeakReference;
 import java.sql.SQLException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
+import static com.sample.thesis17.mytimeapp.Static.MyMath.LONG_HOUR_MILLIS;
 import static java.lang.Thread.sleep;
 
 //dataLMForSave is not need to be created with 'New'
@@ -52,7 +54,7 @@ public class locationService extends Service {
     boolean isUsedata = false;
 
     long iInterval = 10*60*1000;    //10분
-    long lGpsWaitMillis = 1000 * 20;    //20초
+    long lGpsWaitMillis = 1000 * 30;    //30초
 
     private DatabaseHelperLocationMemory databaseHelperLocationMemory = null;
 
@@ -85,7 +87,7 @@ public class locationService extends Service {
             Log.d("test", "서비스의 onStartCommand");
 
 
-            hMainHandler = new HandlerGpsLocationRequest();
+            hMainHandler = new HandlerGpsLocationRequest(this);
 
 
             startLocationService();
@@ -141,14 +143,6 @@ public class locationService extends Service {
         // minDistance = 0;
 
         try {
-            //use locationManager's LOCATION_SERVICE and set listener
-            /*if(isUseGps){
-                locationManager.requestLocationUpdates(
-                        LocationManager.GPS_PROVIDER,
-                        iInterval,
-                        0,
-                        locationListenerCustom);
-            }*/
             if(isHaveToUseNetworkProvider){
                 locationManager.requestLocationUpdates(
                         LocationManager.NETWORK_PROVIDER,
@@ -157,18 +151,16 @@ public class locationService extends Service {
                         locationListenerCustom);
                 Log.d("locationService", "network listener running..." + String.valueOf(iInterval));
             }
+            else if(isUseGps){
+                //use only gps
+                if(locationThread != null){
+                    locationThread.interrupt();
+                    locationThread = null;
+                }
+                locationThread = new Thread(new ThreadLocationMemoryDataProcessWithOnlyGps());
+                locationThread.start();
+            }
 
-
-
-            //first location msg and textView
-            /*Location lastLocation = locationManager.getLastKnownLocation(strProvider);
-            if (lastLocation != null) {
-                Double latitude = lastLocation.getLatitude();
-                Double longitude = lastLocation.getLongitude();
-
-                //textView.setText("위/경도 : " + latitude + ", " + longitude);
-                Toast.makeText(getApplicationContext(), "최근위치 : " + "위도: " + latitude + "\n경도:" + longitude, Toast.LENGTH_LONG).show();
-            }*/
         } catch (SecurityException ex) {
             ex.printStackTrace();
         }
@@ -181,7 +173,7 @@ public class locationService extends Service {
             Double longitude = location.getLongitude();
             float accuracy = location.getAccuracy();
 
-            dataLMForSave = new LocationMemoryData(latitude, longitude, System.currentTimeMillis(), accuracy, null, null, 0);
+            dataLMForSave = new LocationMemoryData(latitude, longitude, System.currentTimeMillis() + LONG_HOUR_MILLIS * 9, accuracy, null, null, 0); //for LOCALE_US
 
             Log.d("locatoinService", "new thread created..");
             locationThread = new Thread(new ThreadLocationMemoryDataProcessWithGps());
@@ -203,8 +195,9 @@ public class locationService extends Service {
     private void restartLocationService(boolean b){
         Log.d("locationService", "restartLocationService");
         locationManagerGps.removeUpdates(getLocationListenerCustomGps);
-        if(locationThread.isAlive()){
+        if(locationThread != null && locationThread.isAlive()){
             locationThread.interrupt();
+            locationThread = null;
         }
         locationManager.removeUpdates(locationListenerCustom);
         isHaveToUseNetworkProvider = b;
@@ -278,6 +271,7 @@ public class locationService extends Service {
     private void settingCurrentNetworkAndNetworkProvider(){
         ConnectivityManager connectivityManager = (ConnectivityManager) this.getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo nInfo = connectivityManager.getActiveNetworkInfo();
+        isHaveToUseNetworkProvider = false;
         if(nInfo != null){
             if((nInfo.getType() == ConnectivityManager.TYPE_WIFI) && nInfo.isConnectedOrConnecting()){
                 Log.d("WifiInfoBroad", "wifi");
@@ -297,12 +291,14 @@ public class locationService extends Service {
             else{
                 Log.d("WifiInfoBroad", "???");
                 strCurrentUsingNetwork = WifiInfoBroadcastReceiver.STR_NO_CONN;
+                isHaveToUseNetworkProvider = false;
             }
         }
         else{
             //no connection
             Log.d("WifiInfoBroad", "no conn");
             strCurrentUsingNetwork = WifiInfoBroadcastReceiver.STR_NO_CONN;
+            isHaveToUseNetworkProvider = false;
         }
     }
 
@@ -319,8 +315,10 @@ public class locationService extends Service {
             Log.d("locationService", "thread run");
             try{
                 if(isUseGps){
+                    Log.d("locationService", "is use gps");
                     hMainHandler.sendEmptyMessage(0);   // run locationManager.requestUpdates(getLocationListenerCustomGps);
                     sleep(lGpsWaitMillis);
+                    Log.d("locationService", "sleep End");
                     locationManagerGps.removeUpdates(getLocationListenerCustomGps);    //if therer is no getLocationListenerCustomGps update, mListeners.remove return null.. Therefore, can be called with same param again.
 
                 }
@@ -330,12 +328,12 @@ public class locationService extends Service {
                         //compare gps vs network accuracy
                         Log.d("locationService","gps acc : " + String.valueOf(dataLMForGpsThread.getfAccur()) + " / net acc : " + String.valueOf(dataLMForSave.getfAccur()));
 
-                        if(dataLMForGpsThread.getfAccur() - dataLMForSave.getfAccur() > 0.01){
+                        if(dataLMForGpsThread.getfAccur() - dataLMForSave.getfAccur() < 0.01){
                             //use gps for writing
                             Log.d("locationService", "use Gps for writing!");
                             Dao<LocationMemoryData, Integer> daoLocationMemoryDataInteger = getDatabaseHelperLocationMemory().getDaoLocationMemoryData();
                             daoLocationMemoryDataInteger.create(dataLMForGpsThread);
-                            debugPrintLMData(dataLMForGpsThread);
+                            //debugPrintLMData(dataLMForGpsThread);     : in not Thread, cannot handle UI
                             debugPrintDAOInfo(daoLocationMemoryDataInteger);
                         }
                         else{
@@ -377,6 +375,55 @@ public class locationService extends Service {
         }
     }
 
+    private class ThreadLocationMemoryDataProcessWithOnlyGps implements Runnable{
+        @Override
+        public void run() {
+            while(!Thread.currentThread().isInterrupted()){
+                Log.d("locationService", "thread run while..");
+                try{
+                    if(isUseGps){
+                        Log.d("locationService", "onlywithgps isusegps");
+                        hMainHandler.sendEmptyMessage(0);   // run locationManager.requestUpdates(getLocationListenerCustomGps);
+                        sleep(lGpsWaitMillis);
+                        Log.d("locationService", "onlywithgps end sleep");
+                        locationManagerGps.removeUpdates(getLocationListenerCustomGps);    //if there is no getLocationListenerCustomGps update, mListeners.remove return null.. Therefore, can be called with same param again.
+                        Log.d("locationService", "onlywithgps removeUpdates");
+                    }
+                    if(!Thread.currentThread().isInterrupted()){
+                        if(isDataLMForGpsThreadWritten()) {
+                            locationManagerGps.removeUpdates(getLocationListenerCustomGps);
+                            Log.d("locationService", "use Gps");
+                            if (dataLMForGpsThread.getfAccur() < 500.0) {
+                                //use gps for writing
+                                Log.d("locationService", "use Gps for writing!");
+                                Dao<LocationMemoryData, Integer> daoLocationMemoryDataInteger = getDatabaseHelperLocationMemory().getDaoLocationMemoryData();
+                                daoLocationMemoryDataInteger.create(dataLMForGpsThread);
+                                //debugPrintLMData(dataLMForGpsThread);
+                                debugPrintDAOInfo(daoLocationMemoryDataInteger);
+                            }
+                        }
+                    }
+                    sleep(iInterval);
+                }
+                catch(SecurityException e){
+                    Log.e("locationService", "threadLocationMemoryDataProcessWithGps security exception", e);   //because of locationManager
+                }
+                catch(InterruptedException e){
+                    Log.e("locationService", "threadLocationMemoryDataProcessWithGps Interrupted exception", e);    //due to Thread Interrupt
+                }
+                catch(SQLException e){
+                    Log.e("locationService", "threadLocationMemoryDataProcessWithGps SQLExcption", e);
+                }
+                finally{
+                    dataLMForGpsThread.setfAccur((float)0.0);   //init mark
+                    locationManagerGps.removeUpdates(getLocationListenerCustomGps);
+                    //close DB
+                }
+
+            }
+        }
+    }
+
     private class LocationListenerGps implements LocationListener {
         @Override
         public void onStatusChanged(String provider, int status, Bundle extras) {        }
@@ -393,6 +440,7 @@ public class locationService extends Service {
             dataLMForGpsThread.setLat(location.getLatitude());
             dataLMForGpsThread.setLng(location.getLongitude());
             dataLMForGpsThread.setfAccur(location.getAccuracy());
+            dataLMForGpsThread.setlMillisTimeWritten(System.currentTimeMillis() + LONG_HOUR_MILLIS * 9); //for LOCALE_US
         }
     }
 
@@ -432,6 +480,7 @@ public class locationService extends Service {
             return true;
     }
 
+    /*
     //handler
     private class HandlerGpsLocationRequest extends Handler{
 
@@ -439,7 +488,9 @@ public class locationService extends Service {
         public void handleMessage(Message msg) {
             super.handleMessage(msg);
             try {
+                Log.d("locationService", "handleMessage start");
                 if (locationManagerGps != null) {
+                    Log.d("locationService", "handleMessage requestLocationUpdates");
                     locationManagerGps.requestLocationUpdates(
                             LocationManager.GPS_PROVIDER,
                             iInterval,
@@ -451,6 +502,37 @@ public class locationService extends Service {
                 Log.d("locationService", "security exception in Handler");
             }
 
+        }
+    }
+    */
+    private static class HandlerGpsLocationRequest extends Handler{
+        private final WeakReference<locationService> locService;
+
+        HandlerGpsLocationRequest(locationService service){
+            locService = new WeakReference<locationService>(service);
+        }
+
+
+        @Override
+        public void handleMessage(Message msg) {
+            locationService service = locService.get();
+            if(service != null){
+                //super.handleMessage(msg);
+                try {
+                    Log.d("locationService", "handleMessage start");
+                    if (service.locationManagerGps != null) {
+                        Log.d("locationService", "handleMessage requestLocationUpdates");
+                        service.locationManagerGps.requestLocationUpdates(
+                                LocationManager.GPS_PROVIDER,
+                                service.iInterval,
+                                0,
+                                service.getLocationListenerCustomGps);
+                    }
+                }
+                catch(SecurityException e){
+                    Log.d("locationService", "security exception in Handler");
+                }
+            }
         }
     }
 

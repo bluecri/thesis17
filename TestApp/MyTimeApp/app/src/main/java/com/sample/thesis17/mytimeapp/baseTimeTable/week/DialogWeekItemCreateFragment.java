@@ -15,9 +15,11 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TimePicker;
+import android.widget.Toast;
 
 import com.sample.thesis17.mytimeapp.R;
 
@@ -72,7 +74,7 @@ public class DialogWeekItemCreateFragment extends DialogFragment{
         public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
             startTimeHour = hourOfDay;
             startTimeMin = minute;
-            textViewStartTime.setText(String.format(Locale.US, "%02d:%02d", startTimeHour, startTimeMin));
+            textViewStartTime.setText(String.format(Locale.KOREA, "%02d:%02d", startTimeHour, startTimeMin));
 
         }
     };
@@ -82,7 +84,7 @@ public class DialogWeekItemCreateFragment extends DialogFragment{
         public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
             endTimeHour = hourOfDay;
             endTimeMin = minute;
-            textViewEndTime.setText(String.format(Locale.US, "%02d:%02d", endTimeHour, endTimeMin));
+            textViewEndTime.setText(String.format(Locale.KOREA, "%02d:%02d", endTimeHour, endTimeMin));
         }
     };
 
@@ -115,7 +117,8 @@ public class DialogWeekItemCreateFragment extends DialogFragment{
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         Log.d("DialogWeekItemCrea", "DialogWeekItemCreateFragment onCreateDialog");
-        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity(), R.style.alertDialogStyle);
+        builder.setTitle("새로운 시간표 생성 Dialog");
         // Get the layout inflater
         LayoutInflater inflater = getActivity().getLayoutInflater();
 
@@ -129,6 +132,7 @@ public class DialogWeekItemCreateFragment extends DialogFragment{
         textViewEndTime = (Button)retView.findViewById(R.id.fragment_dialog_timetable_item_create_endtime);
         textViewMemo = (EditText)retView.findViewById(R.id.fragment_dialog_timetable_item_create_memo);
         spinnerMarkerName = (Spinner)retView.findViewById(R.id.fragment_dialog_timetable_item_create_marker);
+
 
 
 
@@ -156,8 +160,8 @@ public class DialogWeekItemCreateFragment extends DialogFragment{
         endTimeHour = 0;
         endTimeMin = 0;
 
-        textViewStartTime.setText(String.format(Locale.US, "%02d:%02d", startTimeHour, startTimeMin));
-        textViewEndTime.setText(String.format(Locale.US, "%02d:%02d", endTimeHour, endTimeMin));
+        textViewStartTime.setText(String.format(Locale.KOREA, "%02d:%02d", startTimeHour, startTimeMin));
+        textViewEndTime.setText(String.format(Locale.KOREA, "%02d:%02d", endTimeHour, endTimeMin));
 
         //TimePickerDialog timeDialog = new TimePickerDialog(curContext, timePickerListener, , , false);
         //timeDialog.show();
@@ -247,8 +251,13 @@ public class DialogWeekItemCreateFragment extends DialogFragment{
                         //calc starttime, endtime
                         long retLStartTimeMillis = (long)startTimeHour*LONG_HOUR_MILLIS + (long)startTimeMin*LONG_MIN_MILLIS + iStartWeek*LONG_DAY_MILLIS;  //hour + min + day(WEEK)
                         long retLEndTimeMillis = (long)endTimeHour*LONG_HOUR_MILLIS + (long)endTimeMin*LONG_MIN_MILLIS + iEndWeek*LONG_DAY_MILLIS;
-
-                        dialogWeekItemCreateFragmentListener.doCreate(textViewTitle.getText().toString(), retLStartTimeMillis, retLEndTimeMillis, markerDataListIdx, textViewMemo.getText().toString());
+                        if(markerDataListIdx < 0){
+                            //not selected
+                            Toast.makeText(curContext, "마커를 반드시 선택해야 합니다.", Toast.LENGTH_LONG).show();
+                        }
+                        else{
+                            dialogWeekItemCreateFragmentListener.doCreate(textViewTitle.getText().toString(), retLStartTimeMillis, retLEndTimeMillis, markerDataListIdx, textViewMemo.getText().toString());
+                        }
                     }
                 })
                 .setNegativeButton("취소", new DialogInterface.OnClickListener() {

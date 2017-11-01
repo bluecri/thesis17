@@ -12,7 +12,7 @@
         android:layout_marginLeft="4dp"
         android:layout_marginRight="4dp"
         android:layout_marginTop="16dp"
-        android:hint="UserName" />
+        android:hint="마커 이름을 설정하세요." />
 
     <EditText
         android:id="@+id/fragment_dialog_newmarker_marker_memo"
@@ -23,12 +23,12 @@
         android:layout_marginRight="4dp"
         android:layout_marginTop="4dp"
         android:fontFamily="sans-serif"
-        android:hint="password" />
+        android:hint="마커에 관한 간략한 메모작성." />
 
     <Button
         android:id="@+id/fragment_dialog_newmarker_button_selectType"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="타입선택" />
+        android:text="마커타입 선택하기" />
 
 </LinearLayout>

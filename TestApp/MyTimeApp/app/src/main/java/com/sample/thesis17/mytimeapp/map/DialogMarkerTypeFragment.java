@@ -34,6 +34,8 @@ public class DialogMarkerTypeFragment  extends DialogFragment {
 
     TextView textViewMarkerTypeTitle = null;
     TextView textViewMarkerTypeMemo = null;
+    TextView textViewMarkerTypeImageTitle = null;
+
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -50,7 +52,8 @@ public class DialogMarkerTypeFragment  extends DialogFragment {
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
 
-        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity(), R.style.alertDialogStyle);
+        builder.setTitle("마커 타입 정보 Dialog");
         // Get the layout inflater
         LayoutInflater inflater = getActivity().getLayoutInflater();
 
@@ -58,11 +61,13 @@ public class DialogMarkerTypeFragment  extends DialogFragment {
         View retView = inflater.inflate(R.layout.fragment_dialog_marker_type, null);
         textViewMarkerTypeTitle = (TextView)retView.findViewById(R.id.fragment_dialog_marker_type_title);
         textViewMarkerTypeMemo = (TextView)retView.findViewById(R.id.fragment_dialog_marker_type_memo);
+        textViewMarkerTypeImageTitle = (TextView)retView.findViewById(R.id.fragment_dialog_marker_type_ImageTitle);
 
         //Log.d("DialogMarkerTypeFra", "d" + getArguments().getString("title") + "/" + getArguments().getString("memo"));
         //setting textView
         textViewMarkerTypeTitle.setText(getArguments().getString("title"));
         textViewMarkerTypeMemo.setText(getArguments().getString("memo"));
+        textViewMarkerTypeImageTitle.setText(getArguments().getString("imgStr"));
 
 
 

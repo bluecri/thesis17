@@ -12,11 +12,12 @@ import com.j256.ormlite.table.DatabaseTable;
 @DatabaseTable(tableName = "markerTypeData")
 public class MarkerTypeData {
 
-    public final static String ID_FIELD_NAME = "id";
+    public final static String ID_FIELD_NAME = "mtd_id";
 
-    public MarkerTypeData(String strTypeName, String strMemo) {
-        this.strTypeName = strTypeName;
-        this.strMemo = strMemo;
+    public MarkerTypeData(String strTypeName, String strMemo, int imageIdx) {
+            this.strTypeName = strTypeName;
+            this.strMemo = strMemo;
+            this.imageIdx = imageIdx;
     }
 
     @DatabaseField(generatedId = true, columnName = ID_FIELD_NAME)
@@ -27,6 +28,9 @@ public class MarkerTypeData {
 
     @DatabaseField
     private String strMemo;
+
+    @DatabaseField
+    private int imageIdx;
 
     public MarkerTypeData(){
         //empty
@@ -49,6 +53,14 @@ public class MarkerTypeData {
     }
     public String getStrMemo(){
         return strMemo;
+    }
+
+    public int getImageIdx() {
+        return imageIdx;
+    }
+
+    public void setImageIdx(int imageIdx) {
+        this.imageIdx = imageIdx;
     }
 
     @Override

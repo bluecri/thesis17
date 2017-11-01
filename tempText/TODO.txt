@@ -1,0 +1,13 @@
+fixedtimetable 저장시 starttime < endtime 조건
+marker 하나도 없을 때(지정 안할 시 ) error
+
+fixedTimetable -> markerCreate -> fragment교체 없이 바로 fixedTimetable에서 확인 시 신규마커 없음.
+
+basecalendar week <> Month 이동 in mainActivity
+
+algorithm test
+
+UI : 달력, 메뉴이름, 시간표 padding, 시간표 색상 random
+
+marker 삭제시 진짜 삭제하지 않고 표시만 안함. (in list, 등등)
+

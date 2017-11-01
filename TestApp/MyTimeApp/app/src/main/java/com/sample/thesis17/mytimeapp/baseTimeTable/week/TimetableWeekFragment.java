@@ -1,28 +1,27 @@
 package com.sample.thesis17.mytimeapp.baseTimeTable.week;
 
 import android.content.Context;
-import android.content.DialogInterface;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
-import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.Button;
-import android.widget.GridView;
+import android.widget.ImageButton;
 import android.widget.TextView;
 
 import com.j256.ormlite.dao.Dao;
 import com.sample.thesis17.mytimeapp.DB.baseClass.DatabaseHelperMain;
 import com.sample.thesis17.mytimeapp.DB.tables.FixedTimeTableData;
 import com.sample.thesis17.mytimeapp.DB.tables.MarkerData;
+import com.sample.thesis17.mytimeapp.MainActivity;
 import com.sample.thesis17.mytimeapp.R;
-import com.sample.thesis17.mytimeapp.baseCalendar.month.CalenderMonthAdapter;
-import com.sample.thesis17.mytimeapp.baseCalendar.month.MonthItem;
+import com.sample.thesis17.mytimeapp.baseTimeTable.DialogWeekItemCreateFragment;
+import com.sample.thesis17.mytimeapp.baseTimeTable.DialogWeekItemModifyViewFragment;
+import com.sample.thesis17.mytimeapp.baseTimeTable.DialogWeekItemViewFragment;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -54,7 +53,8 @@ public class TimetableWeekFragment extends Fragment implements DialogWeekItemVie
     View weekGridview;
     CustomWeekView customWeekView;
     TextView centerText;
-    Button leftButton, addButton;
+    ImageButton leftButton;
+    Button addButton;
     Context curContext;
 
     //DB
@@ -74,8 +74,15 @@ public class TimetableWeekFragment extends Fragment implements DialogWeekItemVie
     int selectedIdx = 0;        //listFixedTimeTableData(시간표box list)에서 선택된 index
 
 
+    public interface TimetableWeekFragmentListener{
+        void replaceDayFragmentWithTime(long longStartTime);
+    }
+
     //int curYear;        //현재 달력의 년, 월.
     //int curMonth;
+    public void openDayFragment(long longStartTime){
+        ((MainActivity)curContext).replaceDayFragmentWithTime(longStartTime);
+    }
 
     public TimetableWeekFragment() {
         // Required empty public constructor
@@ -107,7 +114,13 @@ public class TimetableWeekFragment extends Fragment implements DialogWeekItemVie
             daoFixedTimeTableDataInteger = getDatabaseHelperMain().getDaoFixedTimeTableData();
             daoMarkerDataInteger = getDatabaseHelperMain().getDaoMarkerData();
             if(daoFixedTimeTableDataInteger != null) {
-                listFixedTimeTableData = daoFixedTimeTableDataInteger.queryForAll();
+                List<FixedTimeTableData> tempList = daoFixedTimeTableDataInteger.queryForAll();
+                listFixedTimeTableData = new ArrayList<>();
+                for(FixedTimeTableData fttd : tempList){
+                    if(fttd.isCache() && fttd.isInvisible() == false){
+                        listFixedTimeTableData.add(fttd);
+                    }
+                }
                 customWeekAdapter = new CustomWeekAdapter(curContext, listFixedTimeTableData);  //adapter create
             }
             //fixedTimeTableData와 연결된 markerData를 정하기 위한 list
@@ -134,7 +147,7 @@ public class TimetableWeekFragment extends Fragment implements DialogWeekItemVie
         View retView = inflater.inflate(R.layout.fragment_timetable_week, container, false);        //fragment에 해당하는 retView
 
         //button, text
-        leftButton = (Button)retView.findViewById(R.id.fragment_timetable_week_buttonPrev);
+        leftButton = (ImageButton)retView.findViewById(R.id.fragment_timetable_week_buttonRefresh);
         addButton = (Button)retView.findViewById(R.id.fragment_timetable_week_buttonAdd);
         centerText = (TextView)retView.findViewById(R.id.fragment_timetable_week_textMonth);
 
@@ -184,6 +197,7 @@ public class TimetableWeekFragment extends Fragment implements DialogWeekItemVie
         leftButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                customWeekView.invalidate();
                 /*timetableWeekAdapter.setPreviousMonth();;
                 timetableWeekAdapter.notifyDataSetChanged();;
                 setCenterText();*/
@@ -212,7 +226,6 @@ public class TimetableWeekFragment extends Fragment implements DialogWeekItemVie
         centerText.setText(curYear + " " + (curMonth+1));*/
     }
 
-    // TODO: Rename method, update argument and hook method into UI event
     public void onButtonPressed(Uri uri) {
         /*if (mListener != null) {
             mListener.onFragmentInteraction(uri);
@@ -248,7 +261,6 @@ public class TimetableWeekFragment extends Fragment implements DialogWeekItemVie
      * >Communicating with Other Fragments</a> for more information.
      */
     public interface OnFragmentInteractionListener {
-        // TODO: Update argument type and name
         void onFragmentInteraction(Uri uri);
     }
 
@@ -272,7 +284,6 @@ public class TimetableWeekFragment extends Fragment implements DialogWeekItemVie
 
     //open dialogWeekItemViewFragment
     void openDialogWithIdx(int idx){
-        //TODO: make dialog
         selectedIdx = idx;
         //listFixedTimeTableData use
         //dialog call
@@ -324,11 +335,13 @@ public class TimetableWeekFragment extends Fragment implements DialogWeekItemVie
     public void doDelete() {
         //listFixedTimeTableData, selectedIndex
         FixedTimeTableData delData = listFixedTimeTableData.get(selectedIdx);
+        delData.setCache(false);
         listFixedTimeTableData.remove(selectedIdx);
 
         try{
             daoFixedTimeTableDataInteger = getDatabaseHelperMain().getDaoFixedTimeTableData();
-            daoFixedTimeTableDataInteger.delete(delData);
+            daoFixedTimeTableDataInteger.update(delData);
+            //  daoFixedTimeTableDataInteger.delete(delData);   : delete 대신 cache -> false
         }
         catch(SQLException e){
             Log.d("timetableweek", "doDelete sql");
@@ -354,6 +367,11 @@ public class TimetableWeekFragment extends Fragment implements DialogWeekItemVie
         modifyData.setStrMemo(memo);
         modifyData.setlStartTime(startTime);
         modifyData.setlEndTime(endTime);
+        //TODO : inner bound fix
+        modifyData.setlInnerBoundStartTime(startTime);
+        modifyData.setlInnerBoundStartTime(endTime);
+        modifyData.setlBoundStartTime(startTime);
+        modifyData.setlBoundEndTime(endTime);
         modifyData.setForeMarkerData(listMarkerData.get(markerIdx));
 
         try{
@@ -375,7 +393,7 @@ public class TimetableWeekFragment extends Fragment implements DialogWeekItemVie
     //DialogWeekItemCreateFragment LIstener
     @Override
     public void doCreate(String title, long startTime, long endTime, int markerIdx, String memo) {
-        FixedTimeTableData createData = new FixedTimeTableData(listMarkerData.get(markerIdx), title, startTime, endTime, startTime, endTime, startTime, endTime, memo, true);
+        FixedTimeTableData createData = new FixedTimeTableData(listMarkerData.get(markerIdx), title, startTime, endTime, startTime, endTime, startTime, endTime, memo, true, false);
         listFixedTimeTableData.add(createData);
 
         try{
@@ -392,18 +410,23 @@ public class TimetableWeekFragment extends Fragment implements DialogWeekItemVie
             dialogWeekItemCreateFragment.dismiss();
             dialogWeekItemCreateFragment = null;
         }
-        //TODO:
     }
 
     //DialogWeekItemCreateFragment LIstener & DialogWeekItemModifyViewFragment LIstener
     @Override
-    public ArrayList<String> getArrayListMarkerDataTitle() {
-        ArrayList<String> retArrayLIst = new ArrayList<String>();
+    public List<MarkerData> getArrayListMarkerData() {
+        /*ArrayList<String> retArrayLIst = new ArrayList<String>();
         if(listMarkerData != null){
             for(MarkerData mtd : listMarkerData)
-            retArrayLIst.add(mtd.getStrMarkerName());
+                retArrayLIst.add(mtd.getStrMarkerName());
         }
-        return retArrayLIst;
+        return retArrayLIst;*/
+        if(listMarkerData == null){
+            return new ArrayList<MarkerData>();
+        }
+        else{
+            return listMarkerData;
+        }
     }
 
 

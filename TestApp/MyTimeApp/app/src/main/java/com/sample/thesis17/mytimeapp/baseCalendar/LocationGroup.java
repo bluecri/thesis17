@@ -1,5 +1,7 @@
 package com.sample.thesis17.mytimeapp.baseCalendar;
 
+import android.util.Log;
+
 import com.sample.thesis17.mytimeapp.DB.tables.FixedTimeTableData;
 import com.sample.thesis17.mytimeapp.DB.tables.LocationMemoryData;
 import com.sample.thesis17.mytimeapp.DB.tables.MarkerData;
@@ -16,6 +18,7 @@ public class LocationGroup {
     FixedTimeTableData targetFixedTimeTableData;
     MarkerData targetMarkerData;
     List<MarkerData> listInnerMarkerData;
+    double minDIst = 0.0;
 
     public LocationGroup(List<LocationMemoryData> listLMD, double centerLat, double centerLng, FixedTimeTableData targetFixedTimeTableData, MarkerData targetMarkerData, List<MarkerData> listInnerMarkerData) {
         this.listLMD = listLMD;
@@ -72,5 +75,57 @@ public class LocationGroup {
 
     public void setListInnerMarkerData(List<MarkerData> listInnerMarkerData) {
         this.listInnerMarkerData = listInnerMarkerData;
+    }
+
+    public double getMinDIst() {
+        return minDIst;
+    }
+
+    public void setMinDIst(double minDIst) {
+        this.minDIst = minDIst;
+    }
+
+    public long getFirstTimeOfGroup(){
+        List<LocationMemoryData> tempLMDList = getListLMD();
+        try{
+            if(tempLMDList != null){
+                return tempLMDList.get(0).getlMillisTimeWritten();
+            }
+            else{
+                return -1;
+            }
+        }
+        catch(IndexOutOfBoundsException e){
+            Log.d("LocationGroup", "getFirstTimeOfGroup error");
+            return -1;
+        }
+    }
+
+    public long getLastTimeOfGroup(){
+        List<LocationMemoryData> tempLMDList = getListLMD();
+        try{
+            if(tempLMDList != null){
+                return tempLMDList.get(tempLMDList.size()-1).getlMillisTimeWritten();
+            }
+            else{
+                return -1;
+            }
+        }
+        catch(IndexOutOfBoundsException e){
+            Log.d("LocationGroup", "getFirstTimeOfGroup error");
+            return -1;
+        }
+    }
+
+    @Override
+    public String toString() {
+        return "LocationGroup{" +
+                "centerLat=" + centerLat +
+                ", centerLng=" + centerLng +
+                ", targetFTTD=" + targetFixedTimeTableData +
+                ", targetMD=" + targetMarkerData +
+                ", listInnerMD=" + listInnerMarkerData +
+                ", minDIst=" + minDIst +
+                '}';
     }
 }

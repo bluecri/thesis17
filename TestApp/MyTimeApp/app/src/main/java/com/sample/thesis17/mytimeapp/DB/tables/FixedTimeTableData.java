@@ -1,7 +1,11 @@
 package com.sample.thesis17.mytimeapp.DB.tables;
 
+import android.graphics.Color;
+
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
+
+import java.util.Random;
 
 /**
  * Created by kimz on 2017-07-26.
@@ -11,10 +15,13 @@ import com.j256.ormlite.table.DatabaseTable;
 
 @DatabaseTable(tableName = "fixedTimeTableData")
 public class FixedTimeTableData {
-    @DatabaseField(generatedId = true)
+    public final static String FIXEDTIMETABLE_ID_FIELD_NAME = "fixedtimetable_id";
+    public final static String FIXEDTIMETABLE_MARKERDATA_FIELD_NAME = "fixedtimetable_markerdata";
+    //public final static String LOCATIONMEMORY_BINDEDTEMPHISTORYDATA_FIELD_NAME = "locationmem_temphistory";
+    @DatabaseField(generatedId = true, columnName = FIXEDTIMETABLE_ID_FIELD_NAME)
     private int id;
 
-    @DatabaseField(canBeNull = false, foreign = true)
+    @DatabaseField(canBeNull = false, foreign = true, columnName = FIXEDTIMETABLE_MARKERDATA_FIELD_NAME)
     private MarkerData foreMarkerData;
 
     @DatabaseField
@@ -44,12 +51,15 @@ public class FixedTimeTableData {
     @DatabaseField
     private boolean isCache;
 
+    @DatabaseField
+    private boolean isInvisible;
+
 
     FixedTimeTableData() {
         // empty constructor is needed
     }
 
-    public FixedTimeTableData(MarkerData foreMarkerData, String strFixedTimeTableName, long lStartTime, long lEndTime, long lBoundStartTime, long lBoundEndTime, long lInnerBoundStartTime, long lInnerBoundEndTime, String strMemo, boolean isCache) {
+    public FixedTimeTableData(MarkerData foreMarkerData, String strFixedTimeTableName, long lStartTime, long lEndTime, long lBoundStartTime, long lBoundEndTime, long lInnerBoundStartTime, long lInnerBoundEndTime, String strMemo, boolean isCache, boolean isInvisible) {
         this.foreMarkerData = foreMarkerData;
         this.strFixedTimeTableName = strFixedTimeTableName;
         this.lStartTime = lStartTime;
@@ -60,6 +70,7 @@ public class FixedTimeTableData {
         this.lInnerBoundEndTime = lInnerBoundEndTime;
         this.strMemo = strMemo;
         this.isCache = isCache;
+        this.isInvisible = isInvisible;
     }
 
 
@@ -142,7 +153,22 @@ public class FixedTimeTableData {
     public void setCache(boolean cache) {
         isCache = cache;
     }
-/*
+
+    public boolean isInvisible() {
+        return isInvisible;
+    }
+
+    public void setInvisible(boolean invisible) {
+        isInvisible = invisible;
+    }
+
+    public int getColor(){
+        Random rnd = new Random(lStartTime);
+        return Color.argb(255, rnd.nextInt(256), rnd.nextInt(256), rnd.nextInt(256));
+    }
+
+
+    /*
     public void setForeMarkerData(MarkerData markerData){
         foreMarkerData = markerData;
     }
@@ -213,6 +239,24 @@ public class FixedTimeTableData {
         return isCache;
     }
 */
+
+    @Override
+    public String toString() {
+        return "FixedTimeTableData{" +
+                "id=" + id +
+                ", foreMarkerData=" + foreMarkerData +
+                ", strFixedTimeTableName='" + strFixedTimeTableName + '\'' +
+                ", lStartTime=" + lStartTime +
+                ", lEndTime=" + lEndTime +
+                ", lBoundStartTime=" + lBoundStartTime +
+                ", lBoundEndTime=" + lBoundEndTime +
+                ", lInnerBoundStartTime=" + lInnerBoundStartTime +
+                ", lInnerBoundEndTime=" + lInnerBoundEndTime +
+                ", strMemo='" + strMemo + '\'' +
+                ", isCache=" + isCache +
+                ", isInvisible=" + isInvisible +
+                '}';
+    }
 
     @Override
     public boolean equals(Object o) {
