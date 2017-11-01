@@ -1,0 +1,69 @@
+fixedtimetable 저장시 starttime < endtime 조건
+marker 하나도 없을 때(지정 안할 시 ) error
+
+fixedTimetable -> markerCreate(map activity) -> fragment교체 없이 바로 fixedTimetable에서 확인 시 신규마커 없음.
+
+null일때 바로 새로 만드는 기능
+
+{fixed에 마커이름,, calender에 메모, 뒤로가기}
+{달력 UI}, {시간표 padding}, {시간표 색상 random}, {algo test},{ Dialog UI }, 위치경로 지도, {통계, timetable 다중시간표}
+{fixed제거시 setCache == false}
+
+{fAcc가 너무 크면 기록 x}
+
+{시간표 생성시 visible = false 대상 마커로 못하게 해야함.}
+
+{gps, wifi 다 안되면 기록이 아예 안남음.}
+
+{맵에서 뒤로 가면 main blank fragment로.(refresh를 위해)}
+
+setTimeInMillis - 9, not - 9
+
+
+           <TextView
+            android:id="@+id/textView2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="2"
+            android:textSize="18sp"
+            android:textAlignment="center"
+            android:text="시작시각" />
+<TextView
+            android:id="@+id/textView6"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="18sp"
+            android:textAlignment="center"
+            android:layout_weight="1"
+            android:text="종료시각" />
+
+android:textAppearance="?android:attr/textAppearanceMedium"
+android:textAppearance="?android:attr/textAppearance"
+
+            android:layout_marginBottom="4dp"
+            android:layout_marginLeft="4dp"
+            android:layout_marginRight="4dp"
+            android:layout_marginTop="16dp"
+
+
+
+
+R.style.alertDialogStyle
+
+
+fixedtimetable matching(null or visible or unvisible)
+
+fixedtimetable, marker matching -> temp dialog spinner에 표시가 어려움.
+
+android:background="@drawable/button_fixedtimetable_add"
+
+
+visibleMarker인 경우 그대로, invisibleMarker의 경우 하나만 일시 표시
+
+timetable의 경우 이미 정해진 marker로 같은 방식으로 계산.(invisible visible 여부 상관 없이)
+단, visible marker의 경우 visible timetable 먼저 검색 후 불일치 하면 unvisible timetable 검색.
+
+unvisible marker의 경우 모든 경우의 수가 unvisible timetable이므로 상관 x
+
+
+

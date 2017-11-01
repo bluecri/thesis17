@@ -25,8 +25,10 @@ import com.sample.thesis17.mytimeapp.DB.baseClass.DatabaseHelperLocationMemory;
 import com.sample.thesis17.mytimeapp.DB.baseClass.DatabaseHelperMain;
 import com.sample.thesis17.mytimeapp.DB.tables.FixedTimeTableData;
 import com.sample.thesis17.mytimeapp.DB.tables.LocationMemoryData;
+import com.sample.thesis17.mytimeapp.baseCalendar.day.CalenderDayFragment;
 import com.sample.thesis17.mytimeapp.baseCalendar.month.CalenderMonthFragment;
 import com.sample.thesis17.mytimeapp.baseCalendar.week.CalenderWeekFragment;
+import com.sample.thesis17.mytimeapp.baseTimeTable.day.TimetableDayFragment;
 import com.sample.thesis17.mytimeapp.baseTimeTable.week.TimetableWeekFragment;
 import com.sample.thesis17.mytimeapp.locationS.SettingFragment;
 import com.sample.thesis17.mytimeapp.map.MapsActivity;
@@ -41,10 +43,11 @@ import java.sql.SQLException;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener, CalenderMonthFragment.CalenderMonthFragmentListener, CalenderWeekFragment.CalenderWeekFragmentListener {
+        implements NavigationView.OnNavigationItemSelectedListener, CalenderMonthFragment.CalenderMonthFragmentListener, CalenderWeekFragment.CalenderWeekFragmentListener, TimetableWeekFragment.TimetableWeekFragmentListener {
 
     CalenderWeekFragment calenderWeekFragment = null;
     CalenderMonthFragment calenderMonthFragment = null;
+    TimetableDayFragment timetableDayFragment = null;
     StatisticItemFragment statisticFragment = null;
     MainBlankFragment blankFragment = null;
 
@@ -98,11 +101,21 @@ public class MainActivity extends AppCompatActivity
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
         }
-        else if(calenderWeekFragment != null){
+        else if(calenderWeekFragment != null && fragmentManager.findFragmentById(R.id.mainFragmentContainer) instanceof CalenderWeekFragment){
             // move to Month of Week
             long tempStartTimeLong = calenderWeekFragment.getStartLongTimeOfFragmentArgument();
             //Log.d("debbugged", "tempStarttimeLong : " + tempStartTimeLong);
             fragmentChangeToMonthView(tempStartTimeLong);
+        }
+        else if(fragmentManager.findFragmentById(R.id.mainFragmentContainer) instanceof TimetableDayFragment){
+            FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+            //create Calender fragment with parameter
+            TimetableWeekFragment timetableFragment = TimetableWeekFragment.newInstance("", "");
+            //replace mainFragment's fragment -> calender(TAG : timetable)
+            //fragmentTransaction.replace(R.id.mainFragmentContainer, timetableFragment, "timetable");
+            fragmentTransaction.replace(R.id.mainFragmentContainer, timetableFragment, "timetable_week_fragment");
+            fragmentTransaction.commit();
+            timetableDayFragment = null;
         }
         else if(!(fragmentManager.findFragmentById(R.id.mainFragmentContainer) instanceof MainBlankFragment)){
             FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
@@ -283,19 +296,27 @@ public class MainActivity extends AppCompatActivity
                 locationMemoryDataIntegerDao.update(fttd);
                 Log.d("mainactivity", "LM : " + fttd.toString());
             }
+            Dao<FixedTimeTableData, Integer> tegerDao = databaseHelperMain.getDaoFixedTimeTableData();
+            List<FixedTimeTableData> locationFixedTimeTableDataList = tegerDao.queryForAll();
+            for(FixedTimeTableData fttd : locationFixedTimeTableDataList){
+                //fttd.setBindedTempHistoryData(null);
+                //fttd.setBindedHistoryData(null);
+                //locationMemoryDataIntegerDao.update(fttd);
+                Log.d("mainactivity", "FX : " + fttd.toString());
+            }
 
             //Log.d("exception", "getDaoTempHistoryData" );
-            deleteAllWithDao(databaseHelperMain.getDaoTempHistoryData());
+            //deleteAllWithDao(databaseHelperMain.getDaoTempHistoryData());
             //Log.d("exception", "getDaoTempHistoryData" );
-            deleteAllWithDao(databaseHelperMain.getDaoTempHistoryLMData());
+            //deleteAllWithDao(databaseHelperMain.getDaoTempHistoryLMData());
             //Log.d("exception", "getDaoTempHistoryData" );
-            deleteAllWithDao(databaseHelperMain.getDaoDateForTempHisoryData());
+            //deleteAllWithDao(databaseHelperMain.getDaoDateForTempHisoryData());
             //Log.d("exception", "getDaoTempHistoryData" );
-            deleteAllWithDao(databaseHelperMain.getDaoHistoryData());
+            //deleteAllWithDao(databaseHelperMain.getDaoHistoryData());
             //Log.d("exception", "getDaoTempHistoryData" );
-            deleteAllWithDao(databaseHelperMain.getDaoTempHistoryMarkerData());
-            deleteAllWithDao(databaseHelperMain.getDaoHistoryDataInnerMarkerData());
-            deleteAllWithDao(databaseHelperMain.getDaoHistoryDataLocTimeRangeIncDecData());
+            //deleteAllWithDao(databaseHelperMain.getDaoTempHistoryMarkerData());
+            //deleteAllWithDao(databaseHelperMain.getDaoHistoryDataInnerMarkerData());
+            //deleteAllWithDao(databaseHelperMain.getDaoHistoryDataLocTimeRangeIncDecData());
 
         }
         catch(SQLException e){
@@ -372,4 +393,12 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
+    @Override
+    public void replaceDayFragmentWithTime(long longStartTime) {
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+        timetableDayFragment = TimetableDayFragment.newInstance(longStartTime);
+        fragmentTransaction.replace(R.id.mainFragmentContainer, timetableDayFragment, "timetable_day_fragment");
+        fragmentTransaction.commit();
+    }
 }

@@ -155,7 +155,7 @@ public class CustomWeekAdapter {
 
                 tempCustomWeekItem = new CustomWeekItem();
                 tempCustomWeekItem.setIdx(countIdx);
-                tempCustomWeekItem.setText(inData.getStrFixedTimeTableName());
+                tempCustomWeekItem.setText(inData.getStrFixedTimeTableName() + " / " + inData.getStrMemo());
                 tempCustomWeekItem.setCoords(left, up, right, bottom);
                 tempCustomWeekItem.setBlockColor(inData.getColor());
                 tempCustomWeekItem.setTextColor(getContrastColor(inData.getColor()));
@@ -173,7 +173,7 @@ public class CustomWeekAdapter {
 
                 tempCustomWeekItem = new CustomWeekItem();
                 tempCustomWeekItem.setIdx(countIdx);
-                tempCustomWeekItem.setText(inData.getStrFixedTimeTableName());
+                tempCustomWeekItem.setText(inData.getStrFixedTimeTableName() + " / " + inData.getStrMemo());
                 tempCustomWeekItem.setCoords(left, up, right, bottom);
                 tempCustomWeekItem.setBlockColor(inData.getColor());
                 tempCustomWeekItem.setTextColor(getContrastColor(inData.getColor()));
@@ -192,7 +192,7 @@ public class CustomWeekAdapter {
 
                     tempCustomWeekItem = new CustomWeekItem();
                     tempCustomWeekItem.setIdx(countIdx);
-                    tempCustomWeekItem.setText(inData.getStrFixedTimeTableName());
+                    tempCustomWeekItem.setText(inData.getStrFixedTimeTableName() + " / " + inData.getStrMemo());
                     tempCustomWeekItem.setCoords(left, up, right, bottom);
                     tempCustomWeekItem.setBlockColor(inData.getColor());
                     tempCustomWeekItem.setTextColor(getContrastColor(inData.getColor()));
@@ -210,7 +210,7 @@ public class CustomWeekAdapter {
 
                 tempCustomWeekItem = new CustomWeekItem();
                 tempCustomWeekItem.setIdx(countIdx);
-                tempCustomWeekItem.setText(inData.getStrFixedTimeTableName());
+                tempCustomWeekItem.setText(inData.getStrFixedTimeTableName() + " / " + inData.getStrMemo());
                 tempCustomWeekItem.setCoords(left, up, right, bottom);
                 tempCustomWeekItem.setBlockColor(inData.getColor());
                 tempCustomWeekItem.setTextColor(getContrastColor(inData.getColor()));
@@ -276,6 +276,13 @@ public class CustomWeekAdapter {
     }
 
     public int getIdxWithClicked(float x, float y){
+        Log.d("getIdxWithClicked", "x:" + x + "/y: " + y + "/fUpSideSpace : " + fUpSideSpace);
+        if(0.0 <= y && y <= fUpSideSpace){
+            int idx = (int)((x-fLeftSideSpace)/colBlockSize);
+            ((TimetableWeekFragment)(((FragmentActivity)curContext).getSupportFragmentManager().findFragmentByTag("timetable_week_fragment"))).openDayFragment(idx * LONG_DAY_MILLIS);
+            return -1;
+            //open TimetableDayFragment with longStartDate = idx * Long_DAY_MILLIS
+        }
         for(CustomWeekItem item : customWeekItemList){
             if(item.getLeft() <= x && x < item.getRight() && item.getTop() <= y && y < item.getBottom()){
                 ((TimetableWeekFragment)(((FragmentActivity)curContext).getSupportFragmentManager().findFragmentByTag("timetable_week_fragment"))).openDialogWithIdx(item.getIdx());

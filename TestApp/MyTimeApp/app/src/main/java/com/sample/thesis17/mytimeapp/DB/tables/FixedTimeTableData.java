@@ -241,6 +241,24 @@ public class FixedTimeTableData {
 */
 
     @Override
+    public String toString() {
+        return "FixedTimeTableData{" +
+                "id=" + id +
+                ", foreMarkerData=" + foreMarkerData +
+                ", strFixedTimeTableName='" + strFixedTimeTableName + '\'' +
+                ", lStartTime=" + lStartTime +
+                ", lEndTime=" + lEndTime +
+                ", lBoundStartTime=" + lBoundStartTime +
+                ", lBoundEndTime=" + lBoundEndTime +
+                ", lInnerBoundStartTime=" + lInnerBoundStartTime +
+                ", lInnerBoundEndTime=" + lInnerBoundEndTime +
+                ", strMemo='" + strMemo + '\'' +
+                ", isCache=" + isCache +
+                ", isInvisible=" + isInvisible +
+                '}';
+    }
+
+    @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (!(o instanceof FixedTimeTableData)) return false;

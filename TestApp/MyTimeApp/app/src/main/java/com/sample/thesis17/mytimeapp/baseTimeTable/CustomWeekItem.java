@@ -12,6 +12,8 @@ public class CustomWeekItem {
     private String text;
     private int blockColor;
     private int textColor;
+    private long startTime = 0;
+    private long endTime = 0;
 
     public int getIdx() {
         return idx;
@@ -69,6 +71,21 @@ public class CustomWeekItem {
         this.textColor = textColor;
     }
 
+    public long getStartTime() {
+        return startTime;
+    }
+
+    public void setStartTime(long startTime) {
+        this.startTime = startTime;
+    }
+
+    public long getEndTime() {
+        return endTime;
+    }
+
+    public void setEndTime(long endTime) {
+        this.endTime = endTime;
+    }
 
     @Override
     public String toString() {

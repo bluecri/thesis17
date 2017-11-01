@@ -19,6 +19,7 @@ import java.util.Locale;
 
 import static com.sample.thesis17.mytimeapp.Static.MyMath.LONG_DAY_MILLIS;
 import static com.sample.thesis17.mytimeapp.Static.MyMath.LONG_HOUR_MILLIS;
+import static com.sample.thesis17.mytimeapp.Static.MyMath.LONG_MIN_MILLIS;
 import static com.sample.thesis17.mytimeapp.Static.MyMath.LONG_WEEK_MILLIS;
 import static com.sample.thesis17.mytimeapp.Static.MyMath.WEEK_STRING;
 import static com.sample.thesis17.mytimeapp.Static.MyMath.WEEK_STRING_REAL;
@@ -115,8 +116,8 @@ public class DialogViewCalenderItemFragment extends DialogFragment {
         startDate.setTime(startTimeArg);
         endDate.setTime(endTimeArg);
         */
-        textViewStartTime.setText(String.format(Locale.KOREA, "%02d:%02d", (int)(startTimeArg%LONG_DAY_MILLIS/LONG_HOUR_MILLIS), (int)(startTimeArg%LONG_HOUR_MILLIS/LONG_DAY_MILLIS)));
-        textViewEndTime.setText(String.format(Locale.KOREA, "%02d:%02d", (int)(endTimeArg%LONG_DAY_MILLIS/LONG_HOUR_MILLIS), (int)(endTimeArg%LONG_HOUR_MILLIS/LONG_DAY_MILLIS)));
+        textViewStartTime.setText(String.format(Locale.KOREA, "%02d:%02d", (int)(startTimeArg%LONG_DAY_MILLIS/LONG_HOUR_MILLIS), (int)(startTimeArg%LONG_HOUR_MILLIS/LONG_MIN_MILLIS)));
+        textViewEndTime.setText(String.format(Locale.KOREA, "%02d:%02d", (int)(endTimeArg%LONG_DAY_MILLIS/LONG_HOUR_MILLIS), (int)(endTimeArg%LONG_HOUR_MILLIS/LONG_MIN_MILLIS)));
         //textViewStartTime.setText(sdf.format(startDate));
         //textViewEndTime.setText(sdf.format(endDate));
 

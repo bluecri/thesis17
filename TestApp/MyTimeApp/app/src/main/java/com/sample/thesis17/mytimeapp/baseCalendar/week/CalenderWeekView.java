@@ -541,7 +541,7 @@ public class CalenderWeekView extends View {
         Paint strokePaint = new Paint();
         strokePaint.setStyle(Paint.Style.STROKE);
         strokePaint.setColor(Color.BLACK);
-        strokePaint.setStrokeWidth(1);
+        strokePaint.setStrokeWidth(2);
         int cornerRadius = 20;
 
         //stroke paint

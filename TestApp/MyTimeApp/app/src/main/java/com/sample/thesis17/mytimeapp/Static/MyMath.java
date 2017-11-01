@@ -23,7 +23,7 @@ public class MyMath {
     public static long LONG_LOCALE_PLUS_KOREA_MODULO_DAY = LONG_DAY_MILLIS + (-1 * LONG_HOUR_MILLIS * 9); //LOCALE_KOREA : GMT + 09:00
 
     public static String[] WEEK_STRING = {"일", "월", "화", "수", "목", "금", "토"};
-    public static String[] WEEK_STRING_REAL = {"수", "목", "금", "토", "일", "월", "화"};
+    public static String[] WEEK_STRING_REAL = {"목", "금", "토", "일", "월", "화", "수"};
 
     public static double OUT_RADIUS_INCDEC = 0.000000003;
     public static double IN_RADIUS_INCDEC = 0.000000002;
@@ -36,7 +36,8 @@ public class MyMath {
     public static double DOUBLE_GROUPING_2POW_RADIUS = 0.000000035;  // groupping 기준
     public static double MINDIST_TO_GROUP_TO_MAKRER = 0.00000005; //0.00000025;
 
-    public static long MINTIME_TO_GROUPING = LONG_MIN_MILLIS * 11;  //중간에 noise없이 가까운 거리인 경우 grouping 하는 최대 시간 차 조건
+    //android 자체적으로 주기 늘림. 30분까지 늘어나는것 확인. A -- A인 경우 1시간 간격 이상이면 다른 group으로 판단.
+    public static long MINTIME_TO_GROUPING = LONG_HOUR_MILLIS; //LONG_MIN_MILLIS * 11;  //중간에 noise없이 가까운 거리인 경우 grouping 하는 최대 시간 차 조건
 
 
 

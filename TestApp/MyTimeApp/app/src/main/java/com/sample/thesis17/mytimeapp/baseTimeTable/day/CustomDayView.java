@@ -28,13 +28,13 @@ import static java.lang.Math.min;
 public class CustomDayView extends View {
     public Context curContext;
 
-    public static int COL_NUM = 7;
-    public static int ROW_NUM = 24;
+    public int COL_NUM = 7;
+    public int ROW_NUM = 24;
 
     static int MODE_NONE = 0, MODE_DRAG_INIT = 1, MODE_DRAG_HOR = 2, MODE_DRAG_VER = 3, MODE_PAN = 4;
 
     private Paint paint;
-    private int canvasColNum, canvasRowNum;  //number of canvas Col, Row
+    //private int canvasColNum, canvasRowNum;  //number of canvas Col, Row
     private int subRowNum; //number of subRow in 1 Row
     private float fMaxBlockCol, fMinBlockCol, fMaxBlockRow, fMinBlockRow; //min, max size of each block
     private int customViewWidth, customViewHeight;  //px size of CustomView
@@ -123,12 +123,12 @@ public class CustomDayView extends View {
 
     //canvas를 블럭으로 나눌 기준.
     public void setCanvasBlock(int col, int row, int subrow) {
-        canvasColNum = 7;
-        canvasRowNum = 24;
-        subRowNum = 2;
+        COL_NUM = col;
+        ROW_NUM = row;
+        subRowNum = subrow;
         //블럭의 최대 사이즈
         fMaxBlockRow = (float) fCustomViewHeightExceptSpace / 3;
-        fMaxBlockCol = (float) fCustomViewWidthExceptSpace / 3;
+        fMaxBlockCol = (float) fCustomViewWidthExceptSpace / 2;
         //블럭의 최소 사이즈
         fMinBlockRow = (float) fCustomViewHeightExceptSpace / 15;
         fMinBlockCol = (float) fCustomViewWidthExceptSpace / 7;

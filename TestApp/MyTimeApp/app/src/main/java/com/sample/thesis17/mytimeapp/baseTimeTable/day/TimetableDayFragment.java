@@ -28,6 +28,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static android.util.Log.d;
+import static com.sample.thesis17.mytimeapp.Static.MyMath.LONG_DAY_MILLIS;
 
 public class TimetableDayFragment extends Fragment implements DialogWeekItemViewFragment.DialogWeekItemViewFragmentListener, DialogWeekItemModifyViewFragment.DialogWeekItemModifyViewFragmentListener, DialogWeekItemCreateFragment.DialogWeekItemCreateFragmentListener{
     // TODO: Rename parameter arguments, choose names that match
@@ -47,6 +48,8 @@ public class TimetableDayFragment extends Fragment implements DialogWeekItemView
     ImageButton leftButton;
     Button addButton;
     Context curContext;
+
+    Long longStartTime = 0L;
 
     //DB
     List<FixedTimeTableData> listFixedTimeTableData = null;
@@ -72,20 +75,13 @@ public class TimetableDayFragment extends Fragment implements DialogWeekItemView
         // Required empty public constructor
     }
 
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment TimetableWeekFragment.
-     */
+
     // TODO: Rename and change types and number of parameters
-    public static TimetableDayFragment newInstance(String param1, String param2) {
+    public static TimetableDayFragment newInstance(long longStartTime) {
         TimetableDayFragment fragment = new TimetableDayFragment();
         Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
+        args.putLong(ARG_PARAM1, longStartTime);
+        //args.putString(ARG_PARAM2, param2);
         fragment.setArguments(args);
         return fragment;
     }
@@ -93,6 +89,7 @@ public class TimetableDayFragment extends Fragment implements DialogWeekItemView
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        longStartTime = getArguments().getLong(ARG_PARAM1);
 
         try{
             daoFixedTimeTableDataInteger = getDatabaseHelperMain().getDaoFixedTimeTableData();
@@ -101,11 +98,12 @@ public class TimetableDayFragment extends Fragment implements DialogWeekItemView
                 List<FixedTimeTableData> tempList = daoFixedTimeTableDataInteger.queryForAll();
                 listFixedTimeTableData = new ArrayList<>();
                 for(FixedTimeTableData fttd : tempList){
-                    if(fttd.isCache()){
+                    if(fttd.isCache() && fttd.isInvisible() == false && longStartTime < fttd.getlEndTime() && fttd.getlStartTime() < longStartTime + LONG_DAY_MILLIS){
                         listFixedTimeTableData.add(fttd);
                     }
                 }
                 customDayAdapter = new CustomDayAdapter(curContext, listFixedTimeTableData);  //adapter create
+                customDayAdapter.setLongStartDate(longStartTime);
             }
             //fixedTimeTableData와 연결된 markerData를 정하기 위한 list
             if(daoMarkerDataInteger != null) {
@@ -265,6 +263,10 @@ public class TimetableDayFragment extends Fragment implements DialogWeekItemView
     }
 
 
+    void openDayFragment(long longStartTime){
+
+    }
+
 
     //open dialogWeekItemViewFragment
     void openDialogWithIdx(int idx){
@@ -378,7 +380,9 @@ public class TimetableDayFragment extends Fragment implements DialogWeekItemView
     @Override
     public void doCreate(String title, long startTime, long endTime, int markerIdx, String memo) {
         FixedTimeTableData createData = new FixedTimeTableData(listMarkerData.get(markerIdx), title, startTime, endTime, startTime, endTime, startTime, endTime, memo, true, false);
-        listFixedTimeTableData.add(createData);
+        if(longStartTime < createData.getlEndTime() && createData.getlStartTime() < longStartTime + LONG_DAY_MILLIS){
+            listFixedTimeTableData.add(createData);
+        }
 
         try{
             daoFixedTimeTableDataInteger = getDatabaseHelperMain().getDaoFixedTimeTableData();

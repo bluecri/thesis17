@@ -453,7 +453,8 @@ public class DialogViewCalenderTempItemFragment extends DialogFragment implement
 
                     //update FixedTimeTableList
                     arrayAdapterFixedTimeTableTitle.clear();
-                    arrListFixedTimeTable.clear();
+                    arrListFixedTimeTable = new ArrayList<String>();
+                    Log.d("arrList", "arrListFixedTimeTable size agter clear: " + arrListFixedTimeTable.size());
                     listFixedTimeTableDataQueryedByMarkerData = null;
                     listFixedTimeTableDataQueryedByMarkerData = new ArrayList<FixedTimeTableData>();
 
@@ -466,6 +467,7 @@ public class DialogViewCalenderTempItemFragment extends DialogFragment implement
                             if(fttd.isInvisible() == false && fttd.isCache()){
                                 listFixedTimeTableDataQueryedByMarkerData.add(fttd);
                                 arrListFixedTimeTable.add(fttd.getStrFixedTimeTableName());
+                                Log.d("arrList", "6");
 
                             }
                         }
@@ -474,9 +476,15 @@ public class DialogViewCalenderTempItemFragment extends DialogFragment implement
                     if(markerDataListIdx != -1 && listMarkerData.get(markerDataListIdx).equals((listMarkerDataToAdapter.get(markerDataAdpaterListIdx))) && fixedTimeTableDataListIdx != -1 && listFixedTimeTableData.get(fixedTimeTableDataListIdx).isInvisible() == true) {
                         listFixedTimeTableDataQueryedByMarkerData.add(listFixedTimeTableData.get(fixedTimeTableDataListIdx));
                         arrListFixedTimeTable.add(listFixedTimeTableData.get(fixedTimeTableDataListIdx).getStrFixedTimeTableName());     //timetable to string
+                        checkBoxTargetTimetableSetChecked(false, false);
+                        Log.d("arrList", "5");
                     }
                     arrayAdapterFixedTimeTableTitle.addAll(arrListFixedTimeTable);
-                    arrayAdapterFixedTimeTableTitle.notifyDataSetChanged();
+                    Log.d("arrList", "arrListFixedTimeTable size : " + arrListFixedTimeTable.size());
+                    Log.d("arrList", "listFixedTimeTableDataQueryedByMarkerData size : " + listFixedTimeTableDataQueryedByMarkerData.size());
+                    arrayAdapterFixedTimeTableTitle = new ArrayAdapter<String>(curContext, R.layout.support_simple_spinner_dropdown_item, arrListFixedTimeTable);
+                    spinnerViewTitle.setAdapter(arrayAdapterFixedTimeTableTitle);
+                    //arrayAdapterFixedTimeTableTitle.notifyDataSetChanged();
                     if(listFixedTimeTableDataQueryedByMarkerData.size() == 0){
                         checkBoxTargetTimetableSetChecked(true, false);
                     }
@@ -512,6 +520,7 @@ public class DialogViewCalenderTempItemFragment extends DialogFragment implement
                         if(fttd.isInvisible() == false && fttd.isCache()){
                             listFixedTimeTableDataQueryedByMarkerData.add(fttd);
                             arrListFixedTimeTable.add(fttd.getStrFixedTimeTableName());
+                            Log.d("arrList", "3");
                         }
                     }
                 }
@@ -528,6 +537,7 @@ public class DialogViewCalenderTempItemFragment extends DialogFragment implement
                     if(fttd.isInvisible() == false && fttd.isCache()){
                         listFixedTimeTableDataQueryedByMarkerData.add(fttd);
                         arrListFixedTimeTable.add(fttd.getStrFixedTimeTableName());     //timetable to string
+                        Log.d("arrList", "1");
                     }
                 }
             }
@@ -535,8 +545,10 @@ public class DialogViewCalenderTempItemFragment extends DialogFragment implement
 
             //if invisible timetable is target... add to list
             if(fixedTimeTableDataListIdx != -1 && listFixedTimeTableData.get(fixedTimeTableDataListIdx).isInvisible() == true) {
-                listFixedTimeTableDataQueryedByMarkerData.add(listFixedTimeTableData.get(fixedTimeTableDataListIdx));
-                arrListFixedTimeTable.add(listFixedTimeTableData.get(fixedTimeTableDataListIdx).getStrFixedTimeTableName());     //timetable to string
+                //listFixedTimeTableDataQueryedByMarkerData.add(listFixedTimeTableData.get(fixedTimeTableDataListIdx));
+                //arrListFixedTimeTable.add(listFixedTimeTableData.get(fixedTimeTableDataListIdx).getStrFixedTimeTableName());     //timetable to string
+                //run in spinner position
+                Log.d("arrList", "2");
             }
 
             //set adapter

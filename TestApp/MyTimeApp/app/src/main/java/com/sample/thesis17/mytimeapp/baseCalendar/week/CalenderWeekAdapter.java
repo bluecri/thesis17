@@ -34,6 +34,7 @@ public class CalenderWeekAdapter {
     //List<MarkerData> listMarkerData = null;
     //List<FixedTimeTableData> listFixedTimetabledData = null;
     Dao<FixedTimeTableData, Integer> daoFixedTimetableInteger = null;
+    Dao<MarkerData, Integer> daoMarkerDataInteger = null;
 
     //fixed
     private float scrollCol, scrollRow;   //최상단, 하단 위치
@@ -53,7 +54,7 @@ public class CalenderWeekAdapter {
     private float fCoordHeight, fCoordLeft, fCoordRight;
 
 
-    CalenderWeekAdapter(Context context, List<HistoryData> inlistHistoryData, List<TempHistoryData> inlistTempHistoryData, Dao<FixedTimeTableData, Integer> inDaoFixedTimetableInteger){
+    CalenderWeekAdapter(Context context, List<HistoryData> inlistHistoryData, List<TempHistoryData> inlistTempHistoryData, Dao<FixedTimeTableData, Integer> inDaoFixedTimetableInteger,  Dao<MarkerData, Integer> inDaoMarkerDataInteger){
         curContext = context;
         listHistoryData = inlistHistoryData;
         listTempHistoryData = inlistTempHistoryData;
@@ -61,6 +62,7 @@ public class CalenderWeekAdapter {
         //listFixedTimetabledData = inListFixedTimetabledData;
         listCalenderWeekItem = new ArrayList<CalenderWeekItem>();
         daoFixedTimetableInteger = inDaoFixedTimetableInteger;
+        daoMarkerDataInteger = inDaoMarkerDataInteger;
     }
 
     public void setLongStartDate(long in){
@@ -195,7 +197,7 @@ public class CalenderWeekAdapter {
         FixedTimeTableData targetFixedTimeTableData = null;
         try{
             targetFixedTimeTableData = daoFixedTimetableInteger.queryForSameId(inData.getForeFixedTimeTable());
-            targetText = targetFixedTimeTableData.getStrFixedTimeTableName();
+            targetText = targetFixedTimeTableData.getStrFixedTimeTableName() + "/" + inData.getMemo();
             targetBlockColor = targetFixedTimeTableData.getColor();
             targetTextColor = getContrastColor(targetBlockColor);
 
@@ -343,14 +345,15 @@ public class CalenderWeekAdapter {
         endTime = (endTime + 4 * LONG_DAY_MILLIS) % LONG_WEEK_MILLIS;
 
         CalenderWeekItem tempCalenderWeekItem = null;
-        String targetText = null;
+        String targetText = "";
         int targetBlockColor = 0, targetTextColor = 0;
 
         FixedTimeTableData targetFixedTimeTableData = null;
+        MarkerData targetMarkerData = null;
         if(inData.getForeFixedTimeTable() != null){
             try{
                 targetFixedTimeTableData = daoFixedTimetableInteger.queryForSameId(inData.getForeFixedTimeTable());
-                targetText = targetFixedTimeTableData.getStrFixedTimeTableName();
+                targetText = "예상 시간표 : " + targetFixedTimeTableData.getStrFixedTimeTableName() + " / " + targetFixedTimeTableData.getStrMemo();
                 targetBlockColor = targetFixedTimeTableData.getColor();
                 targetTextColor = getContrastColor(targetBlockColor);
 
@@ -363,7 +366,25 @@ public class CalenderWeekAdapter {
             }
         }
         else{
-
+            if(inData.getForeMarkerData() != null){
+                try {
+                    targetMarkerData = daoMarkerDataInteger.queryForSameId(inData.getForeMarkerData());
+                    targetText = "예상 마커 위치 : " + targetMarkerData.getStrMarkerName() + " / " + targetMarkerData.getStrMemo();
+                    targetBlockColor =  Color.GREEN;
+                    targetTextColor = Color.BLACK;
+                } catch (SQLException e) {
+                    Log.d("exception", "makeItemsWithHistoryData exception : " + e.toString());
+                    targetText = "sql error";
+                    targetBlockColor = Color.RED;
+                    targetTextColor = Color.WHITE;
+                    e.printStackTrace();
+                }
+            }
+            else{
+                targetText = "알수없음";
+                targetBlockColor =  Color.YELLOW;
+                targetTextColor = Color.BLACK;
+            }
         }
 
 
@@ -379,16 +400,17 @@ public class CalenderWeekAdapter {
 
                 tempCalenderWeekItem = new CalenderWeekItem();
                 tempCalenderWeekItem.setIdx(countIdx);
-                if(inData.getForeFixedTimeTable() == null || inData.getForeFixedTimeTable().getStrFixedTimeTableName() == null){
+                /*if(inData.getForeFixedTimeTable() == null || inData.getForeFixedTimeTable().getStrFixedTimeTableName() == null){
                     tempCalenderWeekItem.setText("알수없음");
                     tempCalenderWeekItem.setBlockColor(Color.GREEN);
                     tempCalenderWeekItem.setTextColor(Color.BLACK);
                 }
                 else{
+                */
                     tempCalenderWeekItem.setText(targetText);
                     tempCalenderWeekItem.setBlockColor(targetBlockColor);
-                    tempCalenderWeekItem.setBlockColor(targetTextColor);
-                }
+                    tempCalenderWeekItem.setTextColor(targetTextColor);
+
                 tempCalenderWeekItem.setCoords(left, up, right, bottom);
                 tempCalenderWeekItem.setHistoryData(false);
 
@@ -405,16 +427,11 @@ public class CalenderWeekAdapter {
 
                 tempCalenderWeekItem = new CalenderWeekItem();
                 tempCalenderWeekItem.setIdx(countIdx);
-                if(inData.getForeFixedTimeTable() == null || inData.getForeFixedTimeTable().getStrFixedTimeTableName() == null){
-                    tempCalenderWeekItem.setText("알수없음");
-                    tempCalenderWeekItem.setBlockColor(Color.GREEN);
-                    tempCalenderWeekItem.setTextColor(Color.BLACK);
-                }
-                else{
+
                     tempCalenderWeekItem.setText(targetText);
                     tempCalenderWeekItem.setBlockColor(targetBlockColor);
-                    tempCalenderWeekItem.setBlockColor(targetTextColor);
-                }
+                    tempCalenderWeekItem.setTextColor(targetTextColor);
+
                 tempCalenderWeekItem.setCoords(left, up, right, bottom);
                 tempCalenderWeekItem.setHistoryData(false);
 
@@ -432,16 +449,11 @@ public class CalenderWeekAdapter {
 
                     tempCalenderWeekItem = new CalenderWeekItem();
                     tempCalenderWeekItem.setIdx(countIdx);
-                    if(inData.getForeFixedTimeTable() == null || inData.getForeFixedTimeTable().getStrFixedTimeTableName() == null){
-                        tempCalenderWeekItem.setText("알수없음");
-                        tempCalenderWeekItem.setBlockColor(Color.GREEN);
-                        tempCalenderWeekItem.setTextColor(Color.BLACK);
-                    }
-                    else{
+
                         tempCalenderWeekItem.setText(targetText);
                         tempCalenderWeekItem.setBlockColor(targetBlockColor);
-                        tempCalenderWeekItem.setBlockColor(targetTextColor);
-                    }
+                        tempCalenderWeekItem.setTextColor(targetTextColor);
+
                     tempCalenderWeekItem.setCoords(left, up, right, bottom);
                     tempCalenderWeekItem.setHistoryData(false);
 
@@ -457,16 +469,11 @@ public class CalenderWeekAdapter {
 
                 tempCalenderWeekItem = new CalenderWeekItem();
                 tempCalenderWeekItem.setIdx(countIdx);
-                if(inData.getForeFixedTimeTable() == null || inData.getForeFixedTimeTable().getStrFixedTimeTableName() == null){
-                    tempCalenderWeekItem.setText("알수없음");
-                    tempCalenderWeekItem.setBlockColor(Color.GREEN);
-                    tempCalenderWeekItem.setTextColor(Color.BLACK);
-                }
-                else{
+
                     tempCalenderWeekItem.setText(targetText);
                     tempCalenderWeekItem.setBlockColor(targetBlockColor);
-                    tempCalenderWeekItem.setBlockColor(targetTextColor);
-                }
+                    tempCalenderWeekItem.setTextColor(targetTextColor);
+
                 tempCalenderWeekItem.setCoords(left, up, right, bottom);
                 tempCalenderWeekItem.setHistoryData(false);
 

@@ -54,7 +54,7 @@ public class locationService extends Service {
     boolean isUsedata = false;
 
     long iInterval = 10*60*1000;    //10분
-    long lGpsWaitMillis = 1000 * 40;    //40초
+    long lGpsWaitMillis = 1000 * 30;    //30초
 
     private DatabaseHelperLocationMemory databaseHelperLocationMemory = null;
 
@@ -195,7 +195,7 @@ public class locationService extends Service {
     private void restartLocationService(boolean b){
         Log.d("locationService", "restartLocationService");
         locationManagerGps.removeUpdates(getLocationListenerCustomGps);
-        if(locationThread.isAlive()){
+        if(locationThread != null && locationThread.isAlive()){
             locationThread.interrupt();
             locationThread = null;
         }
@@ -393,7 +393,7 @@ public class locationService extends Service {
                         if(isDataLMForGpsThreadWritten()) {
                             locationManagerGps.removeUpdates(getLocationListenerCustomGps);
                             Log.d("locationService", "use Gps");
-                            if (dataLMForGpsThread.getfAccur() < 100.0) {
+                            if (dataLMForGpsThread.getfAccur() < 500.0) {
                                 //use gps for writing
                                 Log.d("locationService", "use Gps for writing!");
                                 Dao<LocationMemoryData, Integer> daoLocationMemoryDataInteger = getDatabaseHelperLocationMemory().getDaoLocationMemoryData();

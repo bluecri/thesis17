@@ -1,0 +1,8 @@
+marker
+invisible : 보이게(초록으로)
+cache == false : 삭제와 같음. 보이지 않음, 바꾸기 불가능, 계산에 고려 x, 그러나 marker-markertype은 그대로 유지.  marker-history 유지
+
+
+fixedtimetable
+invisible : timetable에서 보이지 않음. 삭제나 수정 직접 불가능
+cache == false : 삭제와 같음. 보이지 않음. 바꾸기 불가능, 계산에 고려 x, history-fixed-marker 유지

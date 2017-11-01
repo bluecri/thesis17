@@ -17,6 +17,7 @@ import com.j256.ormlite.dao.Dao;
 import com.sample.thesis17.mytimeapp.DB.baseClass.DatabaseHelperMain;
 import com.sample.thesis17.mytimeapp.DB.tables.FixedTimeTableData;
 import com.sample.thesis17.mytimeapp.DB.tables.MarkerData;
+import com.sample.thesis17.mytimeapp.MainActivity;
 import com.sample.thesis17.mytimeapp.R;
 import com.sample.thesis17.mytimeapp.baseTimeTable.DialogWeekItemCreateFragment;
 import com.sample.thesis17.mytimeapp.baseTimeTable.DialogWeekItemModifyViewFragment;
@@ -73,8 +74,15 @@ public class TimetableWeekFragment extends Fragment implements DialogWeekItemVie
     int selectedIdx = 0;        //listFixedTimeTableData(시간표box list)에서 선택된 index
 
 
+    public interface TimetableWeekFragmentListener{
+        void replaceDayFragmentWithTime(long longStartTime);
+    }
+
     //int curYear;        //현재 달력의 년, 월.
     //int curMonth;
+    public void openDayFragment(long longStartTime){
+        ((MainActivity)curContext).replaceDayFragmentWithTime(longStartTime);
+    }
 
     public TimetableWeekFragment() {
         // Required empty public constructor
@@ -109,7 +117,7 @@ public class TimetableWeekFragment extends Fragment implements DialogWeekItemVie
                 List<FixedTimeTableData> tempList = daoFixedTimeTableDataInteger.queryForAll();
                 listFixedTimeTableData = new ArrayList<>();
                 for(FixedTimeTableData fttd : tempList){
-                    if(fttd.isCache()){
+                    if(fttd.isCache() && fttd.isInvisible() == false){
                         listFixedTimeTableData.add(fttd);
                     }
                 }
