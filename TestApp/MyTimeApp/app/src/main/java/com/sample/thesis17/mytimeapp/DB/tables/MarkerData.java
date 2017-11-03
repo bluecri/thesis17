@@ -139,6 +139,21 @@ public class MarkerData {
     }
 
     @Override
+    public String toString() {
+        return "MarkerData{" +
+                "id=" + id +
+                ", lat=" + lat +
+                ", lng=" + lng +
+                ", strMarkerName='" + strMarkerName + '\'' +
+                ", dRadius=" + dRadius +
+                ", dInnerRadius=" + dInnerRadius +
+                ", strMemo='" + strMemo + '\'' +
+                ", isCache=" + isCache +
+                ", isInvisible=" + isInvisible +
+                '}';
+    }
+
+    @Override
     public int hashCode() {
         return id;
     }

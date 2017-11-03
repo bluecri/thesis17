@@ -175,6 +175,10 @@ public class locationService extends Service {
 
             dataLMForSave = new LocationMemoryData(latitude, longitude, System.currentTimeMillis() + LONG_HOUR_MILLIS * 9, accuracy, null, null, 0); //for LOCALE_US
 
+            if(locationThread != null && locationThread.isAlive()){
+                locationThread.interrupt();
+                locationManagerGps.removeUpdates(getLocationListenerCustomGps);
+            }
             Log.d("locatoinService", "new thread created..");
             locationThread = new Thread(new ThreadLocationMemoryDataProcessWithGps());
             locationThread.start();

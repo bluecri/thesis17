@@ -20,11 +20,13 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
 
+import com.google.android.gms.maps.model.Marker;
 import com.j256.ormlite.dao.Dao;
 import com.sample.thesis17.mytimeapp.DB.baseClass.DatabaseHelperLocationMemory;
 import com.sample.thesis17.mytimeapp.DB.baseClass.DatabaseHelperMain;
 import com.sample.thesis17.mytimeapp.DB.tables.FixedTimeTableData;
 import com.sample.thesis17.mytimeapp.DB.tables.LocationMemoryData;
+import com.sample.thesis17.mytimeapp.DB.tables.MarkerData;
 import com.sample.thesis17.mytimeapp.baseCalendar.day.CalenderDayFragment;
 import com.sample.thesis17.mytimeapp.baseCalendar.month.CalenderMonthFragment;
 import com.sample.thesis17.mytimeapp.baseCalendar.week.CalenderWeekFragment;
@@ -40,6 +42,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.nio.channels.FileChannel;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity
@@ -276,9 +279,13 @@ public class MainActivity extends AppCompatActivity
         calenderWeekFragment = null;
     }
 
-
+    public MarkerData testFunc(MarkerData lists){
+        lists.setLng(111.0);
+        return lists;
+    }
 
     public void refreshDB(){
+
         try{
 /*
             Dao<FixedTimeTableData, Integer> daoFixedTimeTableDataInteger = databaseHelperMain.getDaoFixedTimeTableData();
@@ -293,6 +300,7 @@ public class MainActivity extends AppCompatActivity
             for(LocationMemoryData fttd : locationMemoryDataList){
                 fttd.setBindedTempHistoryData(null);
                 fttd.setBindedHistoryData(null);
+                fttd.setbDummy(0);
                 locationMemoryDataIntegerDao.update(fttd);
                 Log.d("mainactivity", "LM : " + fttd.toString());
             }
@@ -303,6 +311,11 @@ public class MainActivity extends AppCompatActivity
                 //fttd.setBindedHistoryData(null);
                 //locationMemoryDataIntegerDao.update(fttd);
                 Log.d("mainactivity", "FX : " + fttd.toString());
+            }
+            Dao<MarkerData, Integer> daoMarkerData = databaseHelperMain.getDaoMarkerData();
+            List<MarkerData> markerDataList = daoMarkerData.queryForAll();
+            for(MarkerData md : markerDataList){
+                Log.d("mainactivity", "md : " + md.toString());
             }
 
             //Log.d("exception", "getDaoTempHistoryData" );

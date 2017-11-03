@@ -28,7 +28,7 @@ public class MyMath {
     public static double OUT_RADIUS_INCDEC = 0.000000003;
     public static double IN_RADIUS_INCDEC = 0.000000002;
 
-    public static long MAX_TIME_INCDEC = 60*1000 * 10;  //10 min
+    public static long MAX_TIME_INCDEC = 60*1000 * 5;  //5 min
     public static long DIV_TIME_INCDEC = 10;    // 1/10 반영
 
     public static double CUSTOM_DRADIUS =0.00000004;  // 0.0.0000000676// 0.000187 공학관 한동, 운동장크기;

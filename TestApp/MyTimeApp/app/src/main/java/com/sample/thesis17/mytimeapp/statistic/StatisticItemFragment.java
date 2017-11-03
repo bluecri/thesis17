@@ -6,6 +6,7 @@ package com.sample.thesis17.mytimeapp.statistic;
         import android.support.v7.widget.GridLayoutManager;
         import android.support.v7.widget.LinearLayoutManager;
         import android.support.v7.widget.RecyclerView;
+        import android.util.Log;
         import android.view.LayoutInflater;
         import android.view.View;
         import android.view.ViewGroup;
@@ -101,14 +102,16 @@ public class StatisticItemFragment extends Fragment {
                 List<HistoryData> listHDLimitedTime = null;
                 try {
                     listHDTotalTime =getListHistoryDataWithMarkerType(mtd);
-                    listHDLimitedTime = getListHistoryDataWithMarkerTypeWithTime(mtd, System.currentTimeMillis() + 9 * LONG_HOUR_MILLIS - 7 * LONG_DAY_MILLIS, System.currentTimeMillis());
+                    listHDLimitedTime = getListHistoryDataWithMarkerTypeWithTime(mtd, System.currentTimeMillis() + 9 * LONG_HOUR_MILLIS - 7 * LONG_DAY_MILLIS, System.currentTimeMillis()  + 9 * LONG_HOUR_MILLIS);
                 } catch (SQLException e) {
                     e.printStackTrace();
                 }
 
                 long totalTime = 0, limitedTime = 0;
                 for(HistoryData hd : listHDTotalTime){
+
                     totalTime += hd.getlEndTime() - hd.getlStartTime();
+                    Log.d("statistic" , "total add : " + totalTime);
                 }
                 for(HistoryData hd : listHDLimitedTime){
                     limitedTime += hd.getlEndTime() - hd.getlStartTime();
@@ -198,7 +201,7 @@ public class StatisticItemFragment extends Fragment {
 
         markerMarkerTypeQb.selectColumns(MarkerMarkerTypeData.MARKERDATA_ID_FIELD_NAME);
 
-        markerMarkerTypeQb.where().eq(MarkerMarkerTypeData.MARKERDATA_ID_FIELD_NAME, markerTypeData);   //markers
+        markerMarkerTypeQb.where().eq(MarkerMarkerTypeData.MARKERTYPEDATA_ID_FIELD_NAME, markerTypeData);   //markers
 
         QueryBuilder<HistoryData, Integer> historyDataQb = daoHistoryDataInteger.queryBuilder();
 
@@ -228,7 +231,7 @@ public class StatisticItemFragment extends Fragment {
 
         markerMarkerTypeQb.selectColumns(MarkerMarkerTypeData.MARKERDATA_ID_FIELD_NAME);
 
-        markerMarkerTypeQb.where().eq(MarkerMarkerTypeData.MARKERDATA_ID_FIELD_NAME, markerTypeData2);   //markers
+        markerMarkerTypeQb.where().eq(MarkerMarkerTypeData.MARKERTYPEDATA_ID_FIELD_NAME, markerTypeData2);   //markers
 
         QueryBuilder<HistoryData, Integer> historyDataQb = daoHistoryDataInteger.queryBuilder();
 

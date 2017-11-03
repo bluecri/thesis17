@@ -98,9 +98,11 @@ public class TimetableDayFragment extends Fragment implements DialogWeekItemView
                 List<FixedTimeTableData> tempList = daoFixedTimeTableDataInteger.queryForAll();
                 listFixedTimeTableData = new ArrayList<>();
                 for(FixedTimeTableData fttd : tempList){
-                    if(fttd.isCache() && fttd.isInvisible() == false && longStartTime < fttd.getlEndTime() && fttd.getlStartTime() < longStartTime + LONG_DAY_MILLIS){
+                    if(fttd.isCache() && fttd.isInvisible() == false && ((longStartTime < fttd.getlEndTime() && fttd.getlStartTime() < longStartTime + LONG_DAY_MILLIS) ||
+                            (fttd.getlEndTime() < fttd.getlStartTime() && (longStartTime < fttd.getlEndTime() || fttd.getlStartTime() < longStartTime + LONG_DAY_MILLIS)))){
                         listFixedTimeTableData.add(fttd);
                     }
+
                 }
                 customDayAdapter = new CustomDayAdapter(curContext, listFixedTimeTableData);  //adapter create
                 customDayAdapter.setLongStartDate(longStartTime);

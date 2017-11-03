@@ -124,14 +124,15 @@ public class LocationMemoryData {
 
     @Override
     public String toString() {
-        return "LMD{" +
-                "lat=" + lat +
+        return "LocationMemoryData{" +
+                "id=" + id +
+                ", lat=" + lat +
                 ", lng=" + lng +
-                ", lMillis=" + lMillisTimeWritten +
-                ", fAcc=" + fAccur +
-                ", bindedHD=" + bindedHistoryData +
-                ", bindedTHD=" + bindedTempHistoryData +
-                ", bDum=" + bDummy +
+                ", lMillisTimeWritten=" + lMillisTimeWritten +
+                ", fAccur=" + fAccur +
+                ", bindedHistoryData=" + bindedHistoryData +
+                ", bindedTempHistoryData=" + bindedTempHistoryData +
+                ", bDummy=" + bDummy +
                 '}';
     }
 }

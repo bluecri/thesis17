@@ -165,6 +165,13 @@ public class CalenderWeekFragment extends Fragment implements DialogViewCalender
     }
 
     public void innerInvalidate(){
+        try {
+            listMarkerData = daoMarkerDataInteger.queryForAll();
+            listFixedTimeTableData = daoFixedTimeTableDataInteger.queryForAll();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
         doCalcTempHistoryData();
         doCalcHistoryData();
         calenderWeekAdapter.listTempHistoryData = listTempHistoryData;
@@ -1244,6 +1251,7 @@ public class CalenderWeekFragment extends Fragment implements DialogViewCalender
         try{
             //MarkerData 역보정
             MarkerData selectedMD = daoMarkerDataInteger.queryForSameId(delHD.getForeMarkerData());
+            //MarkerData selectedMD = listMarkerData.get(listMarkerData.indexOf(delHD.getForeMarkerData()));
             List<MarkerData> innerMarkerDataList = getMarkerDataList_InHistoryDataInnerMarkerData_WithHistoryData(delHD);    //historyDataInnerMarkerData list
             if(innerMarkerDataList.size() == 0){
                 //only out markers => selected out marker radius Inc.
@@ -1275,6 +1283,7 @@ public class CalenderWeekFragment extends Fragment implements DialogViewCalender
             //FixedTimeTable 역보정
             List<HistoryDataLocTimeRangeIncDecData> incDecDataList = getHistoryDataLocTimeRangeIncDecData_WithHistoryData(delHD);    //HistoryDataLocTimeRangeIncDecData
             FixedTimeTableData selectedFTTD = daoFixedTimeTableDataInteger.queryForSameId(delHD.getForeFixedTimeTable());
+            //FixedTimeTableData selectedFTTD = listFixedTimeTableData.get(listFixedTimeTableData.indexOf(delHD.getForeFixedTimeTable()));
             HistoryDataLocTimeRangeIncDecData incDecData = incDecDataList.get(0);
             selectedFTTD.setlInnerBoundStartTime(selectedFTTD.getlInnerBoundStartTime() - incDecData.getStartInc());
             selectedFTTD.setlInnerBoundEndTime(selectedFTTD.getlInnerBoundEndTime() - incDecData.getEndInc());
@@ -1396,7 +1405,8 @@ public class CalenderWeekFragment extends Fragment implements DialogViewCalender
             long startTimeInc = 0, endTimeInc = 0;
             long originStartTime =  selectedFttd.getlStartTime(), originEndTime = selectedFttd.getlEndTime();   //originTime : 선택한 fixedTimeTable의 fixedTime
             long innerStartTime =  selectedFttd.getlInnerBoundStartTime(), innerEndTime = selectedFttd.getlInnerBoundEndTime();   //originTime : 선택한 fixedTimeTable의 InnerBoundTime
-            long newInnerStartTime = innerStartTime, newInnerEndTime = innerEndTime;
+            long newInnerStartTime = selectedFttd.getlInnerBoundStartTime();
+            long newInnerEndTime = selectedFttd.getlInnerBoundEndTime();
 
             if(startTime < innerStartTime){
                 //startTime exceed inner start time
@@ -1471,10 +1481,12 @@ public class CalenderWeekFragment extends Fragment implements DialogViewCalender
                 }
                 */
             }
+            /*
             List<LocationMemoryData> debuglistLMD = daoLocationMemoryDataInteger.queryForAll();
             for(LocationMemoryData lmdd : debuglistLMD){
                 Log.d("historyLocList", lmdd.toString());
             }
+            */
 
             //delete with tempTHD
             deleteLMDatasForTempHistoryLMData(tempTHD);         // temphistory-lmData
@@ -1503,6 +1515,7 @@ public class CalenderWeekFragment extends Fragment implements DialogViewCalender
             Log.d("calender", "doDeepDelete SQLException");
         }
 
+        /*
         try{
             List<LocationMemoryData> templi = daoLocationMemoryDataInteger.queryForAll();
             for(LocationMemoryData lmdd : templi){
@@ -1513,6 +1526,7 @@ public class CalenderWeekFragment extends Fragment implements DialogViewCalender
             Log.d("exception", "daoLocationMemoryDataInteger : " + e.toString());
         }
 
+        */
 
 
     }
@@ -1967,5 +1981,7 @@ public class CalenderWeekFragment extends Fragment implements DialogViewCalender
         historyDataLocTimeRangeIncDecDataQb.where().eq(HistoryDataLocTimeRangeIncDecData.HISTORYDATA_FIELD_NAME ,selectArg);
         return historyDataLocTimeRangeIncDecDataQb.prepare();
     }
+
+
 }
 
