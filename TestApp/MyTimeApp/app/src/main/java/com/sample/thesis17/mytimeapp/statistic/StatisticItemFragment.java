@@ -28,6 +28,7 @@ package com.sample.thesis17.mytimeapp.statistic;
 
         import static com.sample.thesis17.mytimeapp.Static.MyMath.LONG_DAY_MILLIS;
         import static com.sample.thesis17.mytimeapp.Static.MyMath.LONG_HOUR_MILLIS;
+        import static com.sample.thesis17.mytimeapp.Static.MyMath.LONG_MIN_MILLIS;
 
 /**
  * A fragment representing a list of Items.
@@ -116,8 +117,8 @@ public class StatisticItemFragment extends Fragment {
                 for(HistoryData hd : listHDLimitedTime){
                     limitedTime += hd.getlEndTime() - hd.getlStartTime();
                 }
-                String totalTimeString = "총 " + totalTime/LONG_HOUR_MILLIS + "시간 " + (totalTime%LONG_HOUR_MILLIS/LONG_DAY_MILLIS) + "분";
-                String weekTimeStr = "" + limitedTime/LONG_HOUR_MILLIS + "시간 " + (limitedTime%LONG_HOUR_MILLIS/LONG_DAY_MILLIS) + "분";
+                String totalTimeString = "총 " + totalTime/LONG_HOUR_MILLIS + "시간 " + (totalTime%LONG_HOUR_MILLIS/LONG_MIN_MILLIS) + "분";
+                String weekTimeStr = "" + limitedTime/LONG_HOUR_MILLIS + "시간 " + (limitedTime%LONG_HOUR_MILLIS/LONG_MIN_MILLIS) + "분";
 
 
                 listDummyContentItem.add(new DummyItem(mtd.getStrTypeName(), totalTimeString, weekTimeStr, IMAGE_NAME_INT_ITEM_LIST.get(mtd.getImageIdx()).getImageInt()));

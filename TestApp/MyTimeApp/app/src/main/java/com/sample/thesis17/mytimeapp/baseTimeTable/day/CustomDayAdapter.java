@@ -66,6 +66,7 @@ public class CustomDayAdapter {
         //this.longStartDate = longStartDate;
     }
 
+
     public void setFlexibleConfig(float scrollCol, float scrollRow, float colBlockSize, float rowBlockSize){
         this.scrollCol = scrollCol;
         this.scrollRow = scrollRow;

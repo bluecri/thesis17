@@ -18,6 +18,7 @@ import com.sample.thesis17.mytimeapp.baseTimeTable.Points;
 
 import java.util.List;
 
+import static java.lang.Math.abs;
 import static java.lang.Math.min;
 
 /**
@@ -342,6 +343,8 @@ public class CustomWeekView extends View {
                 else{
                     touchMode = MODE_DRAG_HOR;
                 }
+                touchX[0]= moveX;
+                touchY[0] = moveY;
             }
 
             if(touchMode == MODE_DRAG_HOR){
@@ -371,72 +374,78 @@ public class CustomWeekView extends View {
                 }
             }
             else if(touchMode == MODE_PAN){
-                Log.d("block", "ACTION_MOVE pan");
+                //Log.d("fanblock", "ACTION_MOVE pan");
                 //ACTION_MOVE에서 moveX1, Y1 받음
-                float moveX2 = event.getX(1);
-                float moveY2 = event.getY(1);
+                float moveX1 = event.getX(1);
+                float moveY1 = event.getY(1);
                 float centerX, centerY, detX, detY;	//center 변화량, xy 변화량
-                Log.d("block", "touchX[0] : " + touchX[0] + " " + "touchX[1] : " + touchX[1] + " " + "moveX : " + moveX + " " + "moveX2 : " + moveX2 + " ");
-                Log.d("block", "getfCurBlockCol[0] : " + getfCurBlockCol(touchX[0]) + " " + "getfCurBlockRow[1] : " + getfCurBlockRow(touchX[1]));
-                if(touchX[0] < touchX[1]){  // touchX[0] == left finger
-                    centerX = -getfCurBlockCol(touchX[1])*(moveX - touchX[0]);
+                Log.d("fanblock", "touchX[0] : " + touchX[0] + " " + "touchX[1] : " + touchX[1] + " " + "moveX : " + moveX + " " + "moveX1 : " + moveX1 +"moveY11 : " + moveY+  " moveY2 : " + moveY1);
+                Log.d("fanblock", "getfCurBlockCol[0] : " + getfCurBlockCol(touchX[0]) + " " + "getfCurBlockRow[1] : " + getfCurBlockRow(touchX[1]));
+                if(!(abs(moveX1 - moveX) < fMaxBlockCol) || (abs(moveY1 - moveY) < fMaxBlockRow)){
+                    //get Det X
+                    if(touchX[0] < touchX[1] && moveX < moveX1){
+                        detX = touchX[0] - moveX + moveX1 - touchX[1];
+                        //centerX = getfCurBlockCol(touchX[1]) * (touchX[0] - moveX) + getfCurBlockCol(touchX[1]) * ( moveX1 - touchX[1]);
+                        centerX = getfCurBlockCol(touchX[1]) * (touchX[0] - moveX) + getfCurBlockCol(touchX[0]) * ( moveX1 - touchX[1]);
+                    }
+                    else{
+                        detX = -moveX1 + touchX[1] - touchX[0] + moveX ;
+                        //centerX = getfCurBlockCol(touchX[1]) * (- touchX[0] + moveX) + getfCurBlockCol(touchX[1]) * ( -moveX1 + touchX[1]);
+                        centerX = getfCurBlockCol(touchX[1]) * (- touchX[0] + moveX) + getfCurBlockCol(touchX[0]) * ( -moveX1 + touchX[1]);
+                    }
+                    //modify block col with min max
+                    detX /= 3;
+                    if(pCurBlock.fCol + detX > fMaxBlockCol){
+                        pCurBlock.fCol = fMaxBlockCol;
+                    }
+                    else if(pCurBlock.fCol + detX < fMinBlockCol){
+                        pCurBlock.fCol = fMinBlockCol;
+                    }
+                    else{
+                        pCurBlock.fCol = pCurBlock.fCol + detX;
+                    }
+                    //centerX
+                    centerX /= 3;
+                    pCurScrollLeftUp.fCol += centerX;
+                    pCurScrollLeftUp.fCol = (pCurScrollLeftUp.fCol > fScrollRightEnd) ? fScrollRightEnd : pCurScrollLeftUp.fCol;
+                    pCurScrollLeftUp.fCol = (pCurScrollLeftUp.fCol < 0) ? 0 : pCurScrollLeftUp.fCol;
+
+
+                    //get Det Y
+                    if(touchY[0] < touchY[1] && moveY < moveY1){
+                        detY = touchY[0] - moveY + moveY1 - touchY[1];
+                        centerY = getfCurBlockRow(touchY[1]) * (touchY[0] - moveY) + getfCurBlockRow(touchY[0]) * ( moveY1 - touchY[1]);
+                    }
+                    else{
+                        detY = -moveY1 + touchY[1] - touchY[0] + moveY ;
+                        centerY = getfCurBlockRow(touchY[1]) * (- touchY[0] + moveY) + getfCurBlockRow(touchY[0]) * ( -moveY1 + touchY[1]);
+                    }
+                    //modify block col with min max
+                    detY /= 6;
+                    if(pCurBlock.fRow + detY > fMaxBlockRow){
+                        pCurBlock.fRow = fMaxBlockRow;
+                        Log.d("rowTest", "1");
+                    }
+                    else if(pCurBlock.fRow + detY < fMinBlockRow){
+                        pCurBlock.fRow = fMinBlockRow;
+                        Log.d("rowTest", "2");
+                    }
+                    else{
+                        pCurBlock.fRow = pCurBlock.fRow + detY;
+                        Log.d("rowTest", "3 : " + detY);
+                    }
+
+                    //centerX
+                    centerY /= 6;
+                    pCurScrollLeftUp.fRow += centerY;
+                    pCurScrollLeftUp.fRow = (pCurScrollLeftUp.fRow > fScrollBottomEnd) ? fScrollBottomEnd : pCurScrollLeftUp.fRow;
+                    pCurScrollLeftUp.fRow = (pCurScrollLeftUp.fRow < 0) ? 0 : pCurScrollLeftUp.fRow;
                 }
-                else{
-                    centerX = - getfCurBlockCol(touchX[0])*(moveX2 - touchX[1]);
-                }
-
-                if(touchY[0] < touchY[1]){  // touchX[0] == left finger
-                    centerY = -getfCurBlockRow(touchY[0])*(moveY - touchY[0]) + getfCurBlockRow(touchY[1])*(moveY2 - touchY[1]);
-                }
-                else{
-                    centerY = getfCurBlockRow(touchY[0])*(moveY - touchY[0]) - getfCurBlockRow(touchY[1])*(moveY2 - touchY[1]);
-                }
-
-                //centerX = (moveX+moveX2)/2 -(touchX[0]+touchX[1])/2;
-                //centerY = (moveY+moveY2)/2 - (touchY[0]+touchY[1])/2;
-
-
-
-                detX = Math.abs(moveX-moveX2) - Math.abs(touchX[0]-touchX[1]);
-                detY = Math.abs(moveY-moveY2) - Math.abs(touchY[0]-touchY[1]);
-
-
-
-                //change sizeof box
-                pCurBlock.fCol += detX/((Math.abs(touchX[0]-touchX[1]))/pCurBlock.fCol);
-                if(pCurBlock.fCol > fMaxBlockCol){
-                    pCurBlock.fCol = fMaxBlockCol;
-                    isPCurBlockModified = false;
-                }
-                else if(pCurBlock.fCol < fMinBlockCol) {
-                    pCurBlock.fCol = fMinBlockCol;
-                    isPCurBlockModified = false;
-                }
-
-                pCurBlock.fRow += detY/((Math.abs(touchY[0]-touchY[1]))/pCurBlock.fRow);
-                if(pCurBlock.fRow > fMaxBlockRow){
-                    pCurBlock.fRow = fMaxBlockRow;
-                    isPCurBlockModified = false;
-                }
-                else if(pCurBlock.fRow < fMinBlockRow){
-                    pCurBlock.fRow = fMinBlockRow;
-                    isPCurBlockModified = false;
-                }
-
-
-                if(isPCurBlockModified == true)
-                pCurScrollLeftUp.fCol += centerX;
-                pCurScrollLeftUp.fCol = (pCurScrollLeftUp.fCol > fScrollRightEnd) ? fScrollRightEnd : pCurScrollLeftUp.fCol;
-                pCurScrollLeftUp.fCol = (pCurScrollLeftUp.fCol < 0) ? 0 : pCurScrollLeftUp.fCol;
-
-                //pCurScrollLeftUp.fRow += centerY;
-                pCurScrollLeftUp.fRow = (pCurScrollLeftUp.fRow > fScrollBottomEnd) ? fScrollBottomEnd : pCurScrollLeftUp.fRow;
-                pCurScrollLeftUp.fRow = (pCurScrollLeftUp.fRow < 0) ? 0 : pCurScrollLeftUp.fRow;
 
                 touchX[0]= moveX;
                 touchY[0] = moveY;
-                touchX[1] = moveX2;
-                touchY[1] = moveY2;
+                touchX[1] = moveX1;
+                touchY[1] = moveY1;
             }
 
         }

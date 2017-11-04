@@ -3,6 +3,7 @@ package com.sample.thesis17.mytimeapp.DB.tables;
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
 
+import java.util.Calendar;
 import java.util.Date;
 
 /**
@@ -124,11 +125,13 @@ public class LocationMemoryData {
 
     @Override
     public String toString() {
+        Calendar tempCal = Calendar.getInstance();
+        tempCal.setTimeInMillis(lMillisTimeWritten);
         return "LocationMemoryData{" +
                 "id=" + id +
                 ", lat=" + lat +
                 ", lng=" + lng +
-                ", lMillisTimeWritten=" + lMillisTimeWritten +
+                ", lMillisTimeWritten=" + tempCal.get(Calendar.DAY_OF_MONTH) + "일" + tempCal.get(Calendar.HOUR_OF_DAY) + "시" + tempCal.get(Calendar.MINUTE) +  "분" +
                 ", fAccur=" + fAccur +
                 ", bindedHistoryData=" + bindedHistoryData +
                 ", bindedTempHistoryData=" + bindedTempHistoryData +

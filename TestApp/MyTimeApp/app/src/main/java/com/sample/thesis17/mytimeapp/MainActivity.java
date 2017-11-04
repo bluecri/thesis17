@@ -18,6 +18,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Button;
 import android.widget.Toast;
 
 import com.google.android.gms.maps.model.Marker;
@@ -25,6 +26,7 @@ import com.j256.ormlite.dao.Dao;
 import com.sample.thesis17.mytimeapp.DB.baseClass.DatabaseHelperLocationMemory;
 import com.sample.thesis17.mytimeapp.DB.baseClass.DatabaseHelperMain;
 import com.sample.thesis17.mytimeapp.DB.tables.FixedTimeTableData;
+import com.sample.thesis17.mytimeapp.DB.tables.HistoryData;
 import com.sample.thesis17.mytimeapp.DB.tables.LocationMemoryData;
 import com.sample.thesis17.mytimeapp.DB.tables.MarkerData;
 import com.sample.thesis17.mytimeapp.baseCalendar.day.CalenderDayFragment;
@@ -298,10 +300,11 @@ public class MainActivity extends AppCompatActivity
             Dao<LocationMemoryData, Integer> locationMemoryDataIntegerDao = databaseHelperLocationMemory.getDaoLocationMemoryData();
             List<LocationMemoryData> locationMemoryDataList = locationMemoryDataIntegerDao.queryForAll();
             for(LocationMemoryData fttd : locationMemoryDataList){
-                fttd.setBindedTempHistoryData(null);
+                /*fttd.setBindedTempHistoryData(null);
                 fttd.setBindedHistoryData(null);
                 fttd.setbDummy(0);
                 locationMemoryDataIntegerDao.update(fttd);
+                */
                 Log.d("mainactivity", "LM : " + fttd.toString());
             }
             Dao<FixedTimeTableData, Integer> tegerDao = databaseHelperMain.getDaoFixedTimeTableData();
@@ -316,6 +319,12 @@ public class MainActivity extends AppCompatActivity
             List<MarkerData> markerDataList = daoMarkerData.queryForAll();
             for(MarkerData md : markerDataList){
                 Log.d("mainactivity", "md : " + md.toString());
+            }
+
+            Dao<HistoryData, Integer> historyDataIntegerDao = databaseHelperMain.getDaoHistoryData();
+            List<HistoryData> historyDataList = historyDataIntegerDao.queryForAll();
+            for(HistoryData hd : historyDataList){
+                Log.d("mainactivity", "HD : " + hd.toString());
             }
 
             //Log.d("exception", "getDaoTempHistoryData" );

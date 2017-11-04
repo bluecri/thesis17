@@ -352,49 +352,6 @@ public class DialogViewCalenderTempItemFragment extends DialogFragment implement
             }
         });
 
-        /*
-        //spinner
-        lStartWeek = (int)((startTimeArg%LONG_WEEK_MILLIS)/LONG_DAY_MILLIS);
-        lEndWeek = (int)((endTimeArg%LONG_WEEK_MILLIS)/LONG_DAY_MILLIS);
-
-        ArrayList<String> arrListWeekString = new ArrayList<String>();
-        for(String str : WEEK_STRING_REAL){
-            arrListWeekString.add(str);
-        }
-
-        ArrayAdapter arrayAdapterStartWeek = new ArrayAdapter<String>(curContext, R.layout.support_simple_spinner_dropdown_item, arrListWeekString);
-        ArrayAdapter arrayAdapterEndWeek = new ArrayAdapter<String>(curContext, R.layout.support_simple_spinner_dropdown_item, arrListWeekString);
-
-
-        spinnerStartWeek.setAdapter(arrayAdapterStartWeek);
-        //최초값 설정
-        spinnerStartWeek.setSelection(iStartWeek);
-        spinnerEndWeek.setAdapter(arrayAdapterEndWeek);
-        spinnerEndWeek.setSelection(iEndWeek);
-
-        spinnerStartWeek.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener(){
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                iStartWeek = position;
-            }
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-                //do nothing
-            }
-        });
-
-        spinnerEndWeek.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener(){
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                iEndWeek = position;
-            }
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-                //do nothing
-            }
-        });
-        */
-
         //init markerDataTitle LIst
         arrListMarkerDataTitle = null;
         arrListMarkerDataTitle = new ArrayList<String>();
@@ -605,7 +562,7 @@ public class DialogViewCalenderTempItemFragment extends DialogFragment implement
                         }
                         else if(checkBoxTargetTimetable.isChecked() || arrListFixedTimeTable.size() == 0){
 
-                            dialogViewCalenderTempItemFragmentListener.doSave(null, retLStartTimeMillis, retLEndTimeMillis, listMarkerData.get(markerDataListIdx), textViewMemo.getText().toString(), null, textTimetableTitle.getText().toString());
+                            dialogViewCalenderTempItemFragmentListener.doSave(null, retLStartTimeMillis, retLEndTimeMillis, listMarkerDataToAdapter.get(markerDataAdpaterListIdx), textViewMemo.getText().toString(), null, textTimetableTitle.getText().toString());
                         }
                         else{
                             dialogViewCalenderTempItemFragmentListener.doSave(listFixedTimeTableDataQueryedByMarkerData.get(fixedTimeTableDataAdpaterListIdx), retLStartTimeMillis, retLEndTimeMillis, listMarkerDataToAdapter.get(markerDataAdpaterListIdx), textViewMemo.getText().toString(), null, null);
