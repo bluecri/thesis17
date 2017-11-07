@@ -13,15 +13,9 @@ import com.sample.thesis17.mytimeapp.map.dummy.DummyContent.DummyItem;
 
 import java.util.List;
 
-/**
- * {@link RecyclerView.Adapter} that can display a {@link MarkerTypeData} and makes a call to the
- * specified {@link OnListFragmentInteractionClickListener}.
- * TODO: Replace the implementation with code for your data type.
- */
 public class MyMarkerTypeDataRecyclerViewAdapter extends RecyclerView.Adapter<MyMarkerTypeDataRecyclerViewAdapter.ViewHolder> {
 
     public interface OnListFragmentInteractionClickListener {
-        // TODO: Update argument type and name
         void onListFragmentInteraction(MarkerTypeData item, int pos);
     }
 
@@ -45,8 +39,6 @@ public class MyMarkerTypeDataRecyclerViewAdapter extends RecyclerView.Adapter<My
         holder.mItem = mValues.get(position);
         holder.mIdView.setText(mValues.get(position).getStrTypeName());
         holder.mContentView.setText(mValues.get(position).getStrMemo());
-
-
         holder.mView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

@@ -181,7 +181,7 @@ public class MapsActivity extends AppCompatActivity
                     else if(STR_STATE.equals(STATE_CREATE_MARKER_AFTER_ONMAP)){
                         //register info window
                         DialogNewmarkerFragment dig = new DialogNewmarkerFragment();
-                        //TODO : modify tag info(MarkerData's lat, lng) with newMarker position
+                        // modify tag info(MarkerData's lat, lng) with newMarker position
                         dig.show(((FragmentActivity)MapsActivity.this).getSupportFragmentManager(), "DialogNewmarkerFragment");
                     }
                     else if(STR_STATE.equals(STATE_MODIFY_MARKER_POSITION)){
@@ -190,7 +190,7 @@ public class MapsActivity extends AppCompatActivity
                         Bundle arg = new Bundle();
                         MarkerData tempMd = (MarkerData)clickedMarker.getTag();
                         arg.putString("title", tempMd.getStrMarkerName());
-                        //TODO : modify tempMd, tag info(MarkerData's lat, lng) with clickedMarker position
+                        // modify tempMd, tag info(MarkerData's lat, lng) with clickedMarker position
                         arg.putString("memo", tempMd.getStrMemo());
                         dig.setArguments(arg);
                         //lat, lng은 나중에 처리
@@ -257,10 +257,6 @@ public class MapsActivity extends AppCompatActivity
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
-        //get map fragment Handle to MapsActivity
-        /*MapFragment mapFragment = (MapFragment) getFragmentManager()
-                .findFragmentById(R.id.mapFragment);
-        mapFragment.getMapAsync(this);*/
     }
 
     //nav bar methods
@@ -478,11 +474,8 @@ public class MapsActivity extends AppCompatActivity
         }
         else{
             if(inStr.equals(STATE_NONE)) {
-                //fabCancel.hide();
                 hideFabCancel();
-                //fabList.show();
                 showFabList();
-                //TODO : view
                 setVisibleAllMarkerOnMap();
             }
             else if(inStr.equals(STATE_CREATE_MARKER_BEFORE_ONMAP)){
@@ -543,15 +536,6 @@ public class MapsActivity extends AppCompatActivity
 
                 markerTypeModifiedDataList.add((MarkerTypeData)mtd);    //DialogMarkerModifyFragment에서 수정되는 marker type list
                 spinnerMarkerTypeDataStringList.add(mtd.getStrTypeName());
-/*
-                try{
-                    markerTypeModifiedDataList.add((MarkerTypeData)mtd.clone());    //DialogMarkerModifyFragment에서 수정되는 marker type list
-                    spinnerMarkerTypeDataStringList.add(mtd.getStrTypeName());
-                }
-                catch(CloneNotSupportedException e){
-                    Log.d("MapsActivity", "markerTypeModifiedDataList clone error");
-                }
-                */
             }
             //spinnerMarkerTypeDataList = new ArrayList<>(markerTypeModifiedDataList);  //not copy. only string copy
         }

@@ -5,8 +5,6 @@ package com.sample.thesis17.mytimeapp.locationS;
  */
 
 public class AllConstants {
-    //public static String START_GPS_FOREGROUND_ACTION = "com.sample.thesis17.locationtest.action.startgpsforegroundaction";
-    //public static String START_NETLOC_FOREGROUND_ACTION = "com.sample.thesis17.locationtest.action.startnetlocforegroundaction";
     public static String START_LOCATION_FOREGROUND_ACTION = "com.sample.thesis17.locationtest.action.startlocationforegroundaction";
     public static String STOP_LOCATION_FOREGROUND_ACTION = "com.sample.thesis17.locationtest.action.stoplocationforegroundaction";
     public static final String NETWORK_STATUS_CHANGED_ACTION = "com.sample.thesis17.myTimeApp.action.networkstatuschanged";

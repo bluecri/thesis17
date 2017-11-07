@@ -66,11 +66,8 @@ public class DialogWeekItemModifyViewFragment extends DialogFragment{
 
     public interface DialogWeekItemModifyViewFragmentListener{
         //method
-        //public void modifyMarkerComplete(String title, String memo);
         public void doModify(String title, long startTime, long endTime, int markerIdx, String memo);
         public List<MarkerData> getArrayListMarkerData();
-        //public void openModifyDialogWithIdx();
-        //public ArrayList<MarkerTypeData> getMarkerTypeModifiedDataList();
     }
 
     private TimePickerDialog.OnTimeSetListener startTimePickerListener = new TimePickerDialog.OnTimeSetListener() {
@@ -79,7 +76,6 @@ public class DialogWeekItemModifyViewFragment extends DialogFragment{
             startTimeHour = hourOfDay;
             startTimeMin = minute;
             textViewStartTime.setText(String.format(Locale.KOREA, "%02d:%02d", startTimeHour, startTimeMin));
-
         }
     };
 
@@ -137,27 +133,15 @@ public class DialogWeekItemModifyViewFragment extends DialogFragment{
         textViewMemo = (EditText)retView.findViewById(R.id.fragment_dialog_timetable_item_modify_memo);
         spinnerMarkerName = (Spinner)retView.findViewById(R.id.fragment_dialog_timetable_item_modify_marker);
 
-
-
         Bundle tempArg = getArguments();
 
         textViewTitle.setText(tempArg.getString("title"));
         textViewMemo.setText(tempArg.getString("memo"));
 
         //button
-
         long startTimeArg =tempArg.getLong("starttime");
         long endTimeArg =tempArg.getLong("endtime");
 
-        /*
-        SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss");
-        Date startDate = new Date();
-        Date endDate = new Date();
-        startDate.setTime(startTimeArg);
-        endDate.setTime(endTimeArg);
-        textViewStartTime.setText(sdf.format(startDate));
-        textViewEndTime.setText(sdf.format(endDate));
-        */
         startTimeHour = (int)((startTimeArg%LONG_DAY_MILLIS)/LONG_HOUR_MILLIS);
         startTimeMin = (int)(startTimeArg%LONG_HOUR_MILLIS/LONG_MIN_MILLIS);
         endTimeHour = (int)((endTimeArg%LONG_DAY_MILLIS)/LONG_HOUR_MILLIS);
@@ -165,9 +149,6 @@ public class DialogWeekItemModifyViewFragment extends DialogFragment{
 
         textViewStartTime.setText(String.format(Locale.KOREA, "%02d:%02d", startTimeHour, startTimeMin));
         textViewEndTime.setText(String.format(Locale.KOREA, "%02d:%02d", endTimeHour, endTimeMin));
-
-        //TimePickerDialog timeDialog = new TimePickerDialog(curContext, timePickerListener, , , false);
-        //timeDialog.show();
 
         textViewStartTime.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -186,8 +167,6 @@ public class DialogWeekItemModifyViewFragment extends DialogFragment{
         });
 
 
-
-
         //spinner
         iStartWeek = (int)((startTimeArg%LONG_WEEK_MILLIS)/LONG_DAY_MILLIS);
         iEndWeek = (int)((endTimeArg%LONG_WEEK_MILLIS)/LONG_DAY_MILLIS);
@@ -199,7 +178,6 @@ public class DialogWeekItemModifyViewFragment extends DialogFragment{
 
         ArrayAdapter arrayAdapterStartWeek = new ArrayAdapter<String>(curContext, R.layout.support_simple_spinner_dropdown_item, arrListWeekString);
         ArrayAdapter arrayAdapterEndWeek = new ArrayAdapter<String>(curContext, R.layout.support_simple_spinner_dropdown_item, arrListWeekString);
-
 
         spinnerStartWeek.setAdapter(arrayAdapterStartWeek);
         //최초값 설정
@@ -229,7 +207,6 @@ public class DialogWeekItemModifyViewFragment extends DialogFragment{
             }
         });
 
-
         innerSpinnerIdx = -1;
         listMarkerDataList = dialogWeekItemModifyViewFragmentListener.getArrayListMarkerData();
         listInnerSpinnerMarkerDataList = new ArrayList<>();
@@ -241,11 +218,6 @@ public class DialogWeekItemModifyViewFragment extends DialogFragment{
             }
         }
 
-        //listMarkerDataList.indexOf(listInnerSpinnerMarkerDataList.get(innerSpinnerIdx))
-
-
-
-        // arrListMarkerDataTitle = dialogWeekItemModifyViewFragmentListener.getArrayListMarkerData();
         ArrayAdapter arrayAdapterMarkerTitle = new ArrayAdapter<String>(curContext, R.layout.support_simple_spinner_dropdown_item, arrListMarkerDataTitle);
         spinnerMarkerName.setAdapter(arrayAdapterMarkerTitle);
         markerDataListIdx = tempArg.getInt("markerIdx");

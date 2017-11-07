@@ -85,7 +85,6 @@ public class TypeSelectBaseAdapter extends BaseAdapter{
             ctv.setCheckMarkDrawable(android.R.drawable.checkbox_off_background);
         }
 
-        //TODO : button listner here
         convertView.setOnClickListener(
                 new View.OnClickListener() {
                     @Override

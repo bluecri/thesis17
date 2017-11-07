@@ -20,10 +20,6 @@ public class MonthItem {
     public int getiDayValue(){
         return iDayValue;
     }
-    //public int getiWeekValue() {return iWeekValue;}
-    /*public void setiWeekValue(int week){
-        this.iWeekValue = week;
-    }*/
     public void setDayValue(int day){
         this.iDayValue = day;
     }

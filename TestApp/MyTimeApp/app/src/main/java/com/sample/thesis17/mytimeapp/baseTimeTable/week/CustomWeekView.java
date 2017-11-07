@@ -51,17 +51,12 @@ public class CustomWeekView extends View {
     private int touchMode;	//0 = cancel, 4 = draginit, 1 = Drag horizontal, 2=drag vertical, 3.pan
     long startClickTime = 0;
 
-    //db
-
     CustomWeekAdapter curCustomWeekAdapter = null;
     List<CustomWeekItem> customItemList = null;
-
-
 
     public CustomWeekView(Context context) {
         super(context);
         curContext = context;
-
         paint = new Paint();
         //init();
     }
@@ -69,25 +64,17 @@ public class CustomWeekView extends View {
     public CustomWeekView(Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
         curContext = context;
-
         paint = new Paint();
         //init();
     }
 
-
     protected void onDraw(Canvas canvas){
-
         super.onDraw(canvas);
-
         refreshInit();  //curBlock 변경에 따른 scroll의 제한 위치 갱신
         drawAllBaseBlock(canvas);
         drawTimeAndWeek(canvas);
-        //canvas.drawRect(0,0,200,200, paint);
         drawContentBlocks(canvas);
-        Log.d("draw", "draw");
-
     }
-
 
     public void init(){
         //setCustomViewWidthHeight(); //setting CustomView size
@@ -139,7 +126,6 @@ public class CustomWeekView extends View {
         fontPaint.setAntiAlias(true);   //aliasing
 
         //draw week
-
         fontPaint.setColor(Color.RED);
         fontPaint.setTextSize(20);
         String[] strArrWeek = {"일", "월", "화", "수", "목", "금", "토"};
@@ -162,15 +148,12 @@ public class CustomWeekView extends View {
             canvas.drawText(strArrWeek[6], startPos, 20, fontPaint);        //draw "일"
 
         //draw time
-
         fontPaint.setColor(Color.BLACK);
         startPos = -pCurScrollLeftUp.fRow + fUpSideSpace + 15;
         for(int i=0; i<24; i++){
             canvas.drawText("" + i, 9, startPos, fontPaint);
             startPos += pCurBlock.fRow;
         }
-
-
     }
 
     public void drawAllBaseBlock(Canvas canvas){
@@ -194,11 +177,6 @@ public class CustomWeekView extends View {
             fAcc = pCurBlock.fRow/subRowNum;
         else
             fAcc = pCurBlock.fRow;
-        //Log.d("block", "upspace, leftspace : " + fUpSideSpace + " " + fLeftSideSpace);
-        Log.d("block", iRowStartIdx +" "+ iRowEndIdx  +" "+ iColStartIdx  +" "+ iColEndIdx);
-        //Log.d("block", "rowposition, colposition " + fRowposition  +" "+ fColposition);
-        //Log.d("block", "rowblocksize, colblucksize " + pCurBlock.fRow + " " + pCurBlock.fCol);
-        //Log.d("block", "fAcc = " + fAcc);
 
         //draw horizontal lines
         //draw first subline
@@ -207,10 +185,8 @@ public class CustomWeekView extends View {
         arrFThinLines[iArrFThinLinesIndex++] = customViewWidth;
         arrFThinLines[iArrFThinLinesIndex++] = fRowposition - fAcc;
 
-
         for(int rowLines = iRowStartIdx; rowLines <= iRowEndIdx; rowLines++){    //draw main lines
             //draw Main line in fRowposition
-
             //start point of line
             arrFBoldLines[iArrFBoldLinesIndex++] = 0;
             arrFBoldLines[iArrFBoldLinesIndex++] = fRowposition;
@@ -237,16 +213,13 @@ public class CustomWeekView extends View {
         //draw vertical lines
         for(int colLines = iColStartIdx; colLines <= iColEndIdx; colLines++){    //draw main lines
             //draw Main line in fColposition
-
             //start point of line
             arrFBoldLines[iArrFBoldLinesIndex++] = fColposition;
             arrFBoldLines[iArrFBoldLinesIndex++] = 0;
             //end point of line
             arrFBoldLines[iArrFBoldLinesIndex++] = fColposition;
             arrFBoldLines[iArrFBoldLinesIndex++] = customViewHeight;
-
             fColposition += (fAcc);
-
         }
 
         //draw Left & Up border
@@ -260,7 +233,6 @@ public class CustomWeekView extends View {
         arrFBoldLines[iArrFBoldLinesIndex++] = fLeftSideSpace;
         arrFBoldLines[iArrFBoldLinesIndex++] = customViewHeight;
 
-
         float fBoldLineStroke = 2.0f;     //굵은 라인
         float fThinLineStroke = 1.0f;     //얇은 라인   반드시 1 이상!
         paint.setColor(Color.BLACK);    //line color black
@@ -269,21 +241,6 @@ public class CustomWeekView extends View {
 
         paint.setStrokeWidth(fBoldLineStroke);
         canvas.drawLines(arrFBoldLines, paint);
-
-
-        /*for(int i=0; i<arrFBoldLines.length; i++){
-            Log.d("block", "" + arrFBoldLines[i]);
-        }*/
-
-
-    }
-
-    public void drawAllItemBlock(){
-        //print - iColStartIdx - print --------- print - iColEndIdx - print
-        //for(int col = iColStartIdx; col <)
-        //    return;
-
-
     }
 
     //touch 좌표로 현재 몇번 block인지 확인.
@@ -310,9 +267,7 @@ public class CustomWeekView extends View {
             touchId[0] = event.getPointerId(0);
 
             startClickTime = System.currentTimeMillis();
-
             touchMode = MODE_DRAG_INIT;
-
         }
         //2 points 이상 존재시 2개의 포인트에 해당하는 좌표 얻기
         else if(maskAction == MotionEvent.ACTION_POINTER_DOWN){
@@ -327,7 +282,6 @@ public class CustomWeekView extends View {
             touchY[1] = event.getY(1);
             touchId[1] = event.getPointerId(1);
             touchMode = MODE_PAN;
-
         }
         else if(maskAction == MotionEvent.ACTION_MOVE){
 
@@ -359,8 +313,6 @@ public class CustomWeekView extends View {
                 else if(pCurScrollLeftUp.fCol < 0){
                     pCurScrollLeftUp.fCol = 0;
                 }
-
-
             }
             else if(touchMode == MODE_DRAG_VER){
                 Log.d("block", "ACTION_MOVE drag vert");
@@ -473,21 +425,13 @@ public class CustomWeekView extends View {
         else if(maskAction == MotionEvent.ACTION_POINTER_UP){
             Log.d("block", "ACTION_POINTER_UP");
             touchMode = MODE_DRAG_INIT;
-            //todo which one is remain.
-            /*touchX[0] = event.getX();
-            touchY[0] = event.getY();
-            touchId[0] = event.getPointerId();
-            */
         }
 
         if(event.getAction() == MotionEvent.ACTION_DOWN){
-            //Log.d("block", "ACTION_DOWN");
-            //Toast.makeText(super.getContext(), "pos : " + event.getX() + ", " + event.getY() + ", " + getWidth() + ", " + getHeight(), Toast.LENGTH_LONG).show();
-        }
 
+        }
         invalidate();
         return true;
-        //return super.onTouchEvent(event);
     }
 
     /*
@@ -522,11 +466,6 @@ public class CustomWeekView extends View {
         }
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
     }
-
-    //datalist를 가져온다.
-    /*public void setListCustomWeekItem(List<CustomWeekItem> customItemList){
-        this.customItemList = customItemList;
-    }*/
 
     //adapter를 등록한다.
     public void setCustomWeekAdapter(CustomWeekAdapter adapt){

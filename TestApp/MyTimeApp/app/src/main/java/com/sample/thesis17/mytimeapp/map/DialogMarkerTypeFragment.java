@@ -95,16 +95,5 @@ public class DialogMarkerTypeFragment  extends DialogFragment {
 
         return builder.create();
     }
-/*
-    @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
-        try{
-            dialogMarkerTypeListener = (DialogMarkerTypeFragmentListener) getTargetFragment();
-        }
-        catch(ClassCastException e){
-            throw new ClassCastException(((Activity)context).toString() + "must implement DialogMarkerTypeFragmentListener");
-        }
-    }
-    */
+
 }

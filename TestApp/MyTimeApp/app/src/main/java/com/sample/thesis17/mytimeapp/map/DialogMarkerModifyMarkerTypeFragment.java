@@ -36,8 +36,6 @@ public class DialogMarkerModifyMarkerTypeFragment extends DialogFragment {
         //method
         public ArrayList<MarkerTypeData> getMarkerTypeModifiedDataList();
         public void setMarkerTypeModifiedDataList(ArrayList<MarkerTypeData> markerTypeList);
-        //public void setNewMarkerTypeList(ArrayList<MarkerTypeData> selectedMarkerTypeDataList);
-        //public void getNewMarkerTypeList(ArrayList<MarkerTypeData> selectedMarkerTypeDataList);
     }
 
     private ArrayList<MarkerTypeData> selectedMarkerTypeList = null;

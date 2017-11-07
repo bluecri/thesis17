@@ -99,13 +99,11 @@ public class CalenderWeekFragment extends Fragment implements DialogViewCalender
 
     //DB
     List<FixedTimeTableData> listFixedTimeTableData = null;
-    //List<FixedTimeTableData> listFixedTimeTableDataQueryedByMarkerData = null;
     List<MarkerData> listMarkerData = null;
     List<TempHistoryData> listTempHistoryData = null;
     List<HistoryData> listHistoryData = null;
 
-    //List<DateForTempHisoryData> listDateForTempHisoryData = null;
-
+    //Dao
     Dao<FixedTimeTableData, Integer> daoFixedTimeTableDataInteger = null;
     Dao<MarkerData, Integer> daoMarkerDataInteger = null;
     Dao<TempHistoryData, Integer> daoTempHistoryDataInteger = null;
@@ -119,9 +117,7 @@ public class CalenderWeekFragment extends Fragment implements DialogViewCalender
 
     CalenderWeekAdapter calenderWeekAdapter = null;
 
-
     CalenderWeekFragmentListener calenderWeekFragmentListener = null;
-
 
     //dialog
     DialogViewCalenderTempItemFragment dialogViewCalenderTempItemFragment = null;
@@ -133,13 +129,6 @@ public class CalenderWeekFragment extends Fragment implements DialogViewCalender
     //origin value
     FixedTimeTableData originFixedTimeTableData = null;
     MarkerData originMarkerData = null;
-
-
-    //int curYear;        //현재 달력의 년, 월.
-    //int curMonth;
-
-    //CONSTANTS
-    //double DOUBLE_GROUPING_2POW_RADIUS = 0.000000035;  // 0.0.0000000676// 0.000187 공학관 한동, 운동장크기
 
     public interface CalenderWeekFragmentListener {
         void fragmentChangeToMonthView(long inTime);
@@ -165,6 +154,7 @@ public class CalenderWeekFragment extends Fragment implements DialogViewCalender
         return fragment;
     }
 
+    //list update & invalidate
     public void innerInvalidate() {
         try {
             listMarkerData = daoMarkerDataInteger.queryForAll();
@@ -195,20 +185,11 @@ public class CalenderWeekFragment extends Fragment implements DialogViewCalender
             daoLocationMemoryDataInteger = getDatabaseHelperLocationMemory().getDaoLocationMemoryData();
             daoTempHistoryLMDataInteger = getDatabaseHelperMain().getDaoTempHistoryLMData();
             daoTempHistoryMarkerDataInteger = getDatabaseHelperMain().getDaoTempHistoryMarkerData();
-
             daoHistoryDataInnerMarkerDataInteger = getDatabaseHelperMain().getDaoHistoryDataInnerMarkerData();
             daoHistoryDataLocTimeRangeIncDecDataInteger = getDatabaseHelperMain().getDaoHistoryDataLocTimeRangeIncDecData();
 
             listFixedTimeTableData = daoFixedTimeTableDataInteger.queryForAll();
             listMarkerData = daoMarkerDataInteger.queryForAll();
-
-            //query 조건 필요
-            //listTempHistoryData = daoTempHistoryDataInteger.queryForAll();
-            //listHistoryData = daoHistoryDataInteger.queryForAll();
-
-            //DateForTempHisoryData -> 직접 query 사용
-
-            // check if this week is already calculated
 
             changeWeekWithFirstWeekLong();
 
@@ -220,24 +201,15 @@ public class CalenderWeekFragment extends Fragment implements DialogViewCalender
                 calenderWeekAdapter.setLongStartDate(weekFirstTimeLong);
                 calenderWeekAdapter.listTempHistoryData = listTempHistoryData;
                 calenderWeekAdapter.listHistoryData = listHistoryData;
-                //setCenterText();
-                //customWeekView.invalidate();
-                //customWeekView.invalidate();
-            } else {
+            }
+            else {
                 doCalcTempHistoryData();
                 doCalcHistoryData();
                 calenderWeekAdapter = new CalenderWeekAdapter(curContext, listHistoryData, listTempHistoryData, daoFixedTimeTableDataInteger, daoMarkerDataInteger);  //adapter create
                 calenderWeekAdapter.setLongStartDate(weekFirstTimeLong);
                 calenderWeekAdapter.listTempHistoryData = listTempHistoryData;
                 calenderWeekAdapter.listHistoryData = listHistoryData;
-                //setCenterText();
-                //customWeekView.invalidate();
-                //customWeekView.invalidate();
-
             }
-            //listHistoryData = daoHistoryDataInteger.query with weekFirstTimeLong
-
-
         } catch (SQLException e) {
             Log.d("TimetableWeekF", "getDaoFixedTimeTableData SQL Exception");
         }
@@ -246,8 +218,6 @@ public class CalenderWeekFragment extends Fragment implements DialogViewCalender
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-        // Inflate the layout for this fragment
         View retView = inflater.inflate(R.layout.fragment_calender_week, container, false);        //fragment에 해당하는 retView
 
         //button, text
@@ -256,10 +226,8 @@ public class CalenderWeekFragment extends Fragment implements DialogViewCalender
         refreshButton = (ImageButton) retView.findViewById(R.id.fragment_calender_week_refresh_button);
         startText = (TextView) retView.findViewById(R.id.fragment_calender_week_start_text);
         endText = (TextView) retView.findViewById(R.id.fragment_calender_week_end_text);
-
         weekGridview = (View) (retView.findViewById(R.id.calenderWeekView));
         customWeekView = (CalenderWeekView) weekGridview;
-
 
         if (calenderWeekAdapter == null) {
             Log.d("block", "regi calenderWeekAdapter null");
@@ -309,7 +277,6 @@ public class CalenderWeekFragment extends Fragment implements DialogViewCalender
                 innerInvalidate();
             }
         });
-
         setCenterText();
 
         return retView;
@@ -324,9 +291,6 @@ public class CalenderWeekFragment extends Fragment implements DialogViewCalender
     }
 
     public void onButtonPressed(Uri uri) {
-        /*if (mListener != null) {
-            mListener.onFragmentInteraction(uri);
-        }*/
     }
 
     @Override
@@ -347,25 +311,19 @@ public class CalenderWeekFragment extends Fragment implements DialogViewCalender
         //mListener = null;
     }
 
-
     public interface OnFragmentInteractionListener {
         void onFragmentInteraction(Uri uri);
     }
 
-
     //DB
     private DatabaseHelperMain databaseHelperMain = null;
-
-
     private DatabaseHelperMain getDatabaseHelperMain() {
         if (databaseHelperMain == null) {
             databaseHelperMain = DatabaseHelperMain.getHelper(curContext);
         }
         return databaseHelperMain;
     }
-
     private DatabaseHelperLocationMemory databaseHelperLocationMemory = null;
-
     private DatabaseHelperLocationMemory getDatabaseHelperLocationMemory() {
         if (databaseHelperLocationMemory == null) {
             databaseHelperLocationMemory = DatabaseHelperLocationMemory.getHelper(curContext);
@@ -373,22 +331,16 @@ public class CalenderWeekFragment extends Fragment implements DialogViewCalender
         return databaseHelperLocationMemory;
     }
 
-
     //open dialogWeekItemViewFragment
-
     void openDialogWithIdx(CalenderWeekItemIdxWithIsHistoryData idxWithIsHistoryData) {
         this.idxWithIsHistoryData = idxWithIsHistoryData;
         int iIdx = idxWithIsHistoryData.getIdx();
         if (iIdx == -1) {
             return;
         }
-
         if (idxWithIsHistoryData.isHistory()) {
             //open history dialog
             dialogViewCalenderItemFragment = new DialogViewCalenderItemFragment();
-
-            Log.d("ddraw", "openDialogWithIdxopenDialogWithIdx : " + listHistoryData.get(iIdx).getlStartTime());
-
             bundleArg = new Bundle();
 
             bundleArg.putLong("starttime", listHistoryData.get(iIdx).getlStartTime());
@@ -403,12 +355,10 @@ public class CalenderWeekFragment extends Fragment implements DialogViewCalender
             dialogViewCalenderItemFragment.setArguments(bundleArg);
             dialogViewCalenderItemFragment.setTargetFragment(this, 0);
             dialogViewCalenderItemFragment.show(((FragmentActivity) curContext).getSupportFragmentManager(), "DialogViewCalenderItemFragment");
-        } else {
+        }
+        else {
             //open temp history dialog
-
-
             dialogViewCalenderTempItemFragment = new DialogViewCalenderTempItemFragment();
-
             bundleArg = new Bundle();
 
             originFixedTimeTableData = listTempHistoryData.get(iIdx).getForeFixedTimeTable();
@@ -426,7 +376,6 @@ public class CalenderWeekFragment extends Fragment implements DialogViewCalender
                 Log.d("target", "targetfixedTiemtable : " + "no target");
             }
 
-
             Log.d("ddraw", "openDialogWithIdxopenDialogWithIdx : " + listTempHistoryData.get(iIdx).getlStartTime());
 
             bundleArg.putInt("fixedTimeTableIdx", listFixedTimeTableData.indexOf(listTempHistoryData.get(iIdx).getForeFixedTimeTable()));
@@ -436,13 +385,12 @@ public class CalenderWeekFragment extends Fragment implements DialogViewCalender
             bundleArg.putInt("markerIdx", listMarkerData.indexOf(listTempHistoryData.get(iIdx).getForeMarkerData()));
             //Log.d("bundlearg", "listFixedTimeTableData index" + listMarkerData.indexOf(listTempHistoryData.get(iIdx).getForeMarkerData()));
             bundleArg.putString("memo", listTempHistoryData.get(iIdx).getMemo());
+
             dialogViewCalenderTempItemFragment.setArguments(bundleArg);
             dialogViewCalenderTempItemFragment.setTargetFragment(this, 0);
             dialogViewCalenderTempItemFragment.show(((FragmentActivity) curContext).getSupportFragmentManager(), "DialogViewCalenderTempItemFragment");
         }
-
     }
-
 
     public boolean isAlreadyCalculated() {
         try {
@@ -457,12 +405,7 @@ public class CalenderWeekFragment extends Fragment implements DialogViewCalender
 
     //locationmem -> 계산 -> create tempHistoryData & list
     public void doCalcTempHistoryData() {
-        //use daoDateForTempHistoryData, weekFirstTimeLong
-        //계산 뒤 DateForTempHisoryData에 weekFirstTimeLong추가
-
-        // delete listLocationGroup
         List<LocationGroup> listLocationGroup = new ArrayList<>();
-
         int ret = 0;
         //calc ~~ weekFirstTimeLong + 3day
         curTimeLong = System.currentTimeMillis() + LONG_HOUR_MILLIS * 9;
@@ -471,7 +414,8 @@ public class CalenderWeekFragment extends Fragment implements DialogViewCalender
         if (curTimeLong < weekFirstTimeLong) {
             Log.d("ddraw", "doCalcTempHistoryData - do nothing");
             //do nothing
-        } else if (curTimeLong < weekFirstTimeLong + 3 * LONG_DAY_MILLIS) {      //현재 시간(쿼리 대상)이 중간 분기점보다 이전인 경우 [alpha~curTime] & recursively
+        }
+        else if (curTimeLong < weekFirstTimeLong + 3 * LONG_DAY_MILLIS) {      //현재 시간(쿼리 대상)이 중간 분기점보다 이전인 경우 [alpha~curTime] & recursively
             ret = createLocatoinGrouppingUpperSide(curTimeLong, listLocationGroup);
             if (ret == -1) {
                 Log.d("ddraw", "doCalcTempHistoryData - elseif no list in [starttime-endtime]");
@@ -500,7 +444,6 @@ public class CalenderWeekFragment extends Fragment implements DialogViewCalender
                     Log.d("calender", "createLocatoinGrouppingUpperSide -2 ERROR");
                 }
             }
-
         }
 
         //  listLocationGroup setting targetMarkerData
@@ -579,12 +522,6 @@ public class CalenderWeekFragment extends Fragment implements DialogViewCalender
 
                 }
             }
-            /*
-            listLocationGroup.get(i).setMinDIst(minDist);
-            listLocationGroup.get(i).setTargetMarkerData(listMarkerData.get(k));        //set target markerData
-            listLocationGroup.get(i).getListInnerMarkerData().add(listMarkerData.get(k));   //inner markerData add
-            */
-
 
             //mindist is too large & no inner circle marker, then  targetMarkerData => null;
             if (visibleTargetMarkerData != null) {
@@ -701,7 +638,6 @@ public class CalenderWeekFragment extends Fragment implements DialogViewCalender
         List<Set<MarkerData>> markerDataSetList = new ArrayList<Set<MarkerData>>();
         Set<MarkerData> lastMarkerDataSet = null;
 
-
         Log.d("ddraw", "-----locationGroup size : " + listLocationGroup.size());
         for (int i = 0, ii = listLocationGroup.size(); i < ii; i++) {
             LocationGroup curLocationGroup = listLocationGroup.get(i);
@@ -710,11 +646,6 @@ public class CalenderWeekFragment extends Fragment implements DialogViewCalender
             // Use (times+LONG_DAY_MILLIS*4)%LONG_WEEK_MILLIS
             firstTimeOfGroup = (firstTimeOfGroup + 4 * LONG_DAY_MILLIS) % LONG_WEEK_MILLIS;
             lastTimeOfGroup = (lastTimeOfGroup + 4 * LONG_DAY_MILLIS) % LONG_WEEK_MILLIS;
-            /*
-            if(lastTimeOfGroup < firstTimeOfGroup){
-                lastTimeOfGroup += LONG_DAY_MILLIS*7;
-            }
-            */
 
             MarkerData targetMarkerData = curLocationGroup.getTargetMarkerData();
 
@@ -749,7 +680,6 @@ public class CalenderWeekFragment extends Fragment implements DialogViewCalender
                     for (int loop = 0, lloop = curLocationGroup.getListLMD().size(); loop < lloop; loop++) {
                         lastLocationMemoryDataList.add(curLocationGroup.getListLMD().get(loop));
                     }
-
                     for (int loop = 0, lloop = curLocationGroup.getListInnerMarkerData().size(); loop < lloop; loop++) {
                         lastMarkerDataSet.add(curLocationGroup.getListInnerMarkerData().get(loop));
                     }
@@ -766,7 +696,6 @@ public class CalenderWeekFragment extends Fragment implements DialogViewCalender
                     for (int loop = 0, lloop = curLocationGroup.getListLMD().size(); loop < lloop; loop++) {
                         lastLocationMemoryDataList.add(curLocationGroup.getListLMD().get(loop));
                     }
-
                     for (int loop = 0, lloop = curLocationGroup.getListInnerMarkerData().size(); loop < lloop; loop++) {
                         lastMarkerDataSet.add(curLocationGroup.getListInnerMarkerData().get(loop));
                     }
@@ -784,13 +713,10 @@ public class CalenderWeekFragment extends Fragment implements DialogViewCalender
                 for (int loop = 0, lloop = curLocationGroup.getListLMD().size(); loop < lloop; loop++) {
                     lastLocationMemoryDataList.add(curLocationGroup.getListLMD().get(loop));
                 }
-
                 for (int loop = 0, lloop = curLocationGroup.getListInnerMarkerData().size(); loop < lloop; loop++) {
                     lastMarkerDataSet.add(curLocationGroup.getListInnerMarkerData().get(loop));
                 }
             }
-
-
         }
 
         //기존의 tempHistoryData를 지우며 그와 관련된 data도 지움. ( == refresh)
@@ -828,13 +754,10 @@ public class CalenderWeekFragment extends Fragment implements DialogViewCalender
                 daoTempHistoryDataInteger.delete(delTempHistoryData);
             }
         } catch (SQLException e) {
-
             Log.d("calender", "delTargetTempHistoryDataList sqlException : " + e.toString());
         }
 
         //tempHistoryData 새로 추가
-        Log.d("ddraw", "listNewTempHistoryData size : " + listNewTempHistoryData.size());
-        //TODO : -1 -> 0
         for (int i = 0, ii = listNewTempHistoryData.size(); i < ii; i++) {
             try {
                 TempHistoryData loopTempHistoryData = listNewTempHistoryData.get(i);
@@ -859,17 +782,14 @@ public class CalenderWeekFragment extends Fragment implements DialogViewCalender
                     //temphistory에 해당하는 Inner MarkerData들
                     daoTempHistoryMarkerDataInteger.create(new TempHistoryMarkerData(loopTempHistoryData, tempMarkerDataList.get(loop)));
                 }
-
             } catch (SQLException e) {
                 Log.d("calender", "daoTHDInteger.create error " + e.toString());
             }
         }
         listTempHistoryData = listNewTempHistoryData;   //listTempHistoryData 교체
-
     }
 
     int createLocatoinGrouppingUpperSide(long endTime, List<LocationGroup> listLocationGroup) {
-        Log.d("ddraw", "createLocatoinGrouppingUpperSide() : " + endTime);
         //grouping & check before part recursively
         long alpha = weekFirstTimeLong;
         double groupCenterLat = 0.0, groupCenterLng = 0.0;
@@ -964,7 +884,6 @@ public class CalenderWeekFragment extends Fragment implements DialogViewCalender
                     return 0;
                 }
             }
-
             if (i == listLocationMemWithTime.size() - 1) {
                 List<LocationMemoryData> listMoreLocationMemWithTime = null;
                 try {
@@ -980,7 +899,6 @@ public class CalenderWeekFragment extends Fragment implements DialogViewCalender
                             locationMemGroup.add(listLocationMemWithTime.get(idx));
                             //Log.d("ddraw", "reverse time:" + listLocationMemWithTime.get(idx).getlMillisTimeWritten());
                         }
-
                         LocationGroup lg = new LocationGroup(locationMemGroup, groupCenterLat, groupCenterLng, null, null, new ArrayList<MarkerData>());
                         Log.d("calcGroupLatlngF", "lat:" + groupCenterLat + "lng:" + groupCenterLng + "/" + listLocationMemWithTime.get(i - 1).getlMillisTimeWritten());
                         listLocationGroup.add(lg);
@@ -994,7 +912,6 @@ public class CalenderWeekFragment extends Fragment implements DialogViewCalender
                 listLocationMemWithTime.addAll(listMoreLocationMemWithTime);
                 iLoopEnd += listMoreLocationMemWithTime.size();
                 extensionStart = true;
-
             }
         }
         Log.d("calcGroupLatlng", "-2");
@@ -1020,7 +937,6 @@ public class CalenderWeekFragment extends Fragment implements DialogViewCalender
         if (listLocationMemWithTime == null || listLocationMemWithTime.size() == 0) {
             return -1;
         }
-
         int startGroupIdx = 0;  //group의 start
         int i = 0;  //반복문의 start index
         int iLoopEnd = listLocationMemWithTime.size();
@@ -1036,8 +952,6 @@ public class CalenderWeekFragment extends Fragment implements DialogViewCalender
             }
             i++;
         }
-
-
         boolean doGrouping = false;
 
         for (; i < iLoopEnd; i++) {
@@ -1067,7 +981,6 @@ public class CalenderWeekFragment extends Fragment implements DialogViewCalender
                     groupCenterLng = testGroupCenterLng;
                 }
             }
-
             if (doGrouping == true) {
                 if (startGroupIdx - (i - 1) + 1 != 1) { //group 개수가 1이 아닌 경우 (2개 이상일 시 grouoping)
                     // group startGroupIdx ~ (i-1) with No reverse
@@ -1091,13 +1004,11 @@ public class CalenderWeekFragment extends Fragment implements DialogViewCalender
                     }
                     i++;
                 }
-
                 doGrouping = false;
                 if (extensionStart == true) {
                     return 0;
                 }
             }
-
             if (i == listLocationMemWithTime.size() - 1) {
                 List<LocationMemoryData> listMoreLocationMemWithTime = null;
                 try {
@@ -1173,7 +1084,6 @@ public class CalenderWeekFragment extends Fragment implements DialogViewCalender
 
     }
 
-
     //Week first time check query
     private PreparedQuery<DateForTempHisoryData> dateForTempHisoryDataQuery = null;
 
@@ -1199,12 +1109,10 @@ public class CalenderWeekFragment extends Fragment implements DialogViewCalender
         return markerMarkerTypeQb.prepare();
     }
 
-
     //history
     @Override
     public void doSlightDelete() {
         HistoryData delHD = listHistoryData.get(idxWithIsHistoryData.getIdx());
-
         try {
             //MarkerData 역보정
             MarkerData selectedMD = daoMarkerDataInteger.queryForSameId(delHD.getForeMarkerData());
@@ -1234,7 +1142,6 @@ public class CalenderWeekFragment extends Fragment implements DialogViewCalender
                     }
                 }
             }
-
             //FixedTimeTable 역보정
             List<HistoryDataLocTimeRangeIncDecData> incDecDataList = getHistoryDataLocTimeRangeIncDecData_WithHistoryData(delHD);    //HistoryDataLocTimeRangeIncDecData
             FixedTimeTableData selectedFTTD = daoFixedTimeTableDataInteger.queryForSameId(delHD.getForeFixedTimeTable());
@@ -1244,7 +1151,6 @@ public class CalenderWeekFragment extends Fragment implements DialogViewCalender
             selectedFTTD.setlInnerBoundEndTime(selectedFTTD.getlInnerBoundEndTime() - incDecData.getEndInc());
             daoFixedTimeTableDataInteger.update(selectedFTTD);
 
-
             //HistoryData 관련 db 제거 : historyDataInnerMarkerData, HistoryDataLocTimeRangeIncDecData
             List<HistoryDataInnerMarkerData> delHDIMDList = getListOfHistoryDataInnerMarkerData_WithHistoryData(delHD);
             for (HistoryDataInnerMarkerData delHDIMD : delHDIMDList) {
@@ -1253,19 +1159,13 @@ public class CalenderWeekFragment extends Fragment implements DialogViewCalender
             for (HistoryDataLocTimeRangeIncDecData tempHDLTRIDD : incDecDataList) {
                 daoHistoryDataLocTimeRangeIncDecDataInteger.delete(tempHDLTRIDD);
             }
-
             slightDeleteWithHistoryData(delHD); //lmData에서 historyData column => null
             listHistoryData.remove(delHD);
             daoHistoryDataInteger.delete(delHD);
-
-
         } catch (SQLException e) {
             Log.d("calender", "doSlightDelete SQLException:" + e.toString());
         }
-
-
         innerInvalidate();
-
     }
 
     //tempHistory
@@ -1301,7 +1201,6 @@ public class CalenderWeekFragment extends Fragment implements DialogViewCalender
         //add historyData
         HistoryData retHD = new HistoryData(selectedFttd, selectedMd, startTime, endTime, memo);
 
-
         try {
             daoHistoryDataInteger.create(retHD);
             listHistoryData.add(retHD);
@@ -1319,7 +1218,6 @@ public class CalenderWeekFragment extends Fragment implements DialogViewCalender
             }
 
             //보정 with minDistMarkerData, innerMarkerDataList, selectedMd /// 선택된 selectedFttd, 선택한 loc time range{originStartTime, originEndTime}, 가장 근접하여 예측한 minDIstFixedTimeTableData => startTimeInc, endTimeInc
-
             if (innerMarkerDataList.size() == 0) {
                 //only out markers => selected out marker radius Inc.
                 selectedMd.setDInnerRadius(selectedMd.getDInnerRadius() + OUT_RADIUS_INCDEC);
@@ -1415,7 +1313,6 @@ public class CalenderWeekFragment extends Fragment implements DialogViewCalender
             daoFixedTimeTableDataInteger.update(selectedFttd);
             */
             daoHistoryDataLocTimeRangeIncDecDataInteger.create(new HistoryDataLocTimeRangeIncDecData(retHD, 0, 0));
-
             /*
             Set<LocationMemoryData> targetLocSet = new HashSet<LocationMemoryData>();
             List <LocationMemoryData> targetLocList = queryLMDatasForTempHistoryLMData(tempTHD);
@@ -1437,33 +1334,7 @@ public class CalenderWeekFragment extends Fragment implements DialogViewCalender
                 lmd.setBindedTempHistoryData(null);
                 lmd.setbDummy(0);   //target
                 daoLocationMemoryDataInteger.update(lmd);
-                /*
-                if(targetLocSet.contains(lmd)){
-                    lmd.setbDummy(0);   //target
-                }
-                else{
-                    lmd.setbDummy(1);  //not target. tempHistoryData 생성에 제외시킨다. slightDelete인 경우 HistoryData에 해당하는 LM을 구하는 query를 통해 0으로 복구한다.
-                }
-                */
-
-                /*
-                if(lmd.getlMillisTimeWritten() < originFixedTimeTableData.getlStartTime()){
-                    lmd.setbDummy(-1);
-                }
-                else if(lmd.getlMillisTimeWritten() >= originFixedTimeTableData.getlEndTime()){
-                    lmd.setbDummy(1);
-                }
-                else{
-                    lmd.setbDummy(0);
-                }
-                */
             }
-            /*
-            List<LocationMemoryData> debuglistLMD = daoLocationMemoryDataInteger.queryForAll();
-            for(LocationMemoryData lmdd : debuglistLMD){
-                Log.d("historyLocList", lmdd.toString());
-            }
-            */
 
             //delete with tempTHD
             deleteLMDatasForTempHistoryLMData(tempTHD);         // temphistory-lmData
@@ -1490,23 +1361,7 @@ public class CalenderWeekFragment extends Fragment implements DialogViewCalender
         } catch (SQLException e) {
             Log.d("calender", "doDeepDelete SQLException");
         }
-
-        /*
-        try{
-            List<LocationMemoryData> templi = daoLocationMemoryDataInteger.queryForAll();
-            for(LocationMemoryData lmdd : templi){
-                Log.d("temptt", lmdd.toString());
-            }
-        }
-        catch(Exception e){
-            Log.d("exception", "daoLocationMemoryDataInteger : " + e.toString());
-        }
-
-        */
-
-
     }
-
 
     public FixedTimeTableData getTargetFixedTimeTableData(long aTime, long bTime, List<FixedTimeTableData> listfttd, boolean invisible) {
         double maxRatio = 0.0;
@@ -1598,8 +1453,6 @@ public class CalenderWeekFragment extends Fragment implements DialogViewCalender
     }
 
 
-
-
     @Override
     public List<MarkerData> getListMarkerData() {
         return listMarkerData;
@@ -1664,24 +1517,6 @@ public class CalenderWeekFragment extends Fragment implements DialogViewCalender
         daoLocationMemoryDataInteger.update(locationMemForTempHistoryDataUpdateQuery);
 
     }
-
-    /*
-    private void makeNullTempHistoryDataInLocationMem(TempHistoryData thd) throws SQLException{
-        if(thd == null){
-            return;
-        }
-        if(locationMemForTempHistoryDataUpdateQuery == null){
-            locationMemForTempHistoryDataUpdateQuery = makeLocationMemForTempHistoryDataUpdateQuery();
-        }
-
-        locationMemForTempHistoryDataUpdateQuery.setArgumentHolderValue(0, thd);
-        boolSelectArg.setValue(-1);
-        daoLocationMemoryDataInteger.update(locationMemForTempHistoryDataUpdateQuery);
-
-    }
-    */
-
-
 
     private PreparedQuery<LocationMemoryData>locationMemForInnerTimeQuery = null;
     SelectArg argStartTimeWithLoc = new SelectArg();
@@ -1748,7 +1583,6 @@ public class CalenderWeekFragment extends Fragment implements DialogViewCalender
         return daoFixedTimeTableDataInteger.query(fixedTimeTableForTargetMarkerQuery);
     }
 
-
     private PreparedQuery<TempHistoryData>tempHistoryDatacContainStartEndTime = null;
     SelectArg argTempHistoryDatacContainStartTime = new SelectArg();
     SelectArg argTempHistoryDatacContainEndTime = new SelectArg();
@@ -1774,8 +1608,6 @@ public class CalenderWeekFragment extends Fragment implements DialogViewCalender
 
         return daoTempHistoryDataInteger.query(tempHistoryDatacContainStartEndTime);
     }
-
-
 
     private PreparedQuery<HistoryData>historyDatacContainStartEndTime = null;
     SelectArg argHistoryDatacContainStartTime = new SelectArg();
@@ -1803,9 +1635,6 @@ public class CalenderWeekFragment extends Fragment implements DialogViewCalender
         return daoHistoryDataInteger.query(historyDatacContainStartEndTime);
     }
 
-
-
-
     //tempHistoryMarkerData table에서 param tempHistoryData에 해당하는 markerData들을 모두 삭제하는 쿼리 실행문.
     private PreparedDelete<TempHistoryMarkerData> tempHistoryMarkerDataForMarkerDeleteQuery = null;
 
@@ -1830,7 +1659,6 @@ public class CalenderWeekFragment extends Fragment implements DialogViewCalender
         tempHistoryMarkerDataQb.where().eq(TempHistoryMarkerData.THMM_TEMPHISTORYDATA_ID_FIELD_NAME, selectArg);
         return tempHistoryMarkerDataQb.prepare();
     }
-
 
     //tempHistoryMarkerData table에서 param tempHistoryData에 해당하는 markerData들을 모두 가져오는 쿼리 실행문.
     private PreparedQuery<MarkerData> tempHistoryMarkerDataForMarkerSelectQuery = null;
@@ -1912,8 +1740,6 @@ public class CalenderWeekFragment extends Fragment implements DialogViewCalender
         lmDataQb.where().in(LocationMemoryData.LOCATIONMEMORY_ID_FIELD_NAME, tempHistoryLMDataQb);
         return lmDataQb.prepare();
     }
-
-    //------------------------------------------------------------------------------------------------------------
 
     //HistoryDataInnerMarkerData 테이블에서 param HistoryData 해당하는 MarkerData들을 모두 가져오는 쿼리 실행문.
     private PreparedQuery<HistoryDataInnerMarkerData> queryListOfHistoryDataInnerMarkerData_WithHistoryData = null;

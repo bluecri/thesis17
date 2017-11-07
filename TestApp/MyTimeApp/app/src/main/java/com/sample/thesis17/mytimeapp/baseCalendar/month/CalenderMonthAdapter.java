@@ -31,17 +31,15 @@ public class CalenderMonthAdapter extends BaseAdapter{
     private int numDayofWeek = 7;   //week = 7day
     int firstDay;   //달력 시작 날짜
     int lastDay;
-
     int currentYear;
     int currentMonth;
-
     int mStartDay, startDay;    //달력의 시작 일수(1일부터 시작) , 나라별 시작 요일
-
     long inParamTimeLong = 0;
 
     private int selectedPosition = -1;  //초기 selected position
 
 
+    // Constructor
     public CalenderMonthAdapter(Context context, long inTime){
         super();
         mContext = context;
@@ -54,6 +52,8 @@ public class CalenderMonthAdapter extends BaseAdapter{
         mContext = context;
         init();
     }
+
+    //초기화 및 재계산
     private void init() {
         monthItems = new MonthItem[8 * 6];
 
@@ -63,6 +63,7 @@ public class CalenderMonthAdapter extends BaseAdapter{
         resetDayNumbers();
     }
 
+    //이전 '월' 로 재계산
     public long setPreviousMonth() {
         calender.add(Calendar.MONTH, -1);       //calendar의 month 계산
         recalculate();
@@ -71,7 +72,7 @@ public class CalenderMonthAdapter extends BaseAdapter{
         inParamTimeLong = calender.getTimeInMillis();
         return calender.getTimeInMillis();
     }
-
+    //다음 '월' 로 재계산
     public long setNextMonth() {
         calender.add(Calendar.MONTH, 1);
         recalculate();
@@ -103,11 +104,9 @@ public class CalenderMonthAdapter extends BaseAdapter{
         currentMonth = calender.get(Calendar.MONTH);
         lastDay = getMonthLastDay(currentYear, currentMonth);   //월별 마지막 일
 
-        //Log.d(TAG, "curYear : " + currentYear + ", curMonth : " + currentMonth + ", lastDay : " + lastDay);
-
         int diff = mStartDay - Calendar.SUNDAY - 1;
         startDay = getFirstDayOfWeek();     //나라별 달력의 시작 week(일/토/월)가 다름.
-        Log.d(TAG, "dayofweek" + dayOfWeek + " firstday : " + firstDay+ " mStartDay : " + mStartDay + ", startDay : " + startDay + "lastDay : " + lastDay);
+        // Log.d(TAG, "dayofweek" + dayOfWeek + " firstday : " + firstDay+ " mStartDay : " + mStartDay + ", startDay : " + startDay + "lastDay : " + lastDay);
     }
 
     //month item의 모든 day 재변경
@@ -135,32 +134,19 @@ public class CalenderMonthAdapter extends BaseAdapter{
                       monthItems[i] = new MonthItem(0, true);
                   }
                   else{
-                      //int weekNum = calender.get(Calendar.WEEK_OF_YEAR);
                       Long getMillis = 0L;
-
 
                       Calendar tempCal = Calendar.getInstance();
                       tempCal.set(currentYear, currentMonth, 1, 0, 0, 0);
                       tempCal.add(Calendar.DAY_OF_MONTH, dayNumber-1);
                       getMillis = tempCal.getTimeInMillis();
-                      Log.d("calendCalc", "getCurWeekWithYewrMonthDay " + tempCal.getTime() + tempCal.getTimeInMillis());
-
-                      //getCurMillisWithYearAndWeek(year, tempCal.get(Calendar.WEEK_OF_YEAR));
 
                       int weekNum = tempCal.get(Calendar.WEEK_OF_YEAR);     //getCurWeekWithYewrMonthDay(currentYear, currentMonth, dayNumber, getMillis);       //1'st week of year.month + week acc
 
-                      Log.d("calendCalc", "week : " + weekNum + " / Y:M:D : " + currentYear + ":" + (currentMonth+1) + ":" + dayNumber);
-                      Log.d("calendCalc", "inLong : " + getMillis);
                       monthItems[i] = new MonthItem(weekNum, true);
                       monthItems[i].setlWeekValue(getMillis);
-
-                      //monthItems[i] = new MonthItem(weekNum+weekNumAcc, true);
-                      //++weekNumAcc;
                   }
               }
-
-
-
         }
     }
 
@@ -192,10 +178,6 @@ public class CalenderMonthAdapter extends BaseAdapter{
         return ret;
     }
 
-    /**
-     * Get first day of week as android.text.format.Time constant.
-     * @return the first day of week in android.text.format.Time
-     */
     public static int getFirstDayOfWeek() {
         int startDay = Calendar.getInstance().getFirstDayOfWeek();
         if (startDay == Calendar.SATURDAY) {
@@ -228,7 +210,6 @@ public class CalenderMonthAdapter extends BaseAdapter{
     //position에 해당하는 MonthItemView 반환. 화면에서 view가 사라지면 convertView에 넣어두었다가 다시 사용
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-
         MonthItemView itemView;
         if(convertView == null){
             itemView = new MonthItemView(mContext);
@@ -242,12 +223,8 @@ public class CalenderMonthAdapter extends BaseAdapter{
         int rowIndex = position/(numDayofWeek+1);
         int columnIndex = position%(numDayofWeek+1);
 
-        //text가 0인 경우 text 변경
-
-        //TODO : item style
         itemView.setMonthItem(monthItems[position]);
         itemView.setLayoutParams(params);
-
 
         //Sunday == red
         if (columnIndex == 1) {
@@ -260,7 +237,6 @@ public class CalenderMonthAdapter extends BaseAdapter{
         else {
             itemView.setTextColor(Color.BLACK);
         }
-
 
         //선택한 background 배경 변경
         if (position == getSelectedPosition()) {
@@ -278,7 +254,6 @@ public class CalenderMonthAdapter extends BaseAdapter{
                 itemView.setBackgroundDrawable(ContextCompat.getDrawable(mContext, R.drawable.textview_round_item));
             }
         }
-
         return itemView;
     }
 
@@ -308,18 +283,6 @@ public class CalenderMonthAdapter extends BaseAdapter{
                 }
         }
     }
-
-/*
-    public long getCurMillisWithYearAndWeek(int year, int week){
-        Calendar tempCal = Calendar.getInstance();
-        tempCal.set(year, 0, 1);
-
-        tempCal.set(Calendar.WEEK_OF_YEAR, week);
-        //Log.d("calendCalc", "tttt " + tempCal.getTime());
-        //Log.d("calendCalc", "Y:M:D : " + year + ":" + (tempCal.get(Calendar.MONTH)+1) + ":" + (tempCal.get(Calendar.DATE)-1) + ":" + tempCal.getTime() + ":"+ tempCal.getTimeInMillis());
-        return tempCal.getTimeInMillis();
-    }
-    */
 
     public int getCurYear() {
         return currentYear;

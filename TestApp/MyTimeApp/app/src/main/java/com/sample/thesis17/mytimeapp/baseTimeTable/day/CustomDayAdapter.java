@@ -95,6 +95,7 @@ public class CustomDayAdapter {
             long blockStartTime = tempFTTData.getlStartTime(), blockEndTime = tempFTTData.getlEndTime();    //left right
             long blockStartTimeModWithDay = blockStartTime % LONG_DAY_MILLIS, blockEndTimeModWithDay = blockEndTime % LONG_DAY_MILLIS;  //top, bottom
             makeItemsWithFixedTimeTableData(tempFTTData);
+            countIdx++;
         }
         Log.d("draws", "arrLIstFixedTimeTableData len : " + arrLIstFixedTimeTableData.size());
 

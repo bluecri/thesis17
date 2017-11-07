@@ -1,41 +1,36 @@
 package com.sample.thesis17.mytimeapp.statistic;
 
-        import android.content.Context;
-        import android.os.Bundle;
-        import android.support.v4.app.Fragment;
-        import android.support.v7.widget.GridLayoutManager;
-        import android.support.v7.widget.LinearLayoutManager;
-        import android.support.v7.widget.RecyclerView;
-        import android.util.Log;
-        import android.view.LayoutInflater;
-        import android.view.View;
-        import android.view.ViewGroup;
+import android.content.Context;
+import android.os.Bundle;
+import android.support.v4.app.Fragment;
+import android.support.v7.widget.GridLayoutManager;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
+import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
 
-        import com.j256.ormlite.dao.Dao;
-        import com.j256.ormlite.stmt.PreparedQuery;
-        import com.j256.ormlite.stmt.QueryBuilder;
-        import com.j256.ormlite.stmt.SelectArg;
-        import com.sample.thesis17.mytimeapp.DB.baseClass.DatabaseHelperMain;
-        import com.sample.thesis17.mytimeapp.DB.tables.HistoryData;
-        import com.sample.thesis17.mytimeapp.DB.tables.MarkerData;
-        import com.sample.thesis17.mytimeapp.DB.tables.MarkerMarkerTypeData;
-        import com.sample.thesis17.mytimeapp.DB.tables.MarkerTypeData;
-        import com.sample.thesis17.mytimeapp.R;
+import com.j256.ormlite.dao.Dao;
+import com.j256.ormlite.stmt.PreparedQuery;
+import com.j256.ormlite.stmt.QueryBuilder;
+import com.j256.ormlite.stmt.SelectArg;
+import com.sample.thesis17.mytimeapp.DB.baseClass.DatabaseHelperMain;
+import com.sample.thesis17.mytimeapp.DB.tables.HistoryData;
+import com.sample.thesis17.mytimeapp.DB.tables.MarkerData;
+import com.sample.thesis17.mytimeapp.DB.tables.MarkerMarkerTypeData;
+import com.sample.thesis17.mytimeapp.DB.tables.MarkerTypeData;
+import com.sample.thesis17.mytimeapp.R;
 
-        import java.sql.SQLException;
-        import java.util.ArrayList;
-        import java.util.List;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
-        import static com.sample.thesis17.mytimeapp.Static.MyMath.LONG_DAY_MILLIS;
-        import static com.sample.thesis17.mytimeapp.Static.MyMath.LONG_HOUR_MILLIS;
-        import static com.sample.thesis17.mytimeapp.Static.MyMath.LONG_MIN_MILLIS;
+import static com.sample.thesis17.mytimeapp.Static.MyMath.LONG_DAY_MILLIS;
+import static com.sample.thesis17.mytimeapp.Static.MyMath.LONG_HOUR_MILLIS;
+import static com.sample.thesis17.mytimeapp.Static.MyMath.LONG_MIN_MILLIS;
 
-/**
- * A fragment representing a list of Items.
- * <p/>
- * Activities containing this fragment MUST implement the {@link OnListFragmentInteractionListener}
- * interface.
- */
+
 public class StatisticItemFragment extends Fragment {
 
     public static List<ImageNameIntItem> IMAGE_NAME_INT_ITEM_LIST = new ArrayList<ImageNameIntItem>();
@@ -64,10 +59,6 @@ public class StatisticItemFragment extends Fragment {
     List<MarkerTypeData> markerTypeDataList = null;
     List<DummyItem> listDummyContentItem = null;
 
-    /**
-     * Mandatory empty constructor for the fragment manager to instantiate the
-     * fragment (e.g. upon screen orientation changes).
-     */
     public StatisticItemFragment() {
     }
 
@@ -84,8 +75,6 @@ public class StatisticItemFragment extends Fragment {
         }
     }
 
-
-
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -98,7 +87,6 @@ public class StatisticItemFragment extends Fragment {
             //get dao & create items
             listDummyContentItem = new ArrayList<>();
             for(MarkerTypeData mtd : markerTypeDataList){
-
                 List<HistoryData> listHDTotalTime = null;
                 List<HistoryData> listHDLimitedTime = null;
                 try {
@@ -120,11 +108,8 @@ public class StatisticItemFragment extends Fragment {
                 String totalTimeString = "총 " + totalTime/LONG_HOUR_MILLIS + "시간 " + (totalTime%LONG_HOUR_MILLIS/LONG_MIN_MILLIS) + "분";
                 String weekTimeStr = "" + limitedTime/LONG_HOUR_MILLIS + "시간 " + (limitedTime%LONG_HOUR_MILLIS/LONG_MIN_MILLIS) + "분";
 
-
                 listDummyContentItem.add(new DummyItem(mtd.getStrTypeName(), totalTimeString, weekTimeStr, IMAGE_NAME_INT_ITEM_LIST.get(mtd.getImageIdx()).getImageInt()));
             }
-
-
 
             Context context = view.getContext();
             RecyclerView recyclerView = (RecyclerView) view;
@@ -134,45 +119,23 @@ public class StatisticItemFragment extends Fragment {
                 recyclerView.setLayoutManager(new GridLayoutManager(context, mColumnCount));
             }
 
-
-
             recyclerView.setAdapter(new MystatisticItemRecyclerViewAdapter(listDummyContentItem));
         }
         return view;
     }
 
-
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
         curContext = context;
-        /*if (context instanceof OnListFragmentInteractionListener) {
-            mListener = (OnListFragmentInteractionListener) context;
-        } else {
-            throw new RuntimeException(context.toString()
-                    + " must implement OnListFragmentInteractionListener");
-        }*/
     }
 
     @Override
     public void onDetach() {
         super.onDetach();
     }
-
-    /**
-     * This interface must be implemented by activities that contain this
-     * fragment to allow an interaction in this fragment to be communicated
-     * to the activity and potentially other fragments contained in that
-     * activity.
-     * <p/>
-     * See the Android Training lesson <a href=
-     * "http://developer.android.com/training/basics/fragments/communicating.html"
-     * >Communicating with Other Fragments</a> for more information.
-     */
     public interface OnListFragmentInteractionListener {
-        // TODO: Update argument type and name
     }
-
 
     private DatabaseHelperMain databaseHelperMain = null;
 
