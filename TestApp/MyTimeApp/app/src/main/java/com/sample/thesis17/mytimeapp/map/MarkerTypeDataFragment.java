@@ -37,7 +37,6 @@ import static com.sample.thesis17.mytimeapp.statistic.StatisticItemFragment.IMAG
 public class MarkerTypeDataFragment extends Fragment implements MyMarkerTypeDataRecyclerViewAdapter.OnListFragmentInteractionClickListener, DialogMarkerTypeFragment.DialogMarkerTypeFragmentListener, DialogMarkerTypeModifyFragment.DialogMarkerTypeModifyFragmentListener
 {
 
-    // TODO: Customize parameters
     private int mColumnCount = 1;
 
     private DatabaseHelperMain databaseHelperMain = null;
@@ -53,10 +52,6 @@ public class MarkerTypeDataFragment extends Fragment implements MyMarkerTypeData
     Dao<MarkerMarkerTypeData, Integer> daoMarkerMarkerTypeDataInteger = null;
     Dao<MarkerTypeData, Integer> daoMarkerTypeDataInteger = null;	//get
 
-    /**
-     * Mandatory empty constructor for the fragment manager to instantiate the
-     * fragment (e.g. upon screen orientation changes).
-     */
     public MarkerTypeDataFragment() {
     }
 
@@ -111,7 +106,6 @@ public class MarkerTypeDataFragment extends Fragment implements MyMarkerTypeData
         catch(SQLException e){
             Log.d("MarkerTypeDataFragment", "debugPrintDAOInfo SQL exception");
         }
-
     }
 
     @Override
@@ -119,11 +113,6 @@ public class MarkerTypeDataFragment extends Fragment implements MyMarkerTypeData
         super.onDetach();
 
     }
-
-
-
-
-
 
     public void updateViewWithAdd(MarkerTypeData mtd){
         markerTypeDataList.add(mtd);
@@ -137,7 +126,6 @@ public class MarkerTypeDataFragment extends Fragment implements MyMarkerTypeData
         if(databaseHelperMain == null){
             databaseHelperMain = DatabaseHelperMain.getHelper(curContext);
         }
-
         return databaseHelperMain;
     }
 

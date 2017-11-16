@@ -106,27 +106,8 @@ public class DialogWeekItemViewFragment extends DialogFragment {
         textViewStartWeek.setText(WEEK_STRING[startWeek]);
         textViewEndWeek.setText(WEEK_STRING[endWeek]);
 
-        /*
-        SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss", Locale.KOREA);
-        Date startDate = new Date();
-        Date endDate = new Date();
-        startDate.setTime(startTimeArg);
-        endDate.setTime(endTimeArg);
-        */
         textViewStartTime.setText(String.format(Locale.KOREA, "%02d:%02d", (int)(startTimeArg%LONG_DAY_MILLIS/LONG_HOUR_MILLIS), (int)(startTimeArg%LONG_HOUR_MILLIS/LONG_DAY_MILLIS)));
         textViewEndTime.setText(String.format(Locale.KOREA, "%02d:%02d", (int)(endTimeArg%LONG_DAY_MILLIS/LONG_HOUR_MILLIS), (int)(endTimeArg%LONG_HOUR_MILLIS/LONG_DAY_MILLIS)));
-        //textViewStartTime.setText(sdf.format(startDate));
-        //textViewEndTime.setText(sdf.format(endDate));
-
-        /*
-        buttonSelectType.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                //open dialog
-                //DialogMarkerModifyMarkerTypeFragment dig = new DialogMarkerModifyMarkerTypeFragment();
-                //dig.show(((FragmentActivity)curContext).getSupportFragmentManager(), "DialogMarkerModifyMarkerTypeFragment");
-            }
-        });*/
 
         builder.setView(retView)
                 // Add action buttons

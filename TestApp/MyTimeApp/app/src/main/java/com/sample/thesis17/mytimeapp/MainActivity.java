@@ -18,14 +18,17 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Button;
 import android.widget.Toast;
 
+import com.google.android.gms.maps.model.Marker;
 import com.j256.ormlite.dao.Dao;
 import com.sample.thesis17.mytimeapp.DB.baseClass.DatabaseHelperLocationMemory;
 import com.sample.thesis17.mytimeapp.DB.baseClass.DatabaseHelperMain;
 import com.sample.thesis17.mytimeapp.DB.tables.FixedTimeTableData;
+import com.sample.thesis17.mytimeapp.DB.tables.HistoryData;
 import com.sample.thesis17.mytimeapp.DB.tables.LocationMemoryData;
-import com.sample.thesis17.mytimeapp.baseCalendar.day.CalenderDayFragment;
+import com.sample.thesis17.mytimeapp.DB.tables.MarkerData;
 import com.sample.thesis17.mytimeapp.baseCalendar.month.CalenderMonthFragment;
 import com.sample.thesis17.mytimeapp.baseCalendar.week.CalenderWeekFragment;
 import com.sample.thesis17.mytimeapp.baseTimeTable.day.TimetableDayFragment;
@@ -40,6 +43,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.nio.channels.FileChannel;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity
@@ -63,17 +67,6 @@ public class MainActivity extends AppCompatActivity
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        /*
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });
-        */
-
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
@@ -88,9 +81,6 @@ public class MainActivity extends AppCompatActivity
         blankFragment = MainBlankFragment.newInstance("", "");
         fragmentTransaction.replace(R.id.mainFragmentContainer, blankFragment, "blankMainFragment");
         fragmentTransaction.commit();
-
-
-
     }
 
     @Override
@@ -185,12 +175,6 @@ public class MainActivity extends AppCompatActivity
         else if (id == R.id.nav_main_timetable) {
             FragmentManager fragmentManager = getSupportFragmentManager();
 
-            //현재 mainFragment의 Tag 정보 알아냄.
-            //Fragment mainFragment = fragmentManager.findFragmentById(R.id.mainFragment);
-            /*if(mainFragment.getTag() != "timetable"){
-                FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-                fragmentTransaction.replace
-            }*/
             //fragment Transaction
             FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
             //create Calender fragment with parameter
@@ -213,18 +197,10 @@ public class MainActivity extends AppCompatActivity
         }
         //Setting
         else if (id == R.id.nav_manage) {
-
             FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
             SettingFragment settingFragment = SettingFragment.newInstance("", "");
             fragmentTransaction.replace(R.id.mainFragmentContainer, settingFragment, "setting");
             fragmentTransaction.commit();
-
-            /*
-            FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
-            SettingFragment settingFragment = SettingFragment.newInstance("", "");
-            fragmentTransaction.replace(R.id.mainFragmentContainer, settingFragment, "setting");
-            fragmentTransaction.commit();
-            */
         }
 
         else if (id == R.id.nav_share)
@@ -276,24 +252,23 @@ public class MainActivity extends AppCompatActivity
         calenderWeekFragment = null;
     }
 
-
+    public MarkerData testFunc(MarkerData lists){
+        lists.setLng(111.0);
+        return lists;
+    }
 
     public void refreshDB(){
+
         try{
-/*
-            Dao<FixedTimeTableData, Integer> daoFixedTimeTableDataInteger = databaseHelperMain.getDaoFixedTimeTableData();
-            List<FixedTimeTableData> listFixedTimeTableData = daoFixedTimeTableDataInteger.queryForAll();
-            for(FixedTimeTableData fttd : listFixedTimeTableData){
-                daoFixedTimeTableDataInteger.delete(fttd);
-            }
-            */
             //모든 locationMem bind data null로
             Dao<LocationMemoryData, Integer> locationMemoryDataIntegerDao = databaseHelperLocationMemory.getDaoLocationMemoryData();
             List<LocationMemoryData> locationMemoryDataList = locationMemoryDataIntegerDao.queryForAll();
             for(LocationMemoryData fttd : locationMemoryDataList){
-                fttd.setBindedTempHistoryData(null);
+                /*fttd.setBindedTempHistoryData(null);
                 fttd.setBindedHistoryData(null);
+                fttd.setbDummy(0);
                 locationMemoryDataIntegerDao.update(fttd);
+                */
                 Log.d("mainactivity", "LM : " + fttd.toString());
             }
             Dao<FixedTimeTableData, Integer> tegerDao = databaseHelperMain.getDaoFixedTimeTableData();
@@ -304,20 +279,17 @@ public class MainActivity extends AppCompatActivity
                 //locationMemoryDataIntegerDao.update(fttd);
                 Log.d("mainactivity", "FX : " + fttd.toString());
             }
+            Dao<MarkerData, Integer> daoMarkerData = databaseHelperMain.getDaoMarkerData();
+            List<MarkerData> markerDataList = daoMarkerData.queryForAll();
+            for(MarkerData md : markerDataList){
+                Log.d("mainactivity", "md : " + md.toString());
+            }
 
-            //Log.d("exception", "getDaoTempHistoryData" );
-            //deleteAllWithDao(databaseHelperMain.getDaoTempHistoryData());
-            //Log.d("exception", "getDaoTempHistoryData" );
-            //deleteAllWithDao(databaseHelperMain.getDaoTempHistoryLMData());
-            //Log.d("exception", "getDaoTempHistoryData" );
-            //deleteAllWithDao(databaseHelperMain.getDaoDateForTempHisoryData());
-            //Log.d("exception", "getDaoTempHistoryData" );
-            //deleteAllWithDao(databaseHelperMain.getDaoHistoryData());
-            //Log.d("exception", "getDaoTempHistoryData" );
-            //deleteAllWithDao(databaseHelperMain.getDaoTempHistoryMarkerData());
-            //deleteAllWithDao(databaseHelperMain.getDaoHistoryDataInnerMarkerData());
-            //deleteAllWithDao(databaseHelperMain.getDaoHistoryDataLocTimeRangeIncDecData());
-
+            Dao<HistoryData, Integer> historyDataIntegerDao = databaseHelperMain.getDaoHistoryData();
+            List<HistoryData> historyDataList = historyDataIntegerDao.queryForAll();
+            for(HistoryData hd : historyDataList){
+                Log.d("mainactivity", "HD : " + hd.toString());
+            }
         }
         catch(SQLException e){
             Log.d("mainActivity", "SQLException mainActivity");
@@ -355,9 +327,7 @@ public class MainActivity extends AppCompatActivity
         }
 
     }
-
-
-
+    //DB 추출
     public void sqliteExport(){
         try {
             File sdDir = Environment.getExternalStorageDirectory();

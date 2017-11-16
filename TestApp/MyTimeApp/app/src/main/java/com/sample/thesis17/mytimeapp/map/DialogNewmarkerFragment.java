@@ -22,6 +22,8 @@ import com.sample.thesis17.mytimeapp.R;
 
 import java.util.ArrayList;
 
+import static com.sample.thesis17.mytimeapp.Static.MyMath.CUSTOM_DRADIUS;
+
 /**
  * A simple {@link Fragment} subclass.
  */
@@ -72,7 +74,7 @@ public class DialogNewmarkerFragment extends DialogFragment {
                     @Override
                     public void onClick(DialogInterface dialog, int id) {
                         //call MapsAtivity create marker method and close dialog
-                        MarkerData tempMarkerData = new MarkerData(0, 0, textViewMarkerName.getText().toString(), 0, 0, textViewMarkerMemo.getText().toString(), true, false);
+                        MarkerData tempMarkerData = new MarkerData(0, 0, textViewMarkerName.getText().toString(), CUSTOM_DRADIUS, CUSTOM_DRADIUS, textViewMarkerMemo.getText().toString(), true, false);
                         dialogNewmarkerListener.registerNewMarker(tempMarkerData);
                     }
                 })

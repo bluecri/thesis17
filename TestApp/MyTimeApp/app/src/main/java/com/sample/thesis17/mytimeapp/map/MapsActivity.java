@@ -54,7 +54,7 @@ import java.util.ListIterator;
 import static com.sample.thesis17.mytimeapp.Static.MyMath.CUSTOM_DRADIUS;
 
 public class MapsActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener, OnMapReadyCallback, GoogleMap.OnMapClickListener, GoogleMap.OnInfoWindowClickListener, GoogleMap.OnMarkerClickListener, DialogMarkerModifyMarkerTypeFragment.DialogMarkerModifyMarkerTypeListener,
+        implements NavigationView.OnNavigationItemSelectedListener, OnMapReadyCallback, GoogleMap.OnMapClickListener, GoogleMap.OnInfoWindowClickListener, GoogleMap.OnMarkerClickListener, GoogleMap.OnMarkerDragListener, DialogMarkerModifyMarkerTypeFragment.DialogMarkerModifyMarkerTypeListener,
         DialogMarkerTypeSelectFragment.DialogMarkerTypeSelectListener, DialogNewmarkerFragment.DialogNewmarkerListener, DialogNewMarkerTypeFragment.DialogNewMarkerTypeFragmentListener, DialogMarkerFragment.DialogMarkerListener, DialogMarkerModifyFragment.DialogMarkerModifyListener, GoogleMap.OnCameraIdleListener {
 
     private GoogleMap mMap; //mMap 객체
@@ -181,6 +181,7 @@ public class MapsActivity extends AppCompatActivity
                     else if(STR_STATE.equals(STATE_CREATE_MARKER_AFTER_ONMAP)){
                         //register info window
                         DialogNewmarkerFragment dig = new DialogNewmarkerFragment();
+                        // modify tag info(MarkerData's lat, lng) with newMarker position
                         dig.show(((FragmentActivity)MapsActivity.this).getSupportFragmentManager(), "DialogNewmarkerFragment");
                     }
                     else if(STR_STATE.equals(STATE_MODIFY_MARKER_POSITION)){
@@ -189,6 +190,7 @@ public class MapsActivity extends AppCompatActivity
                         Bundle arg = new Bundle();
                         MarkerData tempMd = (MarkerData)clickedMarker.getTag();
                         arg.putString("title", tempMd.getStrMarkerName());
+                        // modify tempMd, tag info(MarkerData's lat, lng) with clickedMarker position
                         arg.putString("memo", tempMd.getStrMemo());
                         dig.setArguments(arg);
                         //lat, lng은 나중에 처리
@@ -255,10 +257,6 @@ public class MapsActivity extends AppCompatActivity
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
-        //get map fragment Handle to MapsActivity
-        /*MapFragment mapFragment = (MapFragment) getFragmentManager()
-                .findFragmentById(R.id.mapFragment);
-        mapFragment.getMapAsync(this);*/
     }
 
     //nav bar methods
@@ -331,6 +329,7 @@ public class MapsActivity extends AppCompatActivity
         Log.d("MapActivity", "onmapready");
         mMap = map;
 
+        mMap.setOnMarkerDragListener(this);
         mMap.setOnMapClickListener(this);
         mMap.setOnInfoWindowClickListener(this);
         mMap.setOnMarkerClickListener(this);
@@ -402,6 +401,8 @@ public class MapsActivity extends AppCompatActivity
                     newMarker = null;
                 }
                 //MarkerData(double lat, double lng, String strMarkerName, double dRadius, double dInnerRadius, int iMarkerTypeBit, String strMemo, boolean isCache)
+                //TODO : unvisible
+                unVisibleAllMarkerOnMap(null);
                 MarkerData newMarkerData = new MarkerData(latLng.latitude, latLng.longitude, "name", CUSTOM_DRADIUS, CUSTOM_DRADIUS, "memo", true, false);
                 newMarker = mMap.addMarker(new MarkerOptions()
                         .position(latLng)
@@ -473,16 +474,16 @@ public class MapsActivity extends AppCompatActivity
         }
         else{
             if(inStr.equals(STATE_NONE)) {
-                //fabCancel.hide();
                 hideFabCancel();
-                //fabList.show();
                 showFabList();
+                setVisibleAllMarkerOnMap();
             }
             else if(inStr.equals(STATE_CREATE_MARKER_BEFORE_ONMAP)){
                 //fabList.hide();
                 hideFabList();
                 //fabCancel.show();
                 showFabCancel();
+
             }
             else if(inStr.equals(STATE_CREATE_MARKER_AFTER_ONMAP)){
                 //fabList.hide();
@@ -535,15 +536,6 @@ public class MapsActivity extends AppCompatActivity
 
                 markerTypeModifiedDataList.add((MarkerTypeData)mtd);    //DialogMarkerModifyFragment에서 수정되는 marker type list
                 spinnerMarkerTypeDataStringList.add(mtd.getStrTypeName());
-/*
-                try{
-                    markerTypeModifiedDataList.add((MarkerTypeData)mtd.clone());    //DialogMarkerModifyFragment에서 수정되는 marker type list
-                    spinnerMarkerTypeDataStringList.add(mtd.getStrTypeName());
-                }
-                catch(CloneNotSupportedException e){
-                    Log.d("MapsActivity", "markerTypeModifiedDataList clone error");
-                }
-                */
             }
             //spinnerMarkerTypeDataList = new ArrayList<>(markerTypeModifiedDataList);  //not copy. only string copy
         }
@@ -775,7 +767,7 @@ public class MapsActivity extends AppCompatActivity
         modifiedMarkerData.setLat(clickedMarker.getPosition().latitude);
         modifiedMarkerData.setLng(clickedMarker.getPosition().longitude);
         clickedMarker.setTag(modifiedMarkerData);       //NEED
-        clickedMarker.setSnippet(title);    //name
+        clickedMarker.setSnippet("다음 이름으로 변경됌 : " + title);    //name
         try{
             daoMarkerDataInteger.update(modifiedMarkerData);
             //delete markerType with modifiedMarkerData
@@ -902,5 +894,31 @@ public class MapsActivity extends AppCompatActivity
             CameraPosition tempCurCameraPosition = mMap.getCameraPosition();
             recentCameraPosition = tempCurCameraPosition;
         }
+    }
+
+    @Override
+    public void onMarkerDragStart(Marker marker) {
+
+    }
+
+    @Override
+    public void onMarkerDrag(Marker marker) {
+
+    }
+
+    @Override
+    public void onMarkerDragEnd(Marker marker) {
+        if(STR_STATE.equals(STATE_MODIFY_MARKER_POSITION)){
+            if(clickedMarker != null){
+                Log.d("clickedMarker", "click : " + clickedMarker.getPosition().toString() + "/" + marker.getPosition());
+                clickedMarker.setPosition(marker.getPosition());
+            }
+        }
+        else if(STR_STATE.equals(STATE_CREATE_MARKER_BEFORE_ONMAP)){
+                if(newMarker != null){
+                    Log.d("newMarker", "click : " + newMarker.getPosition().toString() + "/" + marker.getPosition());
+                    newMarker.setPosition(marker.getPosition());
+                }
+            }
     }
 }

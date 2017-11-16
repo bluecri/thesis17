@@ -28,9 +28,6 @@ import java.util.List;
 import static com.sample.thesis17.mytimeapp.statistic.StatisticItemFragment.IMAGE_NAME_INT_ITEM_LIST;
 import static com.sample.thesis17.mytimeapp.statistic.StatisticItemFragment.IMAGE_NAME_INT_ITEM_LIST_SIZE;
 
-/**
- * A simple {@link Fragment} subclass.
- */
 
 public class DialogMarkerTypeModifyFragment extends DialogFragment {
 
@@ -120,14 +117,6 @@ public class DialogMarkerTypeModifyFragment extends DialogFragment {
     public void onAttach(Context context) {
         super.onAttach(context);
         curContext = context;
-        /*
-        try{
-            dialogMarkerTypeModifyFragmentListener = (DialogMarkerTypeModifyFragmentListener) context;
-        }
-        catch(ClassCastException e){
-            throw new ClassCastException(((Activity)context).toString() + "must implement dialogMarkerTypeModifyFragmentListener");
-        }
-        */
     }
 
 }

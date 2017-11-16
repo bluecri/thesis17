@@ -66,6 +66,7 @@ public class CustomDayAdapter {
         //this.longStartDate = longStartDate;
     }
 
+
     public void setFlexibleConfig(float scrollCol, float scrollRow, float colBlockSize, float rowBlockSize){
         this.scrollCol = scrollCol;
         this.scrollRow = scrollRow;
@@ -94,6 +95,7 @@ public class CustomDayAdapter {
             long blockStartTime = tempFTTData.getlStartTime(), blockEndTime = tempFTTData.getlEndTime();    //left right
             long blockStartTimeModWithDay = blockStartTime % LONG_DAY_MILLIS, blockEndTimeModWithDay = blockEndTime % LONG_DAY_MILLIS;  //top, bottom
             makeItemsWithFixedTimeTableData(tempFTTData);
+            countIdx++;
         }
         Log.d("draws", "arrLIstFixedTimeTableData len : " + arrLIstFixedTimeTableData.size());
 
@@ -138,7 +140,7 @@ public class CustomDayAdapter {
 
 
         CustomWeekItem tempCustomWeekItem = null;
-        tempCustomWeekItem = new CustomWeekItem();
+        //tempCustomWeekItem = new CustomWeekItem();
         up = fCoordHeight;
         bottom = fCoordHeight;
 
@@ -170,35 +172,101 @@ public class CustomDayAdapter {
         }
 
         //etCoordWithTimes(startTime);
+        if(startTime%LONG_WEEK_MILLIS < endTime%LONG_WEEK_MILLIS){
+            Log.d("indexOfBottom", "1");
+            up = min(max((((float)(maxL(startTime, longStartDate)%LONG_DAY_MILLIS))/LONG_HOUR_MILLIS)*rowBlockSize-scrollRow+fUpSideSpace, fUpSideSpace), fUpSideSpace+fCustomViewHeightExceptSpace);
+            bottom = min(max((((float)(minL(endTime, longStartDate + LONG_DAY_MILLIS - LONG_MIN_MILLIS/2)%LONG_DAY_MILLIS))/LONG_HOUR_MILLIS)*rowBlockSize-scrollRow+fUpSideSpace, fUpSideSpace), fUpSideSpace+fCustomViewHeightExceptSpace);
+            //bottom = min(max((((float)((longStartDate + LONG_DAY_MILLIS - LONG_MIN_MILLIS/2)%LONG_DAY_MILLIS))/LONG_HOUR_MILLIS)*rowBlockSize-scrollRow+fUpSideSpace, fUpSideSpace), fUpSideSpace+fCustomViewHeightExceptSpace);
 
-        up = min(max((((float)(maxL(startTime, longStartDate)%LONG_DAY_MILLIS))/LONG_HOUR_MILLIS)*rowBlockSize-scrollRow+fUpSideSpace, fUpSideSpace), fUpSideSpace+fCustomViewHeightExceptSpace);
-        bottom = min(max((((float)(minL(endTime, longStartDate + LONG_DAY_MILLIS - LONG_MIN_MILLIS/2)%LONG_DAY_MILLIS))/LONG_HOUR_MILLIS)*rowBlockSize-scrollRow+fUpSideSpace, fUpSideSpace), fUpSideSpace+fCustomViewHeightExceptSpace);
+            Log.d("indexOfBottom","indexOfBottom" + bottom + "/longStartDate : " + longStartDate + "/endTime" + endTime);
+            left = max((targetColIdx)*colBlockSize -scrollCol+fLeftSideSpace, fLeftSideSpace);
 
-        Log.d("indexOfBottom","indexOfBottom" + bottom + "/longStartDate : " + longStartDate + "/endTime" + endTime);
-        left = max((targetColIdx)*colBlockSize -scrollCol+fLeftSideSpace, fLeftSideSpace);
+            if(left == fLeftSideSpace){
+                right = left + colBlockSize + targetColIdx*colBlockSize-scrollCol;
+            }
+            else{
+                right = left + colBlockSize;
+            }
 
-        if(left == fLeftSideSpace){
-            right = left + colBlockSize + targetColIdx*colBlockSize-scrollCol;
+            tempCustomWeekItem = new CustomWeekItem();
+            tempCustomWeekItem.setIdx(countIdx);
+            tempCustomWeekItem.setStartTime(startTime);
+            tempCustomWeekItem.setEndTime(endTime);
+            tempCustomWeekItem.setText(inData.getStrFixedTimeTableName() + " / " + inData.getStrMemo());
+            tempCustomWeekItem.setCoords(left, up, right, bottom);
+            tempCustomWeekItem.setBlockColor(inData.getColor());
+            tempCustomWeekItem.setTextColor(getContrastColor(inData.getColor()));
+
+            listListCustomWeekItem.get(targetColIdx).add(tempCustomWeekItem);
         }
         else{
-            right = left + colBlockSize;
+            Log.d("indexOfBottom", "2");
+            if(longStartDate < startTime && startTime < longStartDate + LONG_DAY_MILLIS){
+                Log.d("indexOfBottom", "3 : startTime : " + startTime + "/longStartTime : " + longStartDate);
+                up = min(max((((float)(maxL(startTime, longStartDate)%LONG_DAY_MILLIS))/LONG_HOUR_MILLIS)*rowBlockSize-scrollRow+fUpSideSpace, fUpSideSpace), fUpSideSpace+fCustomViewHeightExceptSpace);
+                //bottom = min(max((((float)((longStartDate + LONG_DAY_MILLIS - LONG_MIN_MILLIS/2)%LONG_DAY_MILLIS))/LONG_HOUR_MILLIS)*rowBlockSize-scrollRow+fUpSideSpace, fUpSideSpace), fUpSideSpace+fCustomViewHeightExceptSpace);
+                bottom = fUpSideSpace+fCustomViewHeightExceptSpace;
+
+                Log.d("indexOfBottom","indexOfBottom" + bottom + "/longStartDate : " + longStartDate + "/endTime" + endTime);
+                left = max((targetColIdx)*colBlockSize -scrollCol+fLeftSideSpace, fLeftSideSpace);
+
+                if(left == fLeftSideSpace){
+                    right = left + colBlockSize + targetColIdx*colBlockSize-scrollCol;
+                }
+                else{
+                    right = left + colBlockSize;
+                }
+                Log.d("indexOfBottom","left" + left + "/right : " + right + "/" + targetColIdx);
+                Log.d("indexOfBottom","up" + up + "/bottom : " + bottom + "/" + targetColIdx);
+
+                tempCustomWeekItem = new CustomWeekItem();
+                tempCustomWeekItem.setIdx(countIdx);
+                tempCustomWeekItem.setStartTime(startTime);
+                tempCustomWeekItem.setEndTime(endTime);
+                tempCustomWeekItem.setText(inData.getStrFixedTimeTableName() + " / " + inData.getStrMemo());
+                tempCustomWeekItem.setCoords(left, up, right, bottom);
+                tempCustomWeekItem.setBlockColor(inData.getColor());
+                tempCustomWeekItem.setTextColor(getContrastColor(inData.getColor()));
+
+                listListCustomWeekItem.get(targetColIdx).add(tempCustomWeekItem);
+            }
+            if(longStartDate < endTime && endTime < longStartDate + LONG_DAY_MILLIS){
+                Log.d("indexOfBottom", "4 : endTime : " + endTime + "/longStartTime : " + longStartDate);
+                up = min(max((((float)((longStartDate)%LONG_DAY_MILLIS))/LONG_HOUR_MILLIS)*rowBlockSize-scrollRow+fUpSideSpace, fUpSideSpace), fUpSideSpace+fCustomViewHeightExceptSpace);
+                bottom = min(max((((float)(minL(endTime, longStartDate + LONG_DAY_MILLIS - LONG_MIN_MILLIS/2)%LONG_DAY_MILLIS))/LONG_HOUR_MILLIS)*rowBlockSize-scrollRow+fUpSideSpace, fUpSideSpace), fUpSideSpace+fCustomViewHeightExceptSpace);
+                //bottom = fUpSideSpace+fCustomViewHeightExceptSpace;
+
+                Log.d("indexOfBottom","indexOfBottom" + bottom + "/longStartDate : " + longStartDate + "/endTime" + endTime);
+                left = max((targetColIdx)*colBlockSize -scrollCol+fLeftSideSpace, fLeftSideSpace);
+
+                if(left == fLeftSideSpace){
+                    right = left + colBlockSize + targetColIdx*colBlockSize-scrollCol;
+                }
+                else{
+                    right = left + colBlockSize;
+                }
+
+                tempCustomWeekItem = new CustomWeekItem();
+                tempCustomWeekItem.setIdx(countIdx);
+                tempCustomWeekItem.setStartTime(startTime);
+                tempCustomWeekItem.setEndTime(endTime);
+                tempCustomWeekItem.setText(inData.getStrFixedTimeTableName() + " / " + inData.getStrMemo());
+                tempCustomWeekItem.setCoords(left, up, right, bottom);
+                tempCustomWeekItem.setBlockColor(inData.getColor());
+                tempCustomWeekItem.setTextColor(getContrastColor(inData.getColor()));
+
+                listListCustomWeekItem.get(targetColIdx).add(tempCustomWeekItem);
+            }
+
         }
 
-        tempCustomWeekItem.setIdx(countIdx);
-        tempCustomWeekItem.setStartTime(startTime);
-        tempCustomWeekItem.setEndTime(endTime);
-        tempCustomWeekItem.setText(inData.getStrFixedTimeTableName() + " / " + inData.getStrMemo());
-        tempCustomWeekItem.setCoords(left, up, right, bottom);
-        tempCustomWeekItem.setBlockColor(inData.getColor());
-        tempCustomWeekItem.setTextColor(getContrastColor(inData.getColor()));
-
-        listListCustomWeekItem.get(targetColIdx).add(tempCustomWeekItem);
         countIdx++;
     }
 
 
     public int getIdxWithClicked(float x, float y){
         for(CustomWeekItem item : customWeekItemList){
+            Log.d("getIdxWithClicked", item.toString());
             if(item.getLeft() <= x && x < item.getRight() && item.getTop() <= y && y < item.getBottom()){
                 ((TimetableDayFragment)(((FragmentActivity)curContext).getSupportFragmentManager().findFragmentByTag("timetable_day_fragment"))).openDialogWithIdx(item.getIdx());
                 return item.getIdx();

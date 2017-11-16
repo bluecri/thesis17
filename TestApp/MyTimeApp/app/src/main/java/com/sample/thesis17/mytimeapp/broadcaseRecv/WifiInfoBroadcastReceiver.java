@@ -55,7 +55,7 @@ public class WifiInfoBroadcastReceiver extends BroadcastReceiver {
                             context.startService(intentLocationService);
                         }
                         else{
-                            Log.d("WifiInfoBroad", "???");
+                            Log.d("WifiInfoBroad", "unknown");
                         }
                     }
                     else{

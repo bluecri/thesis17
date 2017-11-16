@@ -63,7 +63,6 @@ public class locationService extends Service {
 
     Thread locationThread = null;
 
-
     @Override
     public void onCreate() {
         super.onCreate();
@@ -73,9 +72,7 @@ public class locationService extends Service {
     public int onStartCommand(Intent intent, int flags, int startId) {
         if(intent.getAction().equals(AllConstants.START_LOCATION_FOREGROUND_ACTION)){
             startForeground(1, new Notification());
-
             //(value = {Service.START_FLAG_REDELIVERY, Service.START_FLAG_RETRY}, flag = true)
-
             setByteUseConfig(intent.getIntExtra("iFlagUseConfig", 0));
             settingCurrentNetworkAndNetworkProvider();      //get current network Info 0> strCurrentUsingNetwork, isHaveToUseNetworkProvider
 
@@ -86,9 +83,7 @@ public class locationService extends Service {
             locationManagerGps = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
             Log.d("test", "서비스의 onStartCommand");
 
-
             hMainHandler = new HandlerGpsLocationRequest(this);
-
 
             startLocationService();
 
@@ -115,7 +110,6 @@ public class locationService extends Service {
     public IBinder onBind(Intent intent) {
         return null;
     }
-
 
     @Override
     public void onDestroy() {
@@ -175,6 +169,10 @@ public class locationService extends Service {
 
             dataLMForSave = new LocationMemoryData(latitude, longitude, System.currentTimeMillis() + LONG_HOUR_MILLIS * 9, accuracy, null, null, 0); //for LOCALE_US
 
+            if(locationThread != null && locationThread.isAlive()){
+                locationThread.interrupt();
+                locationManagerGps.removeUpdates(getLocationListenerCustomGps);
+            }
             Log.d("locatoinService", "new thread created..");
             locationThread = new Thread(new ThreadLocationMemoryDataProcessWithGps());
             locationThread.start();
@@ -248,7 +246,6 @@ public class locationService extends Service {
         }
     }
 
-
     //get byte and setting config byte.
     private void setByteUseConfig(int b){
         Log.d("locationService", String.valueOf(b));
@@ -265,7 +262,6 @@ public class locationService extends Service {
             Log.d("locationService", "UseData");
         }
     }
-
 
     //init strCurrentUsingNetwork and isHaveToUseNetworkProvider
     private void settingCurrentNetworkAndNetworkProvider(){
@@ -334,14 +330,14 @@ public class locationService extends Service {
                             Dao<LocationMemoryData, Integer> daoLocationMemoryDataInteger = getDatabaseHelperLocationMemory().getDaoLocationMemoryData();
                             daoLocationMemoryDataInteger.create(dataLMForGpsThread);
                             //debugPrintLMData(dataLMForGpsThread);     : in not Thread, cannot handle UI
-                            debugPrintDAOInfo(daoLocationMemoryDataInteger);
+                            //debugPrintDAOInfo(daoLocationMemoryDataInteger);
                         }
                         else{
                             //use network for writing
                             Dao<LocationMemoryData, Integer> daoLocationMemoryDataInteger = getDatabaseHelperLocationMemory().getDaoLocationMemoryData();
                             daoLocationMemoryDataInteger.create(dataLMForSave);
                             //debugPrintLMData(dataLMForGpsThread);
-                            debugPrintDAOInfo(daoLocationMemoryDataInteger);
+                            //debugPrintDAOInfo(daoLocationMemoryDataInteger);
                         }
                     }
                     else{
@@ -350,13 +346,12 @@ public class locationService extends Service {
                         Dao<LocationMemoryData, Integer> daoLocationMemoryDataInteger = getDatabaseHelperLocationMemory().getDaoLocationMemoryData();
                         daoLocationMemoryDataInteger.create(dataLMForSave);
                         //debugPrintLMData(dataLMForGpsThread);
-                        debugPrintDAOInfo(daoLocationMemoryDataInteger);
+                        //debugPrintDAOInfo(daoLocationMemoryDataInteger);
                     }
                 }
                 else{
                     //interrupted
                 }
-
             }
             catch(SecurityException e){
                 Log.e("locationService", "threadLocationMemoryDataProcessWithGps security exception", e);   //because of locationManager
@@ -419,7 +414,6 @@ public class locationService extends Service {
                     locationManagerGps.removeUpdates(getLocationListenerCustomGps);
                     //close DB
                 }
-
             }
         }
     }
@@ -461,8 +455,6 @@ public class locationService extends Service {
         catch(SQLException e){
             Log.d("locationService", "debugPrintDAOInfo SQL exception");
         }
-
-
     }
 
     private void debugPrintLMData(LocationMemoryData lmData){
@@ -471,7 +463,7 @@ public class locationService extends Service {
         Toast.makeText(getApplicationContext(), msg, Toast.LENGTH_SHORT).show();
     }
 
-    //gpsData가 채워져있는가?
+    //gpsData를 획득했는가
     private boolean isDataLMForGpsThreadWritten(){
         if(dataLMForGpsThread.getfAccur() == (float)0.0){
             return false;
@@ -480,31 +472,6 @@ public class locationService extends Service {
             return true;
     }
 
-    /*
-    //handler
-    private class HandlerGpsLocationRequest extends Handler{
-
-        @Override
-        public void handleMessage(Message msg) {
-            super.handleMessage(msg);
-            try {
-                Log.d("locationService", "handleMessage start");
-                if (locationManagerGps != null) {
-                    Log.d("locationService", "handleMessage requestLocationUpdates");
-                    locationManagerGps.requestLocationUpdates(
-                            LocationManager.GPS_PROVIDER,
-                            iInterval,
-                            0,
-                            getLocationListenerCustomGps);
-                }
-            }
-            catch(SecurityException e){
-                Log.d("locationService", "security exception in Handler");
-            }
-
-        }
-    }
-    */
     private static class HandlerGpsLocationRequest extends Handler{
         private final WeakReference<locationService> locService;
 

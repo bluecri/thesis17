@@ -25,25 +25,13 @@ import java.util.Calendar;
 import java.util.List;
 
 import static com.sample.thesis17.mytimeapp.Static.MyMath.LONG_HOUR_MILLIS;
-import static com.sample.thesis17.mytimeapp.Static.MyMath.LONG_WEEK_MILLIS;
 
-
-/**
- * A simple {@link Fragment} subclass.
- * Activities that contain this fragment must implement the
- * {@link CalenderMonthFragment.OnFragmentInteractionListener} interface
- * to handle interaction events.
- * Use the {@link CalenderMonthFragment#newInstance} factory method to
- * create an instance of this fragment.
- */
 public class CalenderMonthFragment extends Fragment {
-    // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
-    String[] weekTopString = {"주", "일", "월", "화", "수", "목", "금", "토"};
+
     GridView monthGridview;
-    //GridView weekGridViewTop;
     LinearLayout topLinearLayout;
     CalenderMonthAdapter calenderMonthAdapter;
     ArrayAdapter weekTopAdapter = null;
@@ -53,11 +41,6 @@ public class CalenderMonthFragment extends Fragment {
 
     int curYear;        //현재 달력의 년, 월.
     int curMonth;
-
-    private String mParam1;
-    private String mParam2;
-
-    private OnFragmentInteractionListener mListener;
 
     private CalenderMonthFragmentListener calenderMonthFragmentListener = null;
 
@@ -86,13 +69,7 @@ public class CalenderMonthFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        /*if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
-        }*/
         inParamTimeLong = getArguments().getLong(ARG_PARAM1);
-
-        //monthGridview = (GridView)getView().findViewById(R.id.fragment_calender_month_GridView);
 
         weekTopViewList = new ArrayList<View>();
         MonthWeekTopView tempMonthWeekTopView = new MonthWeekTopView(curContext);
@@ -122,7 +99,6 @@ public class CalenderMonthFragment extends Fragment {
 
     }
 
-
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -137,6 +113,7 @@ public class CalenderMonthFragment extends Fragment {
         topLinearLayout = (LinearLayout)retView.findViewById(R.id.fragment_calender_month_top_linearLayout);
         monthGridview = (GridView)(retView.findViewById(R.id.fragment_calender_month_GridView));    //retView에서 gridview 찾아 할당
 
+        //상위 top view 직접 추가
         topLinearLayout.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
             @Override
             public void onGlobalLayout() {
@@ -150,20 +127,13 @@ public class CalenderMonthFragment extends Fragment {
             }
         });
 
-
+        // get param
         if(savedInstanceState != null && savedInstanceState.getLong("savedTimeLong") != 0L){
             inParamTimeLong = savedInstanceState.getLong("savedTimeLong");
-
         }
 
         calenderMonthAdapter = new CalenderMonthAdapter(getActivity(), inParamTimeLong);
         monthGridview.setAdapter(calenderMonthAdapter); //adpater 설정
-
-        //weekTopAdapter = new ArrayAdapter<String>(curContext, android.R.layout.simple_list_item_1, weekTopString);
-        //weekGridViewTop.setAdapter(weekTopAdapter);
-
-        //TODO : monthGridView style
-
 
         setCenterText();
 
@@ -180,29 +150,12 @@ public class CalenderMonthFragment extends Fragment {
                 else{
                     int day = curItem.getiDayValue();   //click position에 해당하는 item의 day획득
                     if(curItem.isWeek() == true){
-                        //CalendarWeekFragment로 교체
-                        //Calendar tempCalendar = Calendar.getInstance();
-                        //tempCalendar.setTimeInMillis(curItem.getlWeekValue());
-                        //Log.d("debbugged", "calenderMonthFragmentListener.fragmentChangeToWeekView start, long value : " + curItem.getlWeekValue());
                         calenderMonthFragmentListener.fragmentChangeToWeekView(curItem.getlWeekValue() + LONG_HOUR_MILLIS * 9); //for LOCALE_US
-                        //Log.d("ddraw", "getlWeekValue :" + curItem.getlWeekValue());
-                        //Log.d("debbugged", "calenderMonthFragmentListener.fragmentChangeToWeekView end");
                     }
-                    else{
-                        // CalendarDayFragment로 교체 ( x )
-                    }
-
                     calenderMonthAdapter.notifyDataSetChanged();    //adapter에 data가 변경되었음을 알려 view를 바꾸는 동작을 하는 함수
                 }
-
-                //Todo activity에 year, month, day 정보 전달. fragment 교체 요구
-
-
-
-
                 }
         });
-
 
         //Move Month button
         leftButton.setOnClickListener(new View.OnClickListener() {
@@ -212,7 +165,6 @@ public class CalenderMonthFragment extends Fragment {
                 getArguments().putLong(ARG_PARAM1, inParamTimeLong);
                 calenderMonthAdapter.notifyDataSetChanged();
                 setCenterText();
-
             }
         });
 
@@ -243,9 +195,7 @@ public class CalenderMonthFragment extends Fragment {
     }
 
     public void onButtonPressed(Uri uri) {
-        /*if (mListener != null) {
-            mListener.onFragmentInteraction(uri);
-        }*/
+
     }
 
     @Override
@@ -263,19 +213,8 @@ public class CalenderMonthFragment extends Fragment {
     @Override
     public void onDetach() {
         super.onDetach();
-        mListener = null;
     }
 
-    /**
-     * This interface must be implemented by activities that contain this
-     * fragment to allow an interaction in this fragment to be communicated
-     * to the activity and potentially other fragments contained in that
-     * activity.
-     * <p>
-     * See the Android Training lesson <a href=
-     * "http://developer.android.com/training/basics/fragments/communicating.html"
-     * >Communicating with Other Fragments</a> for more information.
-     */
     public interface OnFragmentInteractionListener {
         void onFragmentInteraction(Uri uri);
     }

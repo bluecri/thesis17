@@ -136,28 +136,8 @@ public class DialogWeekItemCreateFragment extends DialogFragment{
         textViewMemo = (EditText)retView.findViewById(R.id.fragment_dialog_timetable_item_create_memo);
         spinnerMarkerName = (Spinner)retView.findViewById(R.id.fragment_dialog_timetable_item_create_marker);
 
-
-
-
         Bundle tempArg = getArguments();
 
-        //textViewTitle.setText(tempArg.getString("title"));
-        //textViewMemo.setText(tempArg.getString("memo"));
-
-        //button
-
-        //long startTimeArg =tempArg.getLong("starttime");
-        //long endTimeArg =tempArg.getLong("endtime");
-
-        /*
-        SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss");
-        Date startDate = new Date();
-        Date endDate = new Date();
-        startDate.setTime(startTimeArg);
-        endDate.setTime(endTimeArg);
-        textViewStartTime.setText(sdf.format(startDate));
-        textViewEndTime.setText(sdf.format(endDate));
-        */
         startTimeHour = 0;
         startTimeMin = 0;
         endTimeHour = 0;
@@ -165,9 +145,6 @@ public class DialogWeekItemCreateFragment extends DialogFragment{
 
         textViewStartTime.setText(String.format(Locale.KOREA, "%02d:%02d", startTimeHour, startTimeMin));
         textViewEndTime.setText(String.format(Locale.KOREA, "%02d:%02d", endTimeHour, endTimeMin));
-
-        //TimePickerDialog timeDialog = new TimePickerDialog(curContext, timePickerListener, , , false);
-        //timeDialog.show();
 
         textViewStartTime.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -184,9 +161,6 @@ public class DialogWeekItemCreateFragment extends DialogFragment{
                 timeDialog.show();
             }
         });
-
-
-
 
         //spinner
         iStartWeek = 0;
@@ -240,10 +214,6 @@ public class DialogWeekItemCreateFragment extends DialogFragment{
             }
         }
 
-        //listMarkerDataList.indexOf(listInnerSpinnerMarkerDataList.get(innerSpinnerIdx))
-
-
-        //arrListMarkerDataTitle = dialogWeekItemCreateFragmentListener.getArrayListMarkerData();
         ArrayAdapter arrayAdapterMarkerTitle = new ArrayAdapter<String>(curContext, R.layout.support_simple_spinner_dropdown_item, arrListMarkerDataTitle);
         spinnerMarkerName.setAdapter(arrayAdapterMarkerTitle);
         markerDataListIdx = -1; //non selected

@@ -60,15 +60,6 @@ public class DialogMarkerFragment extends DialogFragment {
 
     Context curContext = null;
 
-
-
-/*
-    Dao<MarkerTypeData, Integer> daoMarkerTypeDataInteger = null;
-    Dao<MarkerData, Integer> daoMarkerDataInteger = null;
-    Dao<MarkerMarkerTypeData, Integer> daoMarkerMarkerTypeDataInteger = null;
-*/
-
-
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -149,26 +140,12 @@ public class DialogMarkerFragment extends DialogFragment {
         }
     }
 
-    //DialogMarkerTypeSelectFragment -> MapsActivity -> DialogNewmarkerFaragment
-    /*public void setNewMarkerMarkerTypeList(ArrayList<MarkerTypeData> markerTypeDataList){
-        newMarkerMarkerTypeList = markerTypeDataList;   //deprecated
-    }
-    */
-
 
     @Override
     public void dismiss() {
         super.dismiss();
         //databaseHelperMain.close();
     }
-
-    /*private DatabaseHelperMain getDatabaseHelperMain(){
-        if(databaseHelperMain == null){
-            databaseHelperMain = DatabaseHelperMain.getHelper(curContext);
-        }
-        return databaseHelperMain;
-    }*/
-
 
 
 }

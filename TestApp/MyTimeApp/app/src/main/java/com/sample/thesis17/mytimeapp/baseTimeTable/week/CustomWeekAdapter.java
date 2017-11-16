@@ -75,24 +75,9 @@ public class CustomWeekAdapter {
 
         //현재 arrLIstFixedTimeTableData를 순회하며 customWeekItemList를 만든다.
         for(FixedTimeTableData tempFTTData : arrLIstFixedTimeTableData){
-            //if(isFixedTimeTableInTimeTable(tempFTTData)){
-                //내부에 있는 경우에만 그림.
-                long blockStartTime = tempFTTData.getlStartTime(), blockEndTime = tempFTTData.getlEndTime();    //left right
-                long blockStartTimeModWithDay = blockStartTime % LONG_DAY_MILLIS, blockEndTimeModWithDay = blockEndTime % LONG_DAY_MILLIS;  //top, bottom
-                //Log.d("draws", "three:"+three+"/four:"+four+"/one:"+one+"/two:"+two);
-                //Log.d("draws", "blockStartTime : " + blockStartTime + "blockEndTime : " + blockEndTime + "blocktimemodday : " + blockStartTimeModWithDay + "blockendtimemodday" + blockEndTimeModWithDay);
-                //starttime이나 endtime 둘중 하나가 범위내에 있는 경우, 해당 box가 window 내부에 존재함.
-                /*if(((blockStartTime<=four&&three<=blockStartTime)||(blockEndTime<=four&&three<=blockEndTime))&&
-                        ((blockStartTimeModWithDay<=two&&one<=blockStartTimeModWithDay)||(blockEndTimeModWithDay<=two&&one<=blockEndTimeModWithDay))){  시간으로 자르지 않고 사각형 좌표로 자르기로*/
-                    //Log.d("draws", "updateCustomWeekItemList(), is in Window");
-                    makeItemsWithFixedTimeTableData(tempFTTData);
-                    /*CustomWeekItem tempCustomWeekItem = new CustomWeekItem();
-                    tempCustomWeekItem.setText(tempFTTData.getStrFixedTimeTableName());
-                    tempCustomWeekItem.setIdx(countIdx);
-
-                    countIdx++;*/
-                //}
-            //}
+            long blockStartTime = tempFTTData.getlStartTime(), blockEndTime = tempFTTData.getlEndTime();    //left right
+            long blockStartTimeModWithDay = blockStartTime % LONG_DAY_MILLIS, blockEndTimeModWithDay = blockEndTime % LONG_DAY_MILLIS;  //top, bottom
+            makeItemsWithFixedTimeTableData(tempFTTData);
             countIdx++;
         }
         Log.d("draws", "arrLIstFixedTimeTableData len : " + arrLIstFixedTimeTableData.size());
@@ -218,7 +203,6 @@ public class CustomWeekAdapter {
                 customWeekItemList.add(tempCustomWeekItem);
                 Log.d("draws", "block info : " + tempCustomWeekItem.toString());
                 break;
-
         }
         Log.d("draws", "makeItemsWithFixedTimeTableData() end");
     }

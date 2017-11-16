@@ -149,8 +149,6 @@ public class DialogMarkerTypeSelectFragment extends DialogFragment {
     }
 
 
-
-
     private DatabaseHelperMain getDatabaseHelperMain(){
         if(databaseHelperMain == null){
             databaseHelperMain = DatabaseHelperMain.getHelper(curContext);
